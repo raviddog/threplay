@@ -35,8 +35,24 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MaterialDesignColors, Version=1.1.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MaterialDesignColors.1.1.3\lib\net45\MaterialDesignColors.dll</HintPath>
+    </Reference>
+    <Reference Include="MaterialDesignThemes.Wpf, Version=2.5.0.1205, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MaterialDesignThemes.2.5.0.1205\lib\net45\MaterialDesignThemes.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="Ookii.Dialogs.Wpf, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ookii.Dialogs.Wpf.1.0.0\lib\net45\Ookii.Dialogs.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="PortableSettingsProvider, Version=0.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PortableSettingsProvider.0.2.1\lib\net45\PortableSettingsProvider.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -55,6 +71,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Settings.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -83,16 +100,38 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Resource Include="Resources\img_game\img_th06.jpg" />
+    <Resource Include="Resources\img_game\img_th07.jpg" />
+    <Resource Include="Resources\img_game\img_th08.jpg" />
+    <Resource Include="Resources\img_game\img_th09.jpg" />
+    <Resource Include="Resources\img_game\img_th095.jpg" />
+    <Resource Include="Resources\img_game\img_th10.jpg" />
+    <Resource Include="Resources\img_game\img_th11.jpg" />
+    <Resource Include="Resources\img_game\img_th12.jpg" />
+    <Resource Include="Resources\img_game\img_th123.jpg" />
+    <Resource Include="Resources\img_game\img_th125.jpg" />
+    <Resource Include="Resources\img_game\img_th128.jpg" />
+    <Resource Include="Resources\img_game\img_th13.jpg" />
+    <Resource Include="Resources\img_game\img_th135.jpg" />
+    <Resource Include="Resources\img_game\img_th14.jpg" />
+    <Resource Include="Resources\img_game\img_th143.jpg" />
+    <Resource Include="Resources\img_game\img_th145.jpg" />
+    <Resource Include="Resources\img_game\img_th15.jpg" />
+    <Resource Include="Resources\img_game\img_th155.jpg" />
+    <Resource Include="Resources\img_game\img_th16.jpg" />
+    <Resource Include="Resources\img_game\img_th165.jpg" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
