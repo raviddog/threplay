@@ -10,7 +10,8 @@
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
-        Title="Touhou Replay Manager" MinHeight="720" MinWidth="960" Height="720" Width="960" BorderThickness="0">
+        Title="Touhou Replay Manager" MinHeight="720" MinWidth="960" Height="720" Width="960" BorderThickness="0"
+        Keyboard.PreviewKeyDown="Window_PreviewKeyDown">
     <Grid>
         <DockPanel>
             <!--<materialDesign:ColorZone Mode="PrimaryDark" DockPanel.Dock="Top"
@@ -29,32 +30,34 @@
                     <DropShadowEffect/>
                 </ListView.Effect>
             </ListView>
-            <Grid x:Name="grid" Margin="15">
-                <TextBlock x:Name="oCurText" FontSize="24" Text="Test"/>
-                <TextBox x:Name="iDirLive" GotFocus="IDirSource_GotFocus" Text="source folder" Margin="0,28,0,0" Height="28" Width="500" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                <TextBox x:Name="iDirBackup" GotFocus="IDirBackup_GotFocus" Text="backup folder" Margin="0,54,0,0" Height="28" Width="500" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                <Button x:Name="tempGo" Content="Load files" Margin="0,88,0,0" Click="TempGo_Click" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                <Button x:Name="fnBrowseLive" Content="Browse for game folder" Click="FnBrowseLive_Click"  Margin="100,88,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                <Button x:Name="fnBrowseBackup" Content="Browse for backup folder" Click="FnBrowseBackup_Click" Margin="285,88,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                <TextBlock Text="Current Replay Folder" Margin="15,130,0,0"/>
-                <TextBlock Text="Backup Replay Folder" Margin="0,130,150,0" HorizontalAlignment="Right"/>
-                <ListView x:Name="oReplayLiveList" Margin="0,140,0,0" Width="300" MinHeight="100" HorizontalAlignment="Left">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Filename" Width="120" DisplayMemberBinding="{Binding Filename}" />
-                            <GridViewColumn Header="Filesize" Width="80" DisplayMemberBinding="{Binding Filesize}" />
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-                <ListView x:Name="oReplayBackupList" Margin="0,140,0,0" Width="300" MinHeight="100" HorizontalAlignment="Right">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Filename" Width="120" DisplayMemberBinding="{Binding Filename}" />
-                            <GridViewColumn Header="Filesize" Width="80" DisplayMemberBinding="{Binding Filesize}" />
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-            </Grid>
+            <DockPanel Margin="15">
+                <Grid DockPanel.Dock="Bottom">
+                    <TextBox x:Name="iDirLive" GotFocus="IDirLive_GotFocus"  Text="click to browse for game exe" Margin="0,2,0,0" Height="28" Width="550" HorizontalAlignment="Left" VerticalAlignment="Top" FontWeight="Normal"/>
+                    <TextBox x:Name="iDirBackup" GotFocus="IDirBackup_GotFocus"  Text="click to browse for backup folder" Margin="0,38,0,0" Height="28" Width="550" HorizontalAlignment="Left" VerticalAlignment="Top" FontWeight="Normal"/>
+                    <Button x:Name="fnLaunchGame" Content="Launch Game" Click="FnLaunchGame_Click" Margin="0,76,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                </Grid>
+                <Grid>
+                    <TextBlock x:Name="oCurText" FontSize="24" Text="Test"/>
+                    <TextBlock Text="Current Replay Folder" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,32,0,0"/>
+                    <TextBlock Text="Backup Replay Folder" Margin="0,32,150,0" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                    <ListView x:Name="oReplayLiveList" Margin="0,56,0,0" Width="300" MinHeight="100" HorizontalAlignment="Left">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Filename" Width="120" DisplayMemberBinding="{Binding Filename}" />
+                                <GridViewColumn Header="Filesize" Width="80" DisplayMemberBinding="{Binding Filesize}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <ListView x:Name="oReplayBackupList" Margin="0,56,0,0" Width="300" MinHeight="100" HorizontalAlignment="Right">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Filename" Width="120" DisplayMemberBinding="{Binding Filename}" />
+                                <GridViewColumn Header="Filesize" Width="80" DisplayMemberBinding="{Binding Filesize}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+            </DockPanel>
         </DockPanel>
     </Grid>
 </Window>
