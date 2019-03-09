@@ -64,23 +64,12 @@ namespace threplay
             GameHandler.backupDir = iDirBackup;
             GameHandler.InitializeGames();
             GameHandler.gameListView.SelectedIndex = 0;
-
-            GameHandler.UpdateCurrentGame(ref oCurText, ref iDirLive, ref iDirBackup);
-            
-
-            
-
-
-        }
-
-        private void GameSelector_MouseUp(object sender, MouseButtonEventArgs e)
-        {
             GameHandler.UpdateCurrentGame(ref oCurText, ref iDirLive, ref iDirBackup);
         }
 
         private void FnLaunchGame_Click(object sender, RoutedEventArgs e)
         {
-            
+            GameHandler.LaunchGame();
         }
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -115,6 +104,35 @@ namespace threplay
                 GameHandler.LoadBackup();
             }
         }
+
+        private void FnTransferToLive_Click(object sender, RoutedEventArgs e)
+        {
+            GameHandler.FileMove(false, (bool)fnTypeMove.IsChecked);
+            GameHandler.LoadLive();
+            GameHandler.LoadBackup();
+        }
+
+        private void FnTransferToBackup_Click(object sender, RoutedEventArgs e)
+        {
+            GameHandler.FileMove(true, (bool)fnTypeMove.IsChecked);
+            GameHandler.LoadLive();
+            GameHandler.LoadBackup();
+        }
+
+        private void ModeGameViewToggle_MouseLeave(object sender, MouseEventArgs e)
+        {
+            modeGameViewToggle.Width = 65;
+        }
+
+        private void ModeGameSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            GameHandler.UpdateCurrentGame(ref oCurText, ref iDirLive, ref iDirBackup);
+        }
+
+        private void ModeGameSelector_MouseEnter(object sender, MouseEventArgs e)
+        {
+            modeGameViewToggle.Width = 250;
+        }
     }
 
     public static class GameHandler
@@ -133,6 +151,7 @@ namespace threplay
         public static void SetBackup(string path) { games[currentGame].SetBackup(path); }
         public static void LoadLive() { games[currentGame].LoadLive(ref replayLiveView); }
         public static void LoadBackup() { games[currentGame].LoadBackup(ref replayBackupView); }
+        public static void LaunchGame() { if(games[currentGame].gameExe != "!") System.Diagnostics.Process.Start(games[currentGame].gameExe); }
 
         public static void UpdateCurrentGame(ref TextBlock title, ref TextBox live, ref TextBox backup)
         {
@@ -157,6 +176,49 @@ namespace threplay
                 backup.Text = "click to browse for backup folder";
                 List<ReplayEntry> replayListBackup = new List<ReplayEntry>();
                 replayBackupView.ItemsSource = replayListBackup;
+            }
+        }
+
+        public static void FileMove(bool toBackup, bool deleteOriginal)
+        {
+            if (toBackup)
+            {
+                foreach(ReplayEntry item in replayLiveView.SelectedItems)
+                {
+                    //ReplayEntry replayItem = item.Content as ReplayEntry;
+                    string source = System.IO.Path.Combine(games[currentGame].dirLive + "\\replay", item.Filename);
+                    string dest = System.IO.Path.Combine(games[currentGame].dirBackup, item.Filename);
+                    if(!System.IO.File.Exists(dest))
+                    {
+                        if(deleteOriginal)
+                        {
+                            System.IO.File.Move(source, dest);
+                        } else
+                        {
+                            System.IO.File.Copy(source, dest);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach(ReplayEntry item in replayBackupView.SelectedItems)
+                {
+                    //ReplayEntry replayItem = item.Content as ReplayEntry;
+                    string source = System.IO.Path.Combine(games[currentGame].dirBackup, item.Filename);
+                    string dest = System.IO.Path.Combine(games[currentGame].dirLive + "\\replay", item.Filename);
+                    if (!System.IO.File.Exists(dest))
+                    {
+                        if (deleteOriginal)
+                        {
+                            System.IO.File.Move(source, dest);
+                        }
+                        else
+                        {
+                            System.IO.File.Copy(source, dest);
+                        }
+                    }
+                }
             }
         }
 
@@ -204,9 +266,11 @@ namespace threplay
                 if((string)Properties.Settings.Default[GameData.setting[number] + "_l"] == "!")
                 {
                     dirLive = "!";
+                    gameExe = "!";
                 } else
                 {
                     dirLive = System.IO.Path.GetDirectoryName((string)Properties.Settings.Default[GameData.setting[number] + "_l"]);
+                    gameExe = (string)Properties.Settings.Default[GameData.setting[number] + "_l"];
                 }
                 dirBackup = (string)Properties.Settings.Default[GameData.setting[number] + "_b"];
             }
