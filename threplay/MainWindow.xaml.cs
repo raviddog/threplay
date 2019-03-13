@@ -1,18 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 using Ookii.Dialogs.Wpf;
 
@@ -64,7 +56,6 @@ namespace threplay
             GameHandler.backupDir = iDirBackup;
             GameHandler.InitializeGames();
             GameHandler.gameListView.SelectedIndex = 0;
-            GameHandler.UpdateCurrentGame(ref oCurText, ref iDirLive, ref iDirBackup);
         }
 
         private void FnLaunchGame_Click(object sender, RoutedEventArgs e)
@@ -90,6 +81,11 @@ namespace threplay
                 GameHandler.SetLive(dialog.FileName);
                 GameHandler.LoadLive();
             }
+            GameHandler.CheckMove(out bool hasGame, out bool hasBackup);
+            fnLaunchGame.IsEnabled = hasGame;
+            fnLaunchFolder.IsEnabled = hasGame;
+            fnTransferToBackup.IsEnabled = hasGame && hasBackup;
+            fnTransferToLive.IsEnabled = hasGame && hasBackup;
         }
 
         private void IDirBackup_GotFocus(object sender, RoutedEventArgs e)
@@ -103,6 +99,11 @@ namespace threplay
                 GameHandler.SetBackup(dialog.SelectedPath);
                 GameHandler.LoadBackup();
             }
+            GameHandler.CheckMove(out bool hasGame, out bool hasBackup);
+            fnLaunchGame.IsEnabled = hasGame;
+            fnLaunchFolder.IsEnabled = hasGame;
+            fnTransferToBackup.IsEnabled = hasGame && hasBackup;
+            fnTransferToLive.IsEnabled = hasGame && hasBackup;
         }
 
         private void FnTransferToLive_Click(object sender, RoutedEventArgs e)
@@ -126,12 +127,21 @@ namespace threplay
 
         private void ModeGameSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            GameHandler.UpdateCurrentGame(ref oCurText, ref iDirLive, ref iDirBackup);
+            GameHandler.UpdateCurrentGame(out bool hasGame, out bool hasBackup, ref oCurText, ref iDirLive, ref iDirBackup);
+            fnLaunchGame.IsEnabled = hasGame;
+            fnLaunchFolder.IsEnabled = hasGame;
+            fnTransferToBackup.IsEnabled = hasGame && hasBackup;
+            fnTransferToLive.IsEnabled = hasGame && hasBackup;
         }
 
         private void ModeGameSelector_MouseEnter(object sender, MouseEventArgs e)
         {
             modeGameViewToggle.Width = 250;
+        }
+
+        private void FnLaunchFolder_Click(object sender, RoutedEventArgs e)
+        {
+            GameHandler.OpenGameFolder();
         }
     }
 
@@ -151,22 +161,12 @@ namespace threplay
         public static void SetBackup(string path) { games[currentGame].SetBackup(path); }
         public static void LoadLive() { games[currentGame].LoadLive(ref replayLiveView); }
         public static void LoadBackup() { games[currentGame].LoadBackup(ref replayBackupView); }
-        public static void LaunchGame() { if(games[currentGame].gameExe != "!") System.Diagnostics.Process.Start(games[currentGame].gameExe); }
-
-        public static void UpdateCurrentGame(ref TextBlock title, ref TextBox live, ref TextBox backup)
+        public static void LaunchGame() { try { System.Diagnostics.Process.Start(games[currentGame].gameExe); } catch { } }
+        public static void OpenGameFolder() { try { System.Diagnostics.Process.Start(games[currentGame].dirLive); } catch { } }
+        public static void UpdateCurrentGame(out bool hasGame, out bool hasBackup, ref TextBlock title, ref TextBox live, ref TextBox backup)
         {
             currentGame = gameListView.SelectedIndex;
             title.Text = "Currently selected game: " + GameData.titles[currentGame];
-            if (games[currentGame].dirLive != "!")
-            {
-                live.Text = games[currentGame].dirLive;
-                LoadLive();
-            } else
-            {
-                live.Text = "click to browse for game exe";
-                List<ReplayEntry> replayListLive = new List<ReplayEntry>();
-                replayLiveView.ItemsSource = replayListLive;
-            }
             if (games[currentGame].dirBackup != "!")
             {
                 backup.Text = games[currentGame].dirBackup;
@@ -177,45 +177,85 @@ namespace threplay
                 List<ReplayEntry> replayListBackup = new List<ReplayEntry>();
                 replayBackupView.ItemsSource = replayListBackup;
             }
+            if (games[currentGame].dirLive != "!")
+            {
+                live.Text = games[currentGame].dirLive;
+                LoadLive();
+            } else
+            {
+                live.Text = "click to browse for game exe";
+                List<ReplayEntry> replayListLive = new List<ReplayEntry>();
+                replayLiveView.ItemsSource = replayListLive;
+            }
+
+            CheckMove(out hasGame, out hasBackup);
+        }
+
+        public static void CheckMove(out bool hasGame, out bool hasBackup)
+        {
+            hasGame = games[currentGame].dirLive != "!" && games[currentGame].gameExe != "!" ? true : false;
+            hasBackup = games[currentGame].dirBackup != "!" ? true : false;
         }
 
         public static void FileMove(bool toBackup, bool deleteOriginal)
         {
-            if (toBackup)
+            if (games[currentGame].dirBackup != "!" && games[currentGame].dirLive != "!")
             {
-                foreach(ReplayEntry item in replayLiveView.SelectedItems)
+                if (toBackup)
                 {
-                    //ReplayEntry replayItem = item.Content as ReplayEntry;
-                    string source = System.IO.Path.Combine(games[currentGame].dirLive + "\\replay", item.Filename);
-                    string dest = System.IO.Path.Combine(games[currentGame].dirBackup, item.Filename);
-                    if(!System.IO.File.Exists(dest))
+                    foreach (ReplayEntry item in replayLiveView.SelectedItems)
                     {
-                        if(deleteOriginal)
+                        //ReplayEntry replayItem = item.Content as ReplayEntry;
+                        string source = System.IO.Path.Combine(games[currentGame].dirLive + "\\replay", item.Filename);
+                        string dest = System.IO.Path.Combine(games[currentGame].dirBackup, item.Filename);
+                        bool proceed = true;
+                        if (System.IO.File.Exists(dest))
                         {
-                            System.IO.File.Move(source, dest);
-                        } else
+                            MessageBoxResult result = MessageBox.Show("The destination file \"" + dest + "\" already exists. Overwite?", "Info", MessageBoxButton.YesNo);
+                            if(result == MessageBoxResult.No)
+                            {
+                                proceed = false;
+                            }
+                        }
+                        if (proceed)
                         {
-                            System.IO.File.Copy(source, dest);
+                            if (deleteOriginal)
+                            {
+                                System.IO.File.Move(source, dest);
+                            }
+                            else
+                            {
+                                System.IO.File.Copy(source, dest);
+                            }
                         }
                     }
                 }
-            }
-            else
-            {
-                foreach(ReplayEntry item in replayBackupView.SelectedItems)
+                else
                 {
-                    //ReplayEntry replayItem = item.Content as ReplayEntry;
-                    string source = System.IO.Path.Combine(games[currentGame].dirBackup, item.Filename);
-                    string dest = System.IO.Path.Combine(games[currentGame].dirLive + "\\replay", item.Filename);
-                    if (!System.IO.File.Exists(dest))
+                    foreach (ReplayEntry item in replayBackupView.SelectedItems)
                     {
-                        if (deleteOriginal)
+                        //ReplayEntry replayItem = item.Content as ReplayEntry;
+                        string source = System.IO.Path.Combine(games[currentGame].dirBackup, item.Filename);
+                        string dest = System.IO.Path.Combine(games[currentGame].dirLive + "\\replay", item.Filename);
+                        bool proceed = true;
+                        if (System.IO.File.Exists(dest))
                         {
-                            System.IO.File.Move(source, dest);
+                            MessageBoxResult result = MessageBox.Show("The destination file \"" + dest + "\" already exists. Overwite?", "Info", MessageBoxButton.YesNo);
+                            if (result == MessageBoxResult.No)
+                            {
+                                proceed = false;
+                            }
                         }
-                        else
+                        if (proceed)
                         {
-                            System.IO.File.Copy(source, dest);
+                            if (deleteOriginal)
+                            {
+                                System.IO.File.Move(source, dest);
+                            }
+                            else
+                            {
+                                System.IO.File.Copy(source, dest);
+                            }
                         }
                     }
                 }
@@ -292,39 +332,51 @@ namespace threplay
 
             public bool LoadLive(ref ListView list)
             {
-                //DON'T DO THIS EVER IN REAL CODE
-                try
+                if (dirLive != "!")
                 {
-                    dirLiveInfo = new DirectoryInfo(dirLive + "/replay");
-                    //check the shit out of any exceptions here
-                    replaysLive = dirLiveInfo.GetFiles("*.rpy");
-
-                    List<ReplayEntry> replayListLive = new List<ReplayEntry>();
-                    foreach (FileInfo curFile in replaysLive)
+                    //check if there's a replay folder in this 
+                    try
                     {
-                        string name = curFile.Name;
-                        float size = curFile.Length / 1024.0f;
-                        replayListLive.Add(new ReplayEntry() { Filename = name, Filesize = size.ToString("#,###.#") + "KB" });
+                        dirLiveInfo = new DirectoryInfo(dirLive + "\\replay");
+                        replaysLive = dirLiveInfo.GetFiles("*.rpy");
                     }
+                    catch (System.IO.DirectoryNotFoundException e)
+                    {
+                        MessageBoxResult error = MessageBox.Show("Replay folder not detected. Check if you've selected" +
+                            "a valid Touhou game executable.\nIf so, would you like to create the folder " +
+                            dirLiveInfo.FullName + "?", "Error", MessageBoxButton.YesNo);
+                        if (error == MessageBoxResult.Yes)
+                        {
+                            Directory.CreateDirectory(dirLiveInfo.FullName);
+                            replaysLive = dirLiveInfo.GetFiles("*.rpy");
+                        }
+                    }
+                    if (replaysLive != null)
+                    {
+                        List<ReplayEntry> replayListLive = new List<ReplayEntry>();
+                        foreach (FileInfo curFile in replaysLive)
+                        {
+                            string name = curFile.Name;
+                            float size = curFile.Length / 1024.0f;
+                            replayListLive.Add(new ReplayEntry() { Filename = name, Filesize = size.ToString("#,###.#") + "KB" });
+                        }
 
-                    list.ItemsSource = replayListLive;
-                    return true;
-                }
-                catch
-                {
+                        list.ItemsSource = replayListLive;
+                        return true;
+                    }
                     return false;
                 }
+                else return false;
+
             }
 
-            public bool LoadBackup(ref ListView list)
+            public void LoadBackup(ref ListView list)
             {
-                //DON'T DO THIS EVER IN REAL CODE
-                try
+                //this one shouldn't be able to fail
+                if(dirBackup != "!")
                 {
                     dirBackupInfo = new DirectoryInfo(dirBackup);
-                    //check the shit out of any exceptions here
-                    replaysBackup = dirBackupInfo.GetFiles("*.rpy");
-                    
+                    replaysBackup = dirBackupInfo.GetFiles("*.rpy");    
                     List<ReplayEntry> replayListBackup = new List<ReplayEntry>();
                     foreach (FileInfo curFile in replaysBackup)
                     {
@@ -334,11 +386,6 @@ namespace threplay
                     }
                     
                     list.ItemsSource = replayListBackup;
-                    return true;
-                }
-                catch
-                {
-                    return false;
                 }
             }
 
