@@ -4,12 +4,12 @@
 
 ## Features
 
-*under construction*
+- View and copy replays to and from a backup folder for each game
 
 ## Todo
 
-- launching the game and custom.exe from the program
 - replay decryption and data viewer
 - tracking unique replay files with MD5 sum and an SQLite database
-- load game info from a separate non-hardcoded file, to allow for easy updates
+- load game info from a separate non-hardcoded file, to allow for easy updates or fangames
 - automatically launch the replay inside the game (doubt this one will happen)
+- thcrap integration (highly unlikely, but would pretty much turn this into an all-in-one touhou hub)
