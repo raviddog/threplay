@@ -13,11 +13,18 @@
         Title="Touhou Replay Manager" MinHeight="720" MinWidth="960" Height="720" Width="960" BorderThickness="0"
         Keyboard.PreviewKeyDown="Window_PreviewKeyDown">
     <Grid>
-        <Grid HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="65" Background="{DynamicResource MaterialDesignPaper}"
+        <DockPanel HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="65" Background="{DynamicResource MaterialDesignPaper}"
                 Panel.ZIndex="1" x:Name="modeGameViewToggle" MouseLeave="ModeGameViewToggle_MouseLeave">
-            <Grid.Effect>
+            <DockPanel.Effect>
                 <DropShadowEffect/>
-            </Grid.Effect>
+            </DockPanel.Effect>
+            <Grid DockPanel.Dock="Bottom" Width="250" Panel.ZIndex="2">
+                <Grid.Effect>
+                    <DropShadowEffect/>
+                </Grid.Effect>
+                <materialDesign:PackIcon Kind="SettingsOutline" Width="45" Height="45" Margin="10"/>
+                <TextBlock Text="Settings" FontSize="24" Margin="65,0,0,0" VerticalAlignment="Center"/>
+            </Grid>
             <ListView x:Name="modeGameSelector" Width="250" SelectedIndex="-1"
                     HorizontalAlignment="Left" VerticalAlignment="Stretch"
                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -28,21 +35,66 @@
                     <DropShadowEffect/>
                 </ListView.Effect>
             </ListView>
-        </Grid>
+        </DockPanel>
         <DockPanel>
             <Grid HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="75"/>
             <DockPanel Margin="15">
-                <Grid DockPanel.Dock="Bottom">
-                    <TextBox x:Name="iDirLive" GotFocus="IDirLive_GotFocus"  Text="click to browse for game exe" Margin="0,2,0,0" Height="28" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal"/>
-                    <TextBox x:Name="iDirBackup" GotFocus="IDirBackup_GotFocus"  Text="click to browse for backup folder" Margin="0,38,0,0" Height="28" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal"/>
-                    <Button x:Name="fnLaunchGame" Content="Launch Game" Click="FnLaunchGame_Click" Margin="0,76,0,0" IsEnabled="False" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                    <Button x:Name="fnLaunchFolder" Content="Open Game Folder" Click="FnLaunchFolder_Click" Margin="125,76,0,0" IsEnabled="False" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <Grid DockPanel.Dock="Bottom" Height="140">
+                    <Expander x:Name="iViewDir" ExpandDirection="Right" IsExpanded="False" Expanded="IViewDir_Expanded" Collapsed="IViewDir_Collapsed">
+                        <Expander.Header>
+                            <materialDesign:PackIcon x:Name="iViewDirIcon" Kind="FolderSearchOutline" Width="24" Height="24" />
+                        </Expander.Header>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="28"/>
+                                <RowDefinition Height="28"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Game Folder:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Backup Folder:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"/>
+                            <TextBox x:Name="iDirLive" GotFocus="IDirLive_GotFocus"  Text="click to browse for game exe" Grid.Column="1" Grid.Row="0" FontWeight="Normal"/>
+                            <TextBox x:Name="iDirBackup" GotFocus="IDirBackup_GotFocus"  Text="click to browse for backup folder" Grid.Column="1" Grid.Row="1" FontWeight="Normal"/>
+                        </Grid>
+                    </Expander>
+                    <Grid x:Name="odFileGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="60,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="File Name: " Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Replay Name:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"/>
+                        <TextBlock Text="Score:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center"/>
+                        <TextBlock Text="Date Created: " Grid.Column="0" Grid.Row="3" VerticalAlignment="Center"/>
+                        <TextBox x:Name="odFileNameLive" Text="(disable multiselect to view file info)" Focusable="False" Grid.Column="1" Grid.Row="0" Margin="2,0,2,0"/>
+                        <TextBox x:Name="odFileNameBackup" Text="(disable multiselect to view file info)" Focusable="False" Grid.Column="2" Grid.Row="0" Margin="2,0,2,0"/>
+                        <TextBlock x:Name="odFileDataLive" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="odFileDataBackup" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="odFileScoreLive" Grid.Column="1" Grid.Row="2" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="odFileScoreBackup" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="odFileDateLive" Grid.Column="1" Grid.Row="3" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="odFileDateBackup" Grid.Column="2" Grid.Row="3" VerticalAlignment="Center"/>
+                    </Grid>
+                    <Button x:Name="fnLaunchGame" Content="Launch Game" Height="28" Click="FnLaunchGame_Click" Margin="60,0,0,0" IsEnabled="False" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                    <Button x:Name="fnLaunchFolder" Content="Open Game Folder" Height="28" Click="FnLaunchFolder_Click" Margin="185,0,0,0" IsEnabled="False" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
                 </Grid>
                 <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" x:Name="oCurText" FontSize="24" Text="Test" HorizontalAlignment="Stretch"/>
+                    <TextBlock DockPanel.Dock="Top" x:Name="oCurText" FontSize="24" Text="Test" HorizontalAlignment="Stretch" Margin="0,0,0,4"/>
+                    <Separator DockPanel.Dock="Bottom" HorizontalAlignment="Stretch"/>
                     <Grid DockPanel.Dock="Left">
-                        <TextBlock Text="Current Replay Folder" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,32,0,0"/>
-                        <ListView x:Name="oReplayLiveList" SelectionMode="Multiple" Margin="0,56,0,0" MinWidth="350" MinHeight="100">
+                        <TextBlock Text="Current Replay Folder" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,0,0,0"/>
+                        <ListView x:Name="oReplayLiveList" SelectionMode="Single" Margin="0,24,0,0"
+                                  MinWidth="350" MinHeight="100" SelectionChanged="OReplayLiveList_SelectionChanged">
                             <ListView.View>
                                 <GridView>
                                     <GridViewColumn Header="Filename" Width="120" DisplayMemberBinding="{Binding Filename}" />
@@ -52,8 +104,9 @@
                         </ListView>
                     </Grid>
                     <Grid DockPanel.Dock="Right">
-                        <TextBlock Text="Backup Replay Folder" Margin="15,32,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                        <ListView x:Name="oReplayBackupList" SelectionMode="Multiple" Margin="0,56,0,0" MinWidth="350" MinHeight="100">
+                        <TextBlock Text="Backup Replay Folder" Margin="15,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <ListView x:Name="oReplayBackupList" SelectionMode="Single" Margin="0,24,0,0"
+                                  MinWidth="350" MinHeight="100" SelectionChanged="OReplayBackupList_SelectionChanged">
                             <ListView.View>
                                 <GridView>
                                     <GridViewColumn Header="Filename" Width="120" DisplayMemberBinding="{Binding Filename}" />
@@ -63,9 +116,10 @@
                         </ListView>
                     </Grid>
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
-                        <RadioButton x:Name="fnTypeMove" Content="Move" GroupName="transferType" Margin="2,0,2,2" HorizontalAlignment="Center" IsChecked="True" />
+                        <CheckBox x:Name="fnMultiEnabled" Content="Multiselect" IsChecked="False" Checked="FnMultiEnabled_Checked" Unchecked="FnMultiEnabled_Unchecked"/>
+                        <RadioButton x:Name="fnTypeMove" Content="Move" GroupName="transferType" Margin="2,6,2,2" HorizontalAlignment="Center" IsChecked="True" />
                         <RadioButton x:Name="fnTypeCopy" Content="Copy" GroupName="transferType" Margin="2,0,2,2" HorizontalAlignment="Center" Width="58"/>
-                        <Button x:Name="fnTransferToLive" Content="&lt;- Restore" IsEnabled="False" Margin="2,4,2,2" Click="FnTransferToLive_Click"/>
+                        <Button x:Name="fnTransferToLive" Content="&lt;- Restore" IsEnabled="False" Margin="2,12,2,2" Click="FnTransferToLive_Click"/>
                         <Button x:Name="fnTransferToBackup" Content="Backup -&gt;" IsEnabled="False" Margin="2,4,2,2" Click="FnTransferToBackup_Click"/>
                     </StackPanel>
                 </DockPanel>

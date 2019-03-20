@@ -68,6 +68,40 @@ namespace threplay
             if(e.Key == Key.Tab)
             {
                 e.Handled = true;
+            } else if(e.Key == Key.Escape)
+            {
+                oReplayLiveList.SelectedIndex = -1;
+                oReplayBackupList.SelectedIndex = -1;
+                e.Handled = true;
+            } else if(e.Key == Key.Enter)
+            {
+                //some weird ass fucking shit about to happen here
+                if(odFileNameLive.IsFocused)
+                {
+                    //user hit enter after renaming
+                    //probably want to put like an "are you sure" box or something i guess?
+                    //something something dialoghost
+                    if(oReplayLiveList.SelectedIndex != -1)
+                    {
+                        ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
+                        FileInfo replayFile = new FileInfo(replayEntry.FullPath);
+                        string oldFileName = replayFile.FullName;
+                        string newFileName = replayFile.DirectoryName + "\\" + odFileNameLive.Text + ".rpy";
+                        File.Move(oldFileName, newFileName);
+                        GameHandler.LoadLive();
+                    }
+                } else if(odFileNameBackup.IsFocused)
+                {
+                    if(oReplayBackupList.SelectedIndex != -1)
+                    {
+                        ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
+                        FileInfo replayFile = new FileInfo(replayEntry.FullPath);
+                        string oldFileName = replayFile.FullName;
+                        string newFileName = replayFile.DirectoryName + "\\" + odFileNameLive.Text + ".rpy";
+                        File.Move(oldFileName, newFileName);
+                        GameHandler.LoadBackup();
+                    }
+                }
             }
         }
 
@@ -132,6 +166,13 @@ namespace threplay
             fnLaunchFolder.IsEnabled = hasGame;
             fnTransferToBackup.IsEnabled = hasGame && hasBackup;
             fnTransferToLive.IsEnabled = hasGame && hasBackup;
+            if(hasGame && hasBackup)
+            {
+                iViewDirIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.FolderOpen;
+            } else
+            {
+                iViewDirIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.FolderSearchOutline;
+            }
         }
 
         private void ModeGameSelector_MouseEnter(object sender, MouseEventArgs e)
@@ -142,6 +183,74 @@ namespace threplay
         private void FnLaunchFolder_Click(object sender, RoutedEventArgs e)
         {
             GameHandler.OpenGameFolder();
+        }
+
+        private void IViewDir_Expanded(object sender, RoutedEventArgs e)
+        {
+            odFileGrid.Visibility = Visibility.Collapsed;
+        }
+
+        private void IViewDir_Collapsed(object sender, RoutedEventArgs e)
+        {
+            if(fnMultiEnabled.IsChecked == false)
+            {
+                odFileGrid.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void FnMultiEnabled_Checked(object sender, RoutedEventArgs e)
+        {
+            oReplayBackupList.SelectionMode = SelectionMode.Multiple;
+            oReplayLiveList.SelectionMode = SelectionMode.Multiple;
+            odFileGrid.Visibility = Visibility.Collapsed;
+        }
+
+        private void FnMultiEnabled_Unchecked(object sender, RoutedEventArgs e)
+        {
+            oReplayBackupList.SelectionMode = SelectionMode.Single;
+            oReplayLiveList.SelectionMode = SelectionMode.Single;
+            odFileGrid.Visibility = Visibility.Visible;
+
+            if(oReplayLiveList.SelectedIndex != -1)
+            {
+                ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
+                odFileNameLive.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
+                odFileNameLive.Focusable = true;
+            }
+            if(oReplayBackupList.SelectedIndex != -1)
+            {
+                ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
+                odFileNameBackup.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
+                odFileNameBackup.Focusable = true;
+            }
+        }
+
+        private void OReplayLiveList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(fnMultiEnabled.IsChecked == false && oReplayLiveList.SelectedIndex != -1)
+            {
+                ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
+                odFileNameLive.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
+                odFileNameLive.Focusable = true;
+            } else
+            {
+                odFileNameLive.Text = "(disable multiselect to view file info)";
+                odFileNameLive.Focusable = false;
+            }
+        }
+
+        private void OReplayBackupList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (fnMultiEnabled.IsChecked == false && oReplayBackupList.SelectedIndex != -1)
+            {
+                ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
+                odFileNameBackup.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
+                odFileNameBackup.Focusable = true;
+            } else
+            {
+                odFileNameBackup.Text = "(disable multiselect to view file info)";
+                odFileNameBackup.Focusable = false;
+            }
         }
     }
 
@@ -358,7 +467,8 @@ namespace threplay
                         {
                             string name = curFile.Name;
                             float size = curFile.Length / 1024.0f;
-                            replayListLive.Add(new ReplayEntry() { Filename = name, Filesize = size.ToString("#,###.#") + "KB" });
+                            string path = curFile.FullName;
+                            replayListLive.Add(new ReplayEntry() { Filename = name, Filesize = size.ToString("#,###.#") + "KB", FullPath = path });
                         }
 
                         list.ItemsSource = replayListLive;
@@ -382,7 +492,8 @@ namespace threplay
                     {
                         string name = curFile.Name;
                         float size = curFile.Length / 1024.0f;
-                        replayListBackup.Add(new ReplayEntry() { Filename = name, Filesize = (size.ToString("#,###.#") + "KB") });
+                        string path = curFile.FullName;
+                        replayListBackup.Add(new ReplayEntry() { Filename = name, Filesize = (size.ToString("#,###.#") + "KB"), FullPath = path });
                     }
                     
                     list.ItemsSource = replayListBackup;
@@ -424,10 +535,18 @@ namespace threplay
         }
 
     }
+
+    public static class GameReplayDecoder
+    {
+
+    }
+
     public class ReplayEntry
     {
         public string Filename { get; set; }
         public string Filesize { get; set; }
+        
+        public string FullPath;
     }
 
     public static class GameData
