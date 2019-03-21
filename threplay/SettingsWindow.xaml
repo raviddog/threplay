@@ -1,0 +1,39 @@
+﻿<Window x:Class="threplay.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:threplay"
+        mc:Ignorable="d"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.FontWeight="Medium"
+        TextElement.FontSize="14"
+        FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
+        Title="ViewSettings" Height="450" Width="300" WindowStyle="ToolWindow" ResizeMode="NoResize">
+    <Grid>
+        <ListView x:Name="modeSettingVisibilityToggleList" SelectedIndex="-1"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,32"
+                    ScrollViewer.VerticalScrollBarVisibility="Visible" IsTextSearchEnabled="False"
+                    SelectionMode="Multiple" SelectedItem="-1">
+            <ListView.Effect>
+                <DropShadowEffect/>
+            </ListView.Effect>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Game" DisplayMemberBinding="{Binding name}"/>
+                    <GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding Path=IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}}}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Button x:Name="fnSettingsApply" Content="Apply" IsDefault="True" Height="28" Margin="2,2,80,2" Click="FnSettingsApply_Click" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+        <Button x:Name="fnSettingsCancel" Content="Cancel" IsCancel="True" Height="28" Margin="80,2,2,2" Click="FnSettingsCancel_Click" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+    </Grid>
+</Window>

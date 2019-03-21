@@ -120,6 +120,31 @@ namespace threplay
             fnLaunchFolder.IsEnabled = hasGame;
             fnTransferToBackup.IsEnabled = hasGame && hasBackup;
             fnTransferToLive.IsEnabled = hasGame && hasBackup;
+            if (hasGame && hasBackup)
+            {
+                iViewDirIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.FolderOpen;
+                oMessage.IsActive = false;
+                iViewDir.IsExpanded = false;
+            }
+            else
+            {
+                iViewDirIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.FolderSearchOutline;
+                if (hasGame && !hasBackup)
+                {
+                    oMessage.Message = new MaterialDesignThemes.Wpf.SnackbarMessage() { Content = "Please select a backup folder" };
+                    oMessage.IsActive = true;
+                }
+                else if (!hasGame && hasBackup)
+                {
+                    oMessage.Message = new MaterialDesignThemes.Wpf.SnackbarMessage() { Content = "Please browse to your game exe" };
+                    oMessage.IsActive = true;
+                }
+                else if (!hasGame && !hasBackup)
+                {
+                    oMessage.Message = new MaterialDesignThemes.Wpf.SnackbarMessage() { Content = "Please select your game exe and backup folders" };
+                    oMessage.IsActive = true;
+                }
+            }
         }
 
         private void IDirBackup_GotFocus(object sender, RoutedEventArgs e)
@@ -138,6 +163,31 @@ namespace threplay
             fnLaunchFolder.IsEnabled = hasGame;
             fnTransferToBackup.IsEnabled = hasGame && hasBackup;
             fnTransferToLive.IsEnabled = hasGame && hasBackup;
+            if (hasGame && hasBackup)
+            {
+                iViewDirIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.FolderOpen;
+                oMessage.IsActive = false;
+                iViewDir.IsExpanded = false;
+            }
+            else
+            {
+                iViewDirIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.FolderSearchOutline;
+                if (hasGame && !hasBackup)
+                {
+                    oMessage.Message = new MaterialDesignThemes.Wpf.SnackbarMessage() { Content = "Please select a backup folder" };
+                    oMessage.IsActive = true;
+                }
+                else if (!hasGame && hasBackup)
+                {
+                    oMessage.Message = new MaterialDesignThemes.Wpf.SnackbarMessage() { Content = "Please browse to your game exe" };
+                    oMessage.IsActive = true;
+                }
+                else if (!hasGame && !hasBackup)
+                {
+                    oMessage.Message = new MaterialDesignThemes.Wpf.SnackbarMessage() { Content = "Please select your game exe and backup folders" };
+                    oMessage.IsActive = true;
+                }
+            }
         }
 
         private void FnTransferToLive_Click(object sender, RoutedEventArgs e)
@@ -169,9 +219,23 @@ namespace threplay
             if(hasGame && hasBackup)
             {
                 iViewDirIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.FolderOpen;
+                oMessage.IsActive = false;
             } else
             {
                 iViewDirIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.FolderSearchOutline;
+                if(hasGame && !hasBackup)
+                {
+                    oMessage.Message = new MaterialDesignThemes.Wpf.SnackbarMessage() { Content = "Please select a backup folder" };
+                    oMessage.IsActive = true;
+                } else if(!hasGame && hasBackup)
+                {
+                    oMessage.Message = new MaterialDesignThemes.Wpf.SnackbarMessage() { Content = "Please browse to your game exe" };
+                    oMessage.IsActive = true;
+                } else if(!hasGame && !hasBackup)
+                {
+                    oMessage.Message = new MaterialDesignThemes.Wpf.SnackbarMessage() { Content = "Please select your game exe and backup folders" };
+                    oMessage.IsActive = true;
+                }
             }
         }
 
@@ -252,11 +316,17 @@ namespace threplay
                 odFileNameBackup.Focusable = false;
             }
         }
+
+        private void FnSettings_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            SettingsWindow settingsWindow = new SettingsWindow();
+            settingsWindow.ShowDialog();
+            
+        }
     }
 
     public static class GameHandler
     {
-        public static bool[] gameEnabled = new bool[(int)GameList.thLast];
         public static int currentGame;
         public static ListView gameListView = null;
         public static ListView replayLiveView = null;
@@ -272,6 +342,7 @@ namespace threplay
         public static void LoadBackup() { games[currentGame].LoadBackup(ref replayBackupView); }
         public static void LaunchGame() { try { System.Diagnostics.Process.Start(games[currentGame].gameExe); } catch { } }
         public static void OpenGameFolder() { try { System.Diagnostics.Process.Start(games[currentGame].dirLive); } catch { } }
+        public static ListViewItem GetGameListEntry(int i) { return games[i].listEntry; }
         public static void UpdateCurrentGame(out bool hasGame, out bool hasBackup, ref TextBlock title, ref TextBox live, ref TextBox backup)
         {
             currentGame = gameListView.SelectedIndex;
@@ -371,13 +442,13 @@ namespace threplay
             }
         }
 
-        public static void RegenerateGameList()
+        public static void RegenerateGameList(string gameVisible)
         {
-            int i = 0;
-            foreach(ListViewItem listViewItem in gameListView.Items)
+            Properties.Settings.Default["gameVisibility"] = gameVisible;
+            Properties.Settings.Default.Save();
+            for(int i = 0; i < (int)GameList.thLast; i++)
             {
-                listViewItem.Visibility = gameEnabled[i] ? Visibility.Visible : Visibility.Collapsed;
-                i++;
+                games[i].listEntry.Visibility = gameVisible[i] == 'Y' ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
@@ -386,13 +457,11 @@ namespace threplay
             if(gameListView != null)
             {
                 games = new GameObject[(int)GameList.thLast];
+                string gameVisible = (string)Properties.Settings.Default["gameVisibility"];
                 for (int i = 0; i < (int)GameList.thLast; i++)
                 {
-                    gameEnabled[i] = true;
-                    //temp, implement settings loading code later
-
                     games[i] = new GameObject(i);
-                    games[i].listEntry.Visibility =  gameEnabled[i] ? Visibility.Visible : Visibility.Collapsed;
+                    games[i].listEntry.Visibility = gameVisible[i] == 'Y' ? Visibility.Visible : Visibility.Collapsed;
                     gameListView.Items.Add(games[i].listEntry);
                 }
                 return true;
@@ -452,7 +521,7 @@ namespace threplay
                     catch (System.IO.DirectoryNotFoundException e)
                     {
                         MessageBoxResult error = MessageBox.Show("Replay folder not detected. Check if you've selected" +
-                            "a valid Touhou game executable.\nIf so, would you like to create the folder " +
+                            " a valid Touhou game executable.\nIf so, would you like to create the folder " +
                             dirLiveInfo.FullName + "?", "Error", MessageBoxButton.YesNo);
                         if (error == MessageBoxResult.Yes)
                         {

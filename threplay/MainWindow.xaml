@@ -18,13 +18,15 @@
             <DockPanel.Effect>
                 <DropShadowEffect/>
             </DockPanel.Effect>
-            <Grid DockPanel.Dock="Bottom" Width="250" Panel.ZIndex="2">
-                <Grid.Effect>
+            <ListViewItem x:Name="fnSettings" DockPanel.Dock="Bottom" Width="250" Panel.ZIndex="2" MouseUp="FnSettings_MouseUp">
+                <ListViewItem.Effect>
                     <DropShadowEffect/>
-                </Grid.Effect>
-                <materialDesign:PackIcon Kind="SettingsOutline" Width="45" Height="45" Margin="10"/>
-                <TextBlock Text="Settings" FontSize="24" Margin="65,0,0,0" VerticalAlignment="Center"/>
-            </Grid>
+                </ListViewItem.Effect>
+                <Grid>
+                    <materialDesign:PackIcon Kind="SettingsOutline" Width="50" Height="50" Margin="0"/>
+                    <TextBlock Text="Settings" FontSize="24" Margin="65,0,0,0" VerticalAlignment="Center"/>
+                </Grid>
+            </ListViewItem>
             <ListView x:Name="modeGameSelector" Width="250" SelectedIndex="-1"
                     HorizontalAlignment="Left" VerticalAlignment="Stretch"
                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -44,7 +46,7 @@
                         <Expander.Header>
                             <materialDesign:PackIcon x:Name="iViewDirIcon" Kind="FolderSearchOutline" Width="24" Height="24" />
                         </Expander.Header>
-                        <Grid>
+                        <Grid MinWidth="700">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="*"/>
@@ -87,6 +89,7 @@
                     </Grid>
                     <Button x:Name="fnLaunchGame" Content="Launch Game" Height="28" Click="FnLaunchGame_Click" Margin="60,0,0,0" IsEnabled="False" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
                     <Button x:Name="fnLaunchFolder" Content="Open Game Folder" Height="28" Click="FnLaunchFolder_Click" Margin="185,0,0,0" IsEnabled="False" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                    <materialDesign:Snackbar x:Name="oMessage" IsActive="False"/>
                 </Grid>
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top" x:Name="oCurText" FontSize="24" Text="Test" HorizontalAlignment="Stretch" Margin="0,0,0,4"/>
