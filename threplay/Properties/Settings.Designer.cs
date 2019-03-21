@@ -25,7 +25,7 @@ namespace threplay.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("YYYYYYYYYYYYYYYYYYYY")]
+        [global::System.Configuration.DefaultSettingValueAttribute("YYYYYYYYYYYYYYYYYYY")]
         [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public string gameVisibility {
             get {
@@ -241,32 +241,6 @@ namespace threplay.Properties {
             }
             set {
                 this["th12_b"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("!")]
-        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
-        public string th123_l {
-            get {
-                return ((string)(this["th123_l"]));
-            }
-            set {
-                this["th123_l"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("!")]
-        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
-        public string th123_b {
-            get {
-                return ((string)(this["th123_b"]));
-            }
-            set {
-                this["th123_b"] = value;
             }
         }
         

@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="gameVisibility" Roaming="true" Type="System.String" Scope="User">
-      <Value Profile="(Default)">YYYYYYYYYYYYYYYYYYYY</Value>
+      <Value Profile="(Default)">YYYYYYYYYYYYYYYYYYY</Value>
     </Setting>
     <Setting Name="th06_l" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
@@ -51,12 +51,6 @@
       <Value Profile="(Default)">!</Value>
     </Setting>
     <Setting Name="th12_b" Roaming="true" Type="System.String" Scope="User">
-      <Value Profile="(Default)">!</Value>
-    </Setting>
-    <Setting Name="th123_l" Roaming="true" Type="System.String" Scope="User">
-      <Value Profile="(Default)">!</Value>
-    </Setting>
-    <Setting Name="th123_b" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
     <Setting Name="th125_l" Roaming="true" Type="System.String" Scope="User">

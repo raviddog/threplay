@@ -123,16 +123,12 @@
     <Resource Include="Resources\img_game\img_th10.jpg" />
     <Resource Include="Resources\img_game\img_th11.jpg" />
     <Resource Include="Resources\img_game\img_th12.jpg" />
-    <Resource Include="Resources\img_game\img_th123.jpg" />
     <Resource Include="Resources\img_game\img_th125.jpg" />
     <Resource Include="Resources\img_game\img_th128.jpg" />
     <Resource Include="Resources\img_game\img_th13.jpg" />
-    <Resource Include="Resources\img_game\img_th135.jpg" />
     <Resource Include="Resources\img_game\img_th14.jpg" />
     <Resource Include="Resources\img_game\img_th143.jpg" />
-    <Resource Include="Resources\img_game\img_th145.jpg" />
     <Resource Include="Resources\img_game\img_th15.jpg" />
-    <Resource Include="Resources\img_game\img_th155.jpg" />
     <Resource Include="Resources\img_game\img_th16.jpg" />
     <Resource Include="Resources\img_game\img_th165.jpg" />
   </ItemGroup>

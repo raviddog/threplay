@@ -25,16 +25,12 @@ namespace threplay
         th10,
         th11,
         th12,
-        th123,
         th125,
         th128,
         th13,
-        th135,
         th14,
         th143,
-        th145,
         th15,
-        th155,
         th16,
         th165,
 
@@ -280,12 +276,20 @@ namespace threplay
                 ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
                 odFileNameLive.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
                 odFileNameLive.Focusable = true;
+            } else
+            {
+                odFileNameLive.Text = "(no single replay selected)";
+                odFileNameLive.Focusable = false;
             }
-            if(oReplayBackupList.SelectedIndex != -1)
+            if (oReplayBackupList.SelectedIndex != -1)
             {
                 ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
                 odFileNameBackup.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
                 odFileNameBackup.Focusable = true;
+            } else
+            {
+                odFileNameBackup.Text = "(no single replay selected)";
+                odFileNameBackup.Focusable = false;
             }
         }
 
@@ -296,10 +300,33 @@ namespace threplay
                 ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
                 odFileNameLive.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
                 odFileNameLive.Focusable = true;
+                
+                if(GameReplayDecoder.ReadFile(ref replayEntry))
+                {
+                    odFileDataLive.Text = replayEntry.replay.name;
+                    odFileDateLive.Text = replayEntry.replay.date;
+                    odFileShotLive.Text = replayEntry.replay.character;
+                    odFileDifficultyLive.Text = replayEntry.replay.difficulty;
+                    odFileScoreLive.Text = replayEntry.replay.score;
+                } else
+                {
+                    odFileNameLive.Focusable = false;
+                    odFileDataLive.Text = null;
+                    odFileDateLive.Text = null;
+                    odFileShotLive.Text = null;
+                    odFileDifficultyLive.Text = null;
+                    odFileScoreLive.Text = null;
+                }
+
             } else
             {
-                odFileNameLive.Text = "(disable multiselect to view file info)";
+                odFileNameLive.Text = "(no single replay selected)";
                 odFileNameLive.Focusable = false;
+                odFileDataLive.Text = null;
+                odFileDateLive.Text = null;
+                odFileShotLive.Text = null;
+                odFileDifficultyLive.Text = null;
+                odFileScoreLive.Text = null;
             }
         }
 
@@ -310,10 +337,33 @@ namespace threplay
                 ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
                 odFileNameBackup.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
                 odFileNameBackup.Focusable = true;
+
+                if (GameReplayDecoder.ReadFile(ref replayEntry))
+                {
+                    odFileDataBackup.Text = replayEntry.replay.name;
+                    odFileDateBackup.Text = replayEntry.replay.date;
+                    odFileShotBackup.Text = replayEntry.replay.character;
+                    odFileDifficultyBackup.Text = replayEntry.replay.difficulty;
+                    odFileScoreBackup.Text = replayEntry.replay.score;
+                }
+                else
+                {
+                    odFileNameBackup.Focusable = false;
+                    odFileDataBackup.Text = null;
+                    odFileDateBackup.Text = null;
+                    odFileShotBackup.Text = null;
+                    odFileDifficultyBackup.Text = null;
+                    odFileScoreBackup.Text = null;
+                }
             } else
             {
-                odFileNameBackup.Text = "(disable multiselect to view file info)";
+                odFileNameBackup.Text = "(no single replay selected)";
                 odFileNameBackup.Focusable = false;
+                odFileDataBackup.Text = null;
+                odFileDateBackup.Text = null;
+                odFileShotBackup.Text = null;
+                odFileDifficultyBackup.Text = null;
+                odFileScoreBackup.Text = null;
             }
         }
 
@@ -607,6 +657,188 @@ namespace threplay
 
     public static class GameReplayDecoder
     {
+        private static FileStream file;
+
+        public static bool ReadFile(ref ReplayEntry replay)
+        {
+            bool status = false;
+            if(replay.replay != null)
+            {
+                return true;
+            } else
+            {
+                replay.replay = new ReplayEntry.ReplayInfo();
+            }
+
+            file = new FileStream(replay.FullPath, FileMode.Open);
+
+            //read first 4 bytes
+            int hexIn;
+            String hex = string.Empty;
+
+            for(int i = 0; i < 4; i++)
+            {
+                if((hexIn = file.ReadByte()) != -1)
+                {
+                    hex = string.Concat(hex, string.Format("{0:X2}", hexIn));
+                } else
+                {
+                    file.Close();
+                    return false;
+                }
+            }
+
+            switch(hex)
+            {
+                case "54365250":
+                    //T6RP
+                    break;
+                case "54375250":
+                    //T7RP
+                    break;
+                case "54385250":
+                    //T8RP
+                    status = T8RP(ref replay);
+                    break;
+                case "54395250":
+                    //T9RP
+                    break;
+                case "74393572":
+                    //t95r
+                    break;
+                case "74313072":
+                    //t10r
+                    break;
+                case "74313172":
+                    //t11r
+                    break;
+                case "74313272":
+                    //t12r
+                    break;
+                case "74313235":
+                    //t125
+                    break;
+                case "31323872":
+                    //128r
+                    break;
+                case "74313372":
+                    //t13r
+                    //has both td and ddc for some fucking reason
+                    break;
+                case "74313433":
+                    //t143
+                    break;
+                case "74313572":
+                    //t15r
+                    break;
+                case "74313672":
+                    //t16r
+                    break;
+                case "74313536":
+                    //t156
+                    //shouldn't this be 165? gg zun
+                    break;
+                default:
+                    break;
+            }
+
+            file.Close();
+            return status;
+        }
+
+        private static UInt32 ReadUInt32()
+        {
+            uint buf = new uint();
+            UInt32 val = new UInt32();
+
+            for(int i = 0; i < 4; i++)
+            {
+                buf = (uint)file.ReadByte();
+                val += buf << (i * 8);
+            }
+
+            return val;
+        }
+
+        private static string ReadString()
+        {
+            int[] buf = new int[3];
+            string val = string.Empty;
+            buf[0] = file.ReadByte();
+            buf[1] = file.ReadByte();
+            if(buf[0] != 13 && buf[1] != 10)
+            {
+                buf[2] = file.ReadByte();
+                do
+                {
+                    val = string.Concat(val, Convert.ToChar(buf[0]).ToString());
+                    buf[0] = buf[1];
+                    buf[1] = buf[2];
+                    buf[2] = file.ReadByte();
+                }
+                while (buf[0] != 13 && buf[1] != 10);
+            }
+
+            return val;
+        }
+
+        private static bool T8RP(ref ReplayEntry replay)
+        {
+            file.Seek(12, SeekOrigin.Begin);
+            UInt32 offset = ReadUInt32();
+            //get offset to user info
+
+            string val = string.Empty;
+            int buf;
+
+            //move read position to start of user data
+            try { file.Seek(offset, SeekOrigin.Begin); }
+            catch { return false; }
+
+            //read user magic to verify correct spot
+            for(int i = 0; i < 4; i++)
+            {
+                buf = file.ReadByte();
+                val = string.Concat(val, string.Format("{0:X2}", buf));
+            }
+            if (val != "55534552") return false;
+            val = string.Empty;
+
+            //get and store user data length, because why not
+            UInt32 length = ReadUInt32();
+
+            //move to start of player name
+            file.Seek(17, SeekOrigin.Current);
+
+            //read player name into replayinfo
+            replay.replay.name = ReadString();
+
+            //move to and read date
+            file.Seek(10, SeekOrigin.Current);
+            replay.replay.date = ReadString();
+
+            //move to and read character
+            file.Seek(8, SeekOrigin.Current);
+            replay.replay.character = ReadString();
+
+            //move to and read score
+            file.Seek(7, SeekOrigin.Current);
+            try
+            {
+                long scoreConv = long.Parse(ReadString());
+                replay.replay.score = scoreConv.ToString("N0");
+            } catch { }
+            
+
+            //move to and read difficulty
+            file.Seek(7, SeekOrigin.Current);
+            replay.replay.difficulty = ReadString();
+
+            //check if spell practice or game replay
+            //actually do this later
+
+            return true;
+        }
 
     }
 
@@ -616,6 +848,16 @@ namespace threplay
         public string Filesize { get; set; }
         
         public string FullPath;
+        public ReplayInfo replay;
+
+        public class ReplayInfo
+        {
+            public string name;
+            public string date;
+            public string character;
+            public string difficulty;
+            public string score;
+        }
     }
 
     public static class GameData
@@ -641,16 +883,12 @@ namespace threplay
             "Touhou 10",
             "Touhou 11",
             "Touhou 12",
-            "Touhou 12.3",
             "Touhou 12.5",
             "Touhou 12.8",
             "Touhou 13",
-            "Touhou 13.5",
             "Touhou 14",
             "Touhou 14.3",
-            "Touhou 14.5",
             "Touhou 15",
-            "Touhou 15.5",
             "Touhou 16",
             "Touhou 16.5"
         };
@@ -665,16 +903,12 @@ namespace threplay
             "Mountain of Faith",
             "Subterranean Animism",
             "Unidentified Fantastic Object",
-            "Hisoutensoku",
             "Double Spoiler",
             "Great Fairy Wars",
             "Ten Desires",
-            "Hopeless Masquerade",
             "Double Dealing Character",
             "Impossible Spell Card",
-            "Urban Legend in Limbo",
             "Legacy of Lunatic Kingdom",
-            "Antinomy of Common Flowers",
             "Hidden Star in Four Seasons",
             "Violet Detector"
         };
@@ -689,16 +923,12 @@ namespace threplay
             "th10",
             "th11",
             "th12",
-            "th123",
             "th125",
             "th128",
             "th13",
-            "th135",
             "th14",
             "th143",
-            "th145",
             "th15",
-            "th155",
             "th16",
             "th165"
         };
