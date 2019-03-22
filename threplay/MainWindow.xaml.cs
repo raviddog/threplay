@@ -127,6 +127,7 @@ namespace threplay
                 GameHandler.LoadLive();
             }
             CheckMove();
+            iViewDir.Focus();
         }
 
         private void IDirLive_GotFocus(object sender, RoutedEventArgs e)
@@ -165,6 +166,7 @@ namespace threplay
             }
             GameHandler.LoadLive();
             CheckMove();
+            iViewDir.Focus();
         }
 
         private void IDirBackup_GotFocus(object sender, RoutedEventArgs e)
@@ -181,6 +183,7 @@ namespace threplay
                 GameHandler.LoadBackup();
             }
             CheckMove();
+            iViewDir.Focus();
         }
 
         private void CheckMove()
@@ -316,6 +319,8 @@ namespace threplay
                     odFileShotLive.Text = replayEntry.replay.character;
                     odFileDifficultyLive.Text = replayEntry.replay.difficulty;
                     odFileScoreLive.Text = replayEntry.replay.score;
+                    odFileStageLive.Text = replayEntry.replay.stage;
+                    odFileStageLive.ToolTip = replayEntry.replay.stage;
                 } else
                 {
                     odFileNameLive.Focusable = false;
@@ -324,6 +329,8 @@ namespace threplay
                     odFileShotLive.Text = null;
                     odFileDifficultyLive.Text = null;
                     odFileScoreLive.Text = null;
+                    odFileStageLive.Text = null;
+                    odFileStageLive.ToolTip = null;
                 }
 
             } else
@@ -335,6 +342,8 @@ namespace threplay
                 odFileShotLive.Text = null;
                 odFileDifficultyLive.Text = null;
                 odFileScoreLive.Text = null;
+                odFileStageLive.Text = null;
+                odFileStageLive.ToolTip = null;
             }
         }
 
@@ -353,6 +362,8 @@ namespace threplay
                     odFileShotBackup.Text = replayEntry.replay.character;
                     odFileDifficultyBackup.Text = replayEntry.replay.difficulty;
                     odFileScoreBackup.Text = replayEntry.replay.score;
+                    odFileStageBackup.Text = replayEntry.replay.stage;
+                    odFileStageBackup.ToolTip = replayEntry.replay.stage;
                 }
                 else
                 {
@@ -362,6 +373,8 @@ namespace threplay
                     odFileShotBackup.Text = null;
                     odFileDifficultyBackup.Text = null;
                     odFileScoreBackup.Text = null;
+                    odFileStageBackup.Text = null;
+                    odFileStageBackup.ToolTip = null;
                 }
             } else
             {
@@ -372,6 +385,8 @@ namespace threplay
                 odFileShotBackup.Text = null;
                 odFileDifficultyBackup.Text = null;
                 odFileScoreBackup.Text = null;
+                odFileStageBackup.Text = null;
+                odFileStageBackup.ToolTip = null;
             }
         }
 
@@ -463,7 +478,6 @@ namespace threplay
                     foreach (ReplayEntry item in replayLiveView.SelectedItems)
                     {
                         //ReplayEntry replayItem = item.Content as ReplayEntry;
-                        string source = System.IO.Path.Combine(games[currentGame].dirLive, item.Filename);
                         string dest = System.IO.Path.Combine(games[currentGame].dirBackup, item.Filename);
                         bool proceed = true;
                         if (System.IO.File.Exists(dest))
@@ -478,11 +492,11 @@ namespace threplay
                         {
                             if (deleteOriginal)
                             {
-                                System.IO.File.Move(source, dest);
+                                System.IO.File.Move(item.FullPath, dest);
                             }
                             else
                             {
-                                System.IO.File.Copy(source, dest);
+                                System.IO.File.Copy(item.FullPath, dest);
                             }
                         }
                     }
@@ -492,7 +506,6 @@ namespace threplay
                     foreach (ReplayEntry item in replayBackupView.SelectedItems)
                     {
                         //ReplayEntry replayItem = item.Content as ReplayEntry;
-                        string source = System.IO.Path.Combine(games[currentGame].dirBackup, item.Filename);
                         string dest = System.IO.Path.Combine(games[currentGame].dirLive, item.Filename);
                         bool proceed = true;
                         if (System.IO.File.Exists(dest))
@@ -501,17 +514,20 @@ namespace threplay
                             if (result == MessageBoxResult.No)
                             {
                                 proceed = false;
+                            } else
+                            {
+                                System.IO.File.Delete(dest);
                             }
                         }
                         if (proceed)
                         {
                             if (deleteOriginal)
                             {
-                                System.IO.File.Move(source, dest);
+                                System.IO.File.Move(item.FullPath, dest);
                             }
                             else
                             {
-                                System.IO.File.Copy(source, dest);
+                                System.IO.File.Copy(item.FullPath, dest);
                             }
                         }
                     }
@@ -579,15 +595,21 @@ namespace threplay
             {
                 gameExe = path;
                 Properties.Settings.Default[GameData.setting[number] + "_e"] = gameExe;
-                if(Directory.Exists(Path.GetDirectoryName(path) + "\\replay"))
+                if(dirLive == "!")
                 {
-                    //autodetect replay folder
-                    dirLive = Path.GetDirectoryName(path) + "\\replay";
-                    replay = dirLive;
-                    Properties.Settings.Default[GameData.setting[number] + "_l"] = dirLive;
+                    if(Directory.Exists(Path.GetDirectoryName(path) + "\\replay"))
+                    {
+                        //autodetect replay folder
+                        dirLive = Path.GetDirectoryName(path) + "\\replay";
+                        replay = dirLive;
+                        Properties.Settings.Default[GameData.setting[number] + "_l"] = dirLive;
+                    } else
+                    {
+                        replay = "!";
+                    }
                 } else
                 {
-                    replay = "!";
+                    replay = dirLive;
                 }
                 Properties.Settings.Default.Save();
             }
@@ -744,9 +766,11 @@ namespace threplay
                     break;
                 case "54395250":
                     //T9RP
+                    status = Read_T9RP(ref replay.replay);
                     break;
                 case "74393572":
                     //t95r
+                    status = Read_t95r(ref replay.replay);
                     break;
                 case "74313072":
                     //t10r
@@ -762,9 +786,11 @@ namespace threplay
                     break;
                 case "74313235":
                     //t125
+                    status = Read_t125(ref replay.replay);
                     break;
                 case "31323872":
                     //128r
+                    status = Read_128r(ref replay.replay);
                     break;
                 case "74313372":
                     //t13r
@@ -774,6 +800,7 @@ namespace threplay
                     break;
                 case "74313433":
                     //t143
+                    status = Read_t143(ref replay.replay);
                     break;
                 case "74313572":
                     //t15r
@@ -786,6 +813,7 @@ namespace threplay
                 case "74313536":
                     //t156
                     //shouldn't this be 165? gg zun
+                    status = Read_t156(ref replay.replay);
                     break;
                 default:
                     break;
@@ -913,9 +941,46 @@ namespace threplay
             replay.score = scoreConv.ToString("N0");
             file.Seek(8, SeekOrigin.Current);
             replay.difficulty = ReadStringANSI();
+            replay.stage = ReadStringANSI();
 
             //check if spell practice or game replay
             //actually do this later
+
+            return true;
+        }
+
+        private static bool Read_T9RP(ref ReplayEntry.ReplayInfo replay)
+        {
+            if (!JumpToUser(12)) return false;
+
+            UInt32 length = ReadUInt32();
+            file.Seek(17, SeekOrigin.Current);
+            replay.name = ReadStringANSI();
+            file.Seek(11, SeekOrigin.Current);
+            replay.date = ReadStringANSI();
+            file.Seek(8, SeekOrigin.Current);
+            replay.difficulty = ReadStringANSI();
+            file.Seek(8, SeekOrigin.Current);
+            replay.stage = ReadStringANSI();
+            return true;
+        }
+
+        private static bool Read_t95r(ref ReplayEntry.ReplayInfo replay)
+        {
+            if (!JumpToUser(12)) return false;
+
+            UInt32 length = ReadUInt32();
+            file.Seek(4, SeekOrigin.Current);
+            ReadStringANSI();
+            ReadStringANSI();
+            file.Seek(5, SeekOrigin.Current);
+            replay.name = ReadStringANSI();
+            replay.stage = ReadStringANSI() + " " + ReadStringANSI();
+            file.Seek(5, SeekOrigin.Current);
+            replay.date = ReadStringANSI();
+            file.Seek(6, SeekOrigin.Current);
+            long.TryParse(ReadStringANSI(), out long scoreConv);
+            replay.score = scoreConv.ToString("N0");
 
             return true;
         }
@@ -939,7 +1004,7 @@ namespace threplay
             file.Seek(5, SeekOrigin.Current);
             replay.difficulty = ReadStringANSI();
             file.Seek(6, SeekOrigin.Current);
-            ReadStringANSI();   //stage
+            replay.stage = ReadStringANSI();   //stage
             file.Seek(6, SeekOrigin.Current);
             long.TryParse(ReadStringANSI() + "0", out long scoreConv);  //replay stores the value without the 0
             replay.score = scoreConv.ToString("N0");
@@ -957,6 +1022,53 @@ namespace threplay
             return Read_t10r(ref replay);
         }
 
+        private static bool Read_t125(ref ReplayEntry.ReplayInfo replay)
+        {
+            if (!JumpToUser(12)) return false;
+
+            UInt32 length = ReadUInt32();
+            file.Seek(4, SeekOrigin.Current);
+            ReadStringANSI();
+            ReadStringANSI();
+            file.Seek(5, SeekOrigin.Current);
+            replay.name = ReadStringANSI();
+            file.Seek(5, SeekOrigin.Current);
+            replay.date = ReadStringANSI();
+            file.Seek(6, SeekOrigin.Current);
+            replay.character = ReadStringANSI();
+            replay.stage = ReadStringANSI();
+            file.Seek(6, SeekOrigin.Current);
+            long.TryParse(ReadStringANSI(), out long scoreConv);
+            replay.score = scoreConv.ToString("N0");
+
+            return true;
+        }
+
+        private static bool Read_128r(ref ReplayEntry.ReplayInfo replay)
+        {
+            if (!JumpToUser(12)) return false;
+
+            UInt32 length = ReadUInt32();
+            file.Seek(4, SeekOrigin.Current);
+            ReadStringANSI();
+            ReadStringANSI();
+            file.Seek(5, SeekOrigin.Current);
+            replay.name = ReadStringANSI();
+            file.Seek(5, SeekOrigin.Current);
+            replay.date = ReadStringANSI();
+            file.Seek(6, SeekOrigin.Current);
+            replay.stage = ReadStringANSI();
+            file.Seek(5, SeekOrigin.Current);
+            replay.difficulty = ReadStringANSI();
+            file.Seek(6, SeekOrigin.Current);
+            ReadStringANSI();   //stage
+            file.Seek(6, SeekOrigin.Current);
+            long.TryParse(ReadStringANSI() + "0", out long scoreConv);  //replay stores the value without the 0
+            replay.score = scoreConv.ToString("N0");
+
+            return true;
+        }
+
         private static bool Read_t13r(ref ReplayEntry.ReplayInfo replay)
         {
             return Read_t10r(ref replay);
@@ -967,9 +1079,34 @@ namespace threplay
             return Read_t10r(ref replay);
         }
 
+        private static bool Read_t143(ref ReplayEntry.ReplayInfo replay)
+        {
+            if (!JumpToUser(12)) return false;
+
+            UInt32 length = ReadUInt32();
+            file.Seek(4, SeekOrigin.Current);
+            ReadStringANSI();
+            ReadStringANSI();
+            file.Seek(5, SeekOrigin.Current);
+            replay.name = ReadStringANSI();
+            file.Seek(5, SeekOrigin.Current);
+            replay.date = ReadStringANSI();
+            replay.stage = ReadStringANSI() + " " + ReadStringANSI();
+            file.Seek(6, SeekOrigin.Current);
+            long.TryParse(ReadStringANSI() + "0", out long scoreConv);  //replay stores the value without the 0
+            replay.score = scoreConv.ToString("N0");
+
+            return true;
+        }
+
         private static bool Read_t15r(ref ReplayEntry.ReplayInfo replay)
         {
             return Read_t10r(ref replay);
+        }
+
+        private static bool Read_t156(ref ReplayEntry.ReplayInfo replay)
+        {
+            return Read_t143(ref replay);
         }
 
         private static bool Read_t16r(ref ReplayEntry.ReplayInfo replay)
@@ -992,6 +1129,7 @@ namespace threplay
             public string date;
             public string character;
             public string difficulty;
+            public string stage;
             public string score;
         }
     }
