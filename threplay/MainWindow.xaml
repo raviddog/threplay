@@ -58,7 +58,7 @@
                                 <RowDefinition Height="28"/>
                             </Grid.RowDefinitions>
                             <TextBlock Text="Game Exe:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Game Folder:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"/>
+                            <TextBlock Text="Replay Folder:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"/>
                             <TextBlock Text="Backup Folder:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center"/>
                             <TextBox x:Name="iDirGame" GotFocus="IDirGame_GotFocus" Text="click to browse for game exe" Grid.Column="1" Grid.Row="0" FontWeight="Normal"/>
                             <TextBox x:Name="iDirLive" GotFocus="IDirLive_GotFocus"  Text="click to browse for replay folder" Grid.Column="1" Grid.Row="1" FontWeight="Normal"/>
