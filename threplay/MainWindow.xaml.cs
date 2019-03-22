@@ -96,6 +96,8 @@ namespace threplay
                         string newFileName = replayFile.DirectoryName + "\\" + odFileNameLive.Text + ".rpy";
                         File.Move(oldFileName, newFileName);
                         GameHandler.LoadLive();
+                        iViewDir.Focus();
+                        odLabelFileName.Text = "File Name:";
                     }
                 } else if(odFileNameBackup.IsFocused)
                 {
@@ -107,6 +109,8 @@ namespace threplay
                         string newFileName = replayFile.DirectoryName + "\\" + odFileNameLive.Text + ".rpy";
                         File.Move(oldFileName, newFileName);
                         GameHandler.LoadBackup();
+                        iViewDir.Focus();
+                        odLabelFileName.Text = "File Name:";
                     }
                 }
             }
@@ -310,7 +314,6 @@ namespace threplay
             {
                 ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
                 odFileNameLive.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
-                odFileNameLive.Focusable = true;
                 
                 if(GameReplayDecoder.ReadFile(ref replayEntry))
                 {
@@ -323,7 +326,6 @@ namespace threplay
                     odFileStageLive.ToolTip = replayEntry.replay.stage;
                 } else
                 {
-                    odFileNameLive.Focusable = false;
                     odFileDataLive.Text = null;
                     odFileDateLive.Text = null;
                     odFileShotLive.Text = null;
@@ -336,7 +338,6 @@ namespace threplay
             } else
             {
                 odFileNameLive.Text = "(no single replay selected)";
-                odFileNameLive.Focusable = false;
                 odFileDataLive.Text = null;
                 odFileDateLive.Text = null;
                 odFileShotLive.Text = null;
@@ -353,7 +354,6 @@ namespace threplay
             {
                 ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
                 odFileNameBackup.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
-                odFileNameBackup.Focusable = true;
 
                 if (GameReplayDecoder.ReadFile(ref replayEntry))
                 {
@@ -367,7 +367,6 @@ namespace threplay
                 }
                 else
                 {
-                    odFileNameBackup.Focusable = false;
                     odFileDataBackup.Text = null;
                     odFileDateBackup.Text = null;
                     odFileShotBackup.Text = null;
@@ -379,7 +378,6 @@ namespace threplay
             } else
             {
                 odFileNameBackup.Text = "(no single replay selected)";
-                odFileNameBackup.Focusable = false;
                 odFileDataBackup.Text = null;
                 odFileDateBackup.Text = null;
                 odFileShotBackup.Text = null;
@@ -405,6 +403,55 @@ namespace threplay
         private void FnLaunchBackup_Click(object sender, RoutedEventArgs e)
         {
             GameHandler.OpenBackupFolder();
+        }
+
+        private void OdFileNameLive_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (fnMultiEnabled.IsChecked == false && oReplayLiveList.SelectedIndex != -1)
+            {
+                odFileNameLive.Focusable = true;
+                odFileNameLive.Focus();
+                odLabelFileName.Text = "press enter to rename";
+            }
+        }
+
+        private void OdFileNameBackup_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (fnMultiEnabled.IsChecked == false && oReplayLiveList.SelectedIndex != -1)
+            {
+                odFileNameBackup.Focusable = true;
+                odFileNameBackup.Focus();
+                odLabelFileName.Text = "press enter to rename";
+            }
+        }
+
+        private void OdFileNameLive_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if(oReplayLiveList.SelectedIndex != -1)
+            {
+                ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
+                odFileNameLive.Text = replayEntry.Filename;
+            } else
+            {
+                odFileNameLive.Text = "(no single replay selected)";
+            }
+            odFileNameLive.Focusable = false;
+            odLabelFileName.Text = "File Name:";
+        }
+
+        private void OdFileNameBackup_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (oReplayBackupList.SelectedIndex != -1)
+            {
+                ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
+                odFileNameBackup.Text = replayEntry.Filename;
+            }
+            else
+            {
+                odFileNameBackup.Text = "(no single replay selected)";
+            }
+            odFileNameBackup.Focusable = true;
+            odLabelFileName.Text = "File Name:";
         }
     }
 
