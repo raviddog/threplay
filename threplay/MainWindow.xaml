@@ -11,7 +11,7 @@
         TextElement.FontSize="14"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
         Title="Touhou Replay Manager" MinHeight="720" MinWidth="960" Height="720" Width="960" BorderThickness="0"
-        Keyboard.PreviewKeyDown="Window_PreviewKeyDown">
+        Keyboard.PreviewKeyDown="Window_PreviewKeyDown" Icon="point.ico">
     <Grid>
         <DockPanel HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="65" Background="{DynamicResource MaterialDesignPaper}"
                 Panel.ZIndex="1" x:Name="modeGameViewToggle" MouseLeave="ModeGameViewToggle_MouseLeave">

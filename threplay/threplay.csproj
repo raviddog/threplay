@@ -166,9 +166,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="sub_36.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="point.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
