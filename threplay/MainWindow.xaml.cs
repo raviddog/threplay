@@ -120,7 +120,7 @@ namespace threplay
             {
                 iDirGame.Text = dialog.FileName;
                 GameHandler.SetExe(dialog.FileName, out string replay);
-                if(replay != "!")
+                if (replay != "!")
                 {
                     iDirLive.Text = replay;
                 }
@@ -131,17 +131,39 @@ namespace threplay
 
         private void IDirLive_GotFocus(object sender, RoutedEventArgs e)
         {
-            VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog();
-            dialog.Description = "Please select a folder";
-            dialog.UseDescriptionForTitle = true;
-            if((bool)dialog.ShowDialog(this))
+            MessageBoxResult msg = MessageBoxResult.No;
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
+                    "\\ShanghaiAlice\\" + GameData.setting[GameHandler.currentGame] + "\\replay";
+
+            if (Directory.Exists(path))
             {
-                if(GameHandler.SetLive(dialog.SelectedPath))
-                {
-                    iDirLive.Text = dialog.SelectedPath;
-                }
-                GameHandler.LoadLive();
+                msg = MessageBox.Show("Replay folder detected at: \n\"" + path +
+                    "\" \nWould you like to use this folder?", "Info", MessageBoxButton.YesNo, MessageBoxImage.Information);
             }
+
+            if (msg == MessageBoxResult.Yes)
+            {
+                if (GameHandler.SetLive(path))
+                {
+                    iDirLive.Text = path;
+                }
+            }
+            else if (msg == MessageBoxResult.No)
+            {
+                VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog();
+                dialog.Description = "Please select a folder";
+                dialog.UseDescriptionForTitle = true;
+                if ((bool)dialog.ShowDialog(this))
+                {
+                    path = dialog.SelectedPath;
+                    if (GameHandler.SetLive(path))
+                    {
+                        iDirLive.Text = path;
+                    }
+                }
+
+            }
+            GameHandler.LoadLive();
             CheckMove();
         }
 
@@ -152,7 +174,7 @@ namespace threplay
             dialog.UseDescriptionForTitle = true;
             if ((bool)dialog.ShowDialog(this))
             {
-                if(GameHandler.SetBackup(dialog.SelectedPath))
+                if (GameHandler.SetBackup(dialog.SelectedPath))
                 {
                     iDirBackup.Text = dialog.SelectedPath;
                 }

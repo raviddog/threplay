@@ -61,8 +61,8 @@
                             <TextBlock Text="Replay Folder:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"/>
                             <TextBlock Text="Backup Folder:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center"/>
                             <TextBox x:Name="iDirGame" GotFocus="IDirGame_GotFocus" Text="click to browse for game exe" Grid.Column="1" Grid.Row="0" FontWeight="Normal"/>
-                            <TextBox x:Name="iDirLive" GotFocus="IDirLive_GotFocus"  Text="click to browse for replay folder" Grid.Column="1" Grid.Row="1" FontWeight="Normal"/>
-                            <TextBox x:Name="iDirBackup" GotFocus="IDirBackup_GotFocus"  Text="click to browse for backup folder" Grid.Column="1" Grid.Row="2" FontWeight="Normal"/>
+                            <TextBox x:Name="iDirLive" GotFocus="IDirLive_GotFocus" Text="click to browse for replay folder" Grid.Column="1" Grid.Row="1" FontWeight="Normal"/>
+                            <TextBox x:Name="iDirBackup" GotFocus="IDirBackup_GotFocus" Text="click to browse for backup folder" Grid.Column="1" Grid.Row="2" FontWeight="Normal"/>
                         </Grid>
                     </Expander>
                     <Grid x:Name="odFileGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="60,0,0,0">
