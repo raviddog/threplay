@@ -25,7 +25,7 @@ namespace threplay.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("YYYYYYYYYYYYYYYYYYY")]
+        [global::System.Configuration.DefaultSettingValueAttribute("YYYYYYYYYYYYYYYY")]
         [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public string gameVisibility {
             get {
@@ -326,32 +326,6 @@ namespace threplay.Properties {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("!")]
         [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
-        public string th135_l {
-            get {
-                return ((string)(this["th135_l"]));
-            }
-            set {
-                this["th135_l"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("!")]
-        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
-        public string th135_b {
-            get {
-                return ((string)(this["th135_b"]));
-            }
-            set {
-                this["th135_b"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("!")]
-        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public string th14_l {
             get {
                 return ((string)(this["th14_l"]));
@@ -404,32 +378,6 @@ namespace threplay.Properties {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("!")]
         [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
-        public string th145_l {
-            get {
-                return ((string)(this["th145_l"]));
-            }
-            set {
-                this["th145_l"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("!")]
-        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
-        public string th145_b {
-            get {
-                return ((string)(this["th145_b"]));
-            }
-            set {
-                this["th145_b"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("!")]
-        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public string th15_l {
             get {
                 return ((string)(this["th15_l"]));
@@ -449,32 +397,6 @@ namespace threplay.Properties {
             }
             set {
                 this["th15_b"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("!")]
-        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
-        public string th155_l {
-            get {
-                return ((string)(this["th155_l"]));
-            }
-            set {
-                this["th155_l"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("!")]
-        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
-        public string th155_b {
-            get {
-                return ((string)(this["th155_b"]));
-            }
-            set {
-                this["th155_b"] = value;
             }
         }
         
@@ -527,6 +449,198 @@ namespace threplay.Properties {
             }
             set {
                 this["th165_b"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th06_e {
+            get {
+                return ((string)(this["th06_e"]));
+            }
+            set {
+                this["th06_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th07_e {
+            get {
+                return ((string)(this["th07_e"]));
+            }
+            set {
+                this["th07_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th08_e {
+            get {
+                return ((string)(this["th08_e"]));
+            }
+            set {
+                this["th08_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th09_e {
+            get {
+                return ((string)(this["th09_e"]));
+            }
+            set {
+                this["th09_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th095_e {
+            get {
+                return ((string)(this["th095_e"]));
+            }
+            set {
+                this["th095_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th10_e {
+            get {
+                return ((string)(this["th10_e"]));
+            }
+            set {
+                this["th10_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th11_e {
+            get {
+                return ((string)(this["th11_e"]));
+            }
+            set {
+                this["th11_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th12_e {
+            get {
+                return ((string)(this["th12_e"]));
+            }
+            set {
+                this["th12_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th125_e {
+            get {
+                return ((string)(this["th125_e"]));
+            }
+            set {
+                this["th125_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th128_e {
+            get {
+                return ((string)(this["th128_e"]));
+            }
+            set {
+                this["th128_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th13_e {
+            get {
+                return ((string)(this["th13_e"]));
+            }
+            set {
+                this["th13_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th14_e {
+            get {
+                return ((string)(this["th14_e"]));
+            }
+            set {
+                this["th14_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th143_e {
+            get {
+                return ((string)(this["th143_e"]));
+            }
+            set {
+                this["th143_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th15_e {
+            get {
+                return ((string)(this["th15_e"]));
+            }
+            set {
+                this["th15_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th16_e {
+            get {
+                return ((string)(this["th16_e"]));
+            }
+            set {
+                this["th16_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th165_e {
+            get {
+                return ((string)(this["th165_e"]));
+            }
+            set {
+                this["th165_e"] = value;
             }
         }
     }
