@@ -430,7 +430,7 @@ namespace threplay
             if(oReplayLiveList.SelectedIndex != -1)
             {
                 ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
-                odFileNameLive.Text = replayEntry.Filename;
+                odFileNameLive.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
             } else
             {
                 odFileNameLive.Text = "(no single replay selected)";
@@ -444,7 +444,7 @@ namespace threplay
             if (oReplayBackupList.SelectedIndex != -1)
             {
                 ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
-                odFileNameBackup.Text = replayEntry.Filename;
+                odFileNameBackup.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
             }
             else
             {
@@ -803,9 +803,11 @@ namespace threplay
             {
                 case "54365250":
                     //T6RP
+                    status = Read_T6RP(ref replay.replay);
                     break;
                 case "54375250":
                     //T7RP
+                    //status = Read_T7RP(ref replay.replay);
                     break;
                 case "54385250":
                     //T8RP
@@ -972,6 +974,77 @@ namespace threplay
          * 
          * */
 
+        private static bool Read_T6RP(ref ReplayEntry.ReplayInfo replay)
+        {
+            //lookup table
+            string[] chars = new string[4] { "ReimuA", "ReimuB", "MarisaA", "MarisaB" };
+            string[] difficulties = new string[5] { "Easy", "Normal", "Hard", "Lunatic", "Extra" };
+
+
+            int[] buf = new int[2];
+            file.Seek(2, SeekOrigin.Current);   //skip version number
+            buf[0] = file.ReadByte();   //shot type
+            replay.character = chars[buf[0]];
+            buf[1] = file.ReadByte();   //difficulty
+            replay.difficulty = difficulties[buf[1]];
+            file.Seek(6, SeekOrigin.Current);   //skip checksum to encryption key
+            byte key = (byte)file.ReadByte();
+
+            byte[] buffer = new byte[65];
+            for(int i = 0; i < 65; i++)
+            {
+                buffer[i] = (byte)file.ReadByte();
+                buffer[i] -= key;
+                key += 7;
+            }
+
+            for(int i = 1; i < 10; i++) //date[9], null terminated string
+            {
+                if (buffer[i] == 0x00) { i = 10; }
+                else
+                {
+                    replay.date = string.Concat(replay.date, Convert.ToChar(buffer[i]).ToString());
+                }
+            }
+
+            for(int i = 10; i < 19; i++)
+            {
+                if (buffer[i] == 0x00) { i = 19; }
+                else
+                {
+                    replay.name = string.Concat(replay.name, Convert.ToChar(buffer[i]).ToString());
+                }
+            }
+
+            uint score = new uint();
+            for(int i = 21; i < 25; i++)
+            {
+                score += (uint)buffer[i] << ((i - 21) * 8);
+            }
+            replay.score = score.ToString("N0");
+
+            return true;
+        }
+
+        private static bool Read_T7RP(ref ReplayEntry.ReplayInfo replay)
+        {
+            file.Seek(13, SeekOrigin.Begin);
+            byte key = (byte)file.ReadByte();
+            file.Seek(16, SeekOrigin.Begin);
+            byte[] buffer = new byte[65];
+            for (int i = 0; i < 65; i++)
+            {
+                buffer[i] = (byte)file.ReadByte();
+                buffer[i] -= key;
+                key += 7;
+            }
+            FileStream test = new FileStream("text.raw", FileMode.Create, FileAccess.Write);
+            test.Write(buffer, 0, buffer.Length);
+
+
+            return true;
+        }
+
         private static bool Read_T8RP(ref ReplayEntry.ReplayInfo replay)
         {
             if (!JumpToUser(12)) return false;
@@ -1050,7 +1123,7 @@ namespace threplay
             replay.character = ReadStringANSI();
             file.Seek(5, SeekOrigin.Current);
             replay.difficulty = ReadStringANSI();
-            file.Seek(6, SeekOrigin.Current);
+            // file.Seek(6, SeekOrigin.Current);
             replay.stage = ReadStringANSI();   //stage
             file.Seek(6, SeekOrigin.Current);
             long.TryParse(ReadStringANSI() + "0", out long scoreConv);  //replay stores the value without the 0

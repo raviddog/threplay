@@ -11,6 +11,8 @@ This tool supports:
 - Touhou 14.3 - Impossible Spell Card
 - Touhou 16.5 - Violet Detector
 
+Replay decoding was developed based on info provided by [http://opensrc.club/projects/thrp/](http://opensrc.club/projects/thrp/) and Fluorohydride's [threp](https://github.com/Fluorohydride/threp)
+
 ## Features
 
 - Move, copy and rename replays to and from a backup folder for each game
@@ -20,6 +22,7 @@ This tool supports:
 
 ## Todo
 
+- full replay data viewing functionality similar to the online replay uploaders
 - applocale support for game launching
 - load game info from a separate non-hardcoded file, to allow for easy updates or fangames
 - tracking unique replay files with MD5 sum and an SQLite database
