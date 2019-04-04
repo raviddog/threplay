@@ -1,11 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 using Ookii.Dialogs.Wpf;
 
@@ -43,7 +41,10 @@ namespace threplay
         public MainWindow()
         {
             InitializeComponent();
-
+            if(!File.Exists("portable.config"))
+            {
+                //first run?
+            }
             Bluegrams.Application.PortableSettingsProvider.ApplyProvider(Properties.Settings.Default);
 
             GameHandler.gameListView = modeGameSelector;
@@ -79,6 +80,7 @@ namespace threplay
             {
                 oReplayLiveList.SelectedIndex = -1;
                 oReplayBackupList.SelectedIndex = -1;
+                iViewDir.Focus();
                 e.Handled = true;
             } else if(e.Key == Key.Enter)
             {
@@ -88,29 +90,35 @@ namespace threplay
                     //user hit enter after renaming
                     //probably want to put like an "are you sure" box or something i guess?
                     //something something dialoghost
-                    if(oReplayLiveList.SelectedIndex != -1)
+                    if(oReplayLiveList.SelectedIndex != -1 && fnMultiEnabled.IsChecked == false)
                     {
-                        ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
-                        FileInfo replayFile = new FileInfo(replayEntry.FullPath);
-                        string oldFileName = replayFile.FullName;
-                        string newFileName = replayFile.DirectoryName + "\\" + odFileNameLive.Text + ".rpy";
-                        File.Move(oldFileName, newFileName);
+                        try
+                        {
+                            FileInfo replayFile = new FileInfo(((ReplayEntry)oReplayLiveList.SelectedItem).FullPath);
+                            replayFile.MoveTo(replayFile.DirectoryName + "\\" + odFileNameLive.Text + ".rpy");
+                        } catch (Exception ex)
+                        {
+                            //have actual messages later
+                            SetErrorMessage("Error renaming file");
+                        }
                         GameHandler.LoadLive();
-                        iViewDir.Focus();
-                        odLabelFileName.Text = "File Name:";
+                        oCurText.Focus();
                     }
                 } else if(odFileNameBackup.IsFocused)
                 {
-                    if(oReplayBackupList.SelectedIndex != -1)
+                    if(oReplayBackupList.SelectedIndex != -1 && fnMultiEnabled.IsChecked == false)
                     {
-                        ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
-                        FileInfo replayFile = new FileInfo(replayEntry.FullPath);
-                        string oldFileName = replayFile.FullName;
-                        string newFileName = replayFile.DirectoryName + "\\" + odFileNameLive.Text + ".rpy";
-                        File.Move(oldFileName, newFileName);
+                        try
+                        {
+                            FileInfo replayFile = new FileInfo(((ReplayEntry)oReplayBackupList.SelectedItem).FullPath);
+                            replayFile.MoveTo(replayFile.DirectoryName + "\\" + odFileNameLive.Text + ".rpy");
+                        } catch (Exception ex)
+                        {
+                            //have actual messages later
+                            SetErrorMessage("Error renaming file");
+                        }
                         GameHandler.LoadBackup();
-                        iViewDir.Focus();
-                        odLabelFileName.Text = "File Name:";
+                        oCurText.Focus();
                     }
                 }
             }
@@ -131,7 +139,7 @@ namespace threplay
                 GameHandler.LoadLive();
             }
             CheckMove();
-            iViewDir.Focus();
+            oCurText.Focus();
         }
 
         private void IDirLive_GotFocus(object sender, RoutedEventArgs e)
@@ -170,7 +178,7 @@ namespace threplay
             }
             GameHandler.LoadLive();
             CheckMove();
-            iViewDir.Focus();
+            oCurText.Focus();
         }
 
         private void IDirBackup_GotFocus(object sender, RoutedEventArgs e)
@@ -187,7 +195,7 @@ namespace threplay
                 GameHandler.LoadBackup();
             }
             CheckMove();
-            iViewDir.Focus();
+            oCurText.Focus();
         }
 
         private void CheckMove()
@@ -202,25 +210,21 @@ namespace threplay
             if (hasLive && hasBackup)
             {
                 iViewDirIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.FolderOpen;
-                oMessage.IsActive = false;
             }
             else
             {
                 iViewDirIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.FolderSearchOutline;
                 if (hasLive && !hasBackup)
                 {
-                    oMessage.Message = new MaterialDesignThemes.Wpf.SnackbarMessage() { Content = "Please select a backup folder" };
-                    oMessage.IsActive = true;
+                    SetErrorMessage("Please select a backup folder");
                 }
                 else if (!hasLive && hasBackup)
                 {
-                    oMessage.Message = new MaterialDesignThemes.Wpf.SnackbarMessage() { Content = "Please select a replay folder" };
-                    oMessage.IsActive = true;
+                    SetErrorMessage("Please select a replay folder");
                 }
                 else if (!hasLive && !hasBackup)
                 {
-                    oMessage.Message = new MaterialDesignThemes.Wpf.SnackbarMessage() { Content = "Please select your current and backup replay folders" };
-                    oMessage.IsActive = true;
+                    SetErrorMessage("Please select your current and backup replay folders");
                 }
             }
         }
@@ -278,6 +282,7 @@ namespace threplay
             oReplayBackupList.SelectionMode = SelectionMode.Multiple;
             oReplayLiveList.SelectionMode = SelectionMode.Multiple;
             odFileGrid.Visibility = Visibility.Collapsed;
+            CheckFileNameFocusable();
         }
 
         private void FnMultiEnabled_Unchecked(object sender, RoutedEventArgs e)
@@ -286,36 +291,17 @@ namespace threplay
             oReplayLiveList.SelectionMode = SelectionMode.Single;
             odFileGrid.Visibility = Visibility.Visible;
 
-            if(oReplayLiveList.SelectedIndex != -1)
-            {
-                ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
-                odFileNameLive.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
-                odFileNameLive.Focusable = true;
-            } else
-            {
-                odFileNameLive.Text = "(no single replay selected)";
-                odFileNameLive.Focusable = false;
-            }
-            if (oReplayBackupList.SelectedIndex != -1)
-            {
-                ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
-                odFileNameBackup.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
-                odFileNameBackup.Focusable = true;
-            } else
-            {
-                odFileNameBackup.Text = "(no single replay selected)";
-                odFileNameBackup.Focusable = false;
-            }
+            CheckFileNameFocusable();
         }
 
         private void OReplayLiveList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            CheckFileNameFocusable();
             if(fnMultiEnabled.IsChecked == false && oReplayLiveList.SelectedIndex != -1)
             {
                 ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
                 odFileNameLive.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
-                
-                if(GameReplayDecoder.ReadFile(ref replayEntry))
+                if(replayEntry.replay != null)
                 {
                     odFileDataLive.Text = replayEntry.replay.name;
                     odFileDateLive.Text = replayEntry.replay.date;
@@ -337,7 +323,6 @@ namespace threplay
 
             } else
             {
-                odFileNameLive.Text = "(no single replay selected)";
                 odFileDataLive.Text = null;
                 odFileDateLive.Text = null;
                 odFileShotLive.Text = null;
@@ -350,12 +335,12 @@ namespace threplay
 
         private void OReplayBackupList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            CheckFileNameFocusable();
             if (fnMultiEnabled.IsChecked == false && oReplayBackupList.SelectedIndex != -1)
             {
                 ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
                 odFileNameBackup.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
-
-                if (GameReplayDecoder.ReadFile(ref replayEntry))
+                if(replayEntry.replay != null)
                 {
                     odFileDataBackup.Text = replayEntry.replay.name;
                     odFileDateBackup.Text = replayEntry.replay.date;
@@ -364,8 +349,7 @@ namespace threplay
                     odFileScoreBackup.Text = replayEntry.replay.score;
                     odFileStageBackup.Text = replayEntry.replay.stage;
                     odFileStageBackup.ToolTip = replayEntry.replay.stage;
-                }
-                else
+                } else
                 {
                     odFileDataBackup.Text = null;
                     odFileDateBackup.Text = null;
@@ -377,7 +361,6 @@ namespace threplay
                 }
             } else
             {
-                odFileNameBackup.Text = "(no single replay selected)";
                 odFileDataBackup.Text = null;
                 odFileDateBackup.Text = null;
                 odFileShotBackup.Text = null;
@@ -392,7 +375,6 @@ namespace threplay
         {
             SettingsWindow settingsWindow = new SettingsWindow();
             settingsWindow.ShowDialog();
-            
         }
 
         private void FnLaunchLive_Click(object sender, RoutedEventArgs e)
@@ -405,927 +387,70 @@ namespace threplay
             GameHandler.OpenBackupFolder();
         }
 
-        private void OdFileNameLive_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void OdFileNameLive_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (fnMultiEnabled.IsChecked == false && oReplayLiveList.SelectedIndex != -1)
-            {
-                odFileNameLive.Focusable = true;
-                odFileNameLive.Focus();
-                odLabelFileName.Text = "press enter to rename";
-            }
+            odLabelFileName.Text = "press enter to rename";
         }
 
-        private void OdFileNameBackup_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void OdFileNameBackup_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (fnMultiEnabled.IsChecked == false && oReplayLiveList.SelectedIndex != -1)
-            {
-                odFileNameBackup.Focusable = true;
-                odFileNameBackup.Focus();
-                odLabelFileName.Text = "press enter to rename";
-            }
+            odLabelFileName.Text = "press enter to rename";
         }
 
         private void OdFileNameLive_LostFocus(object sender, RoutedEventArgs e)
         {
-            if(oReplayLiveList.SelectedIndex != -1)
-            {
-                ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
-                odFileNameLive.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
-            } else
-            {
-                odFileNameLive.Text = "(no single replay selected)";
-            }
-            odFileNameLive.Focusable = false;
+            CheckFileNameFocusable();
             odLabelFileName.Text = "File Name:";
         }
 
         private void OdFileNameBackup_LostFocus(object sender, RoutedEventArgs e)
         {
-            if (oReplayBackupList.SelectedIndex != -1)
-            {
-                ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
-                odFileNameBackup.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
-            }
-            else
-            {
-                odFileNameBackup.Text = "(no single replay selected)";
-            }
-            odFileNameBackup.Focusable = true;
+            CheckFileNameFocusable();
             odLabelFileName.Text = "File Name:";
         }
-    }
 
-    public static class GameHandler
-    {
-        public static int currentGame;
-        public static ListView gameListView = null;
-        public static ListView replayLiveView = null;
-        public static ListView replayBackupView = null;
-        public static TextBox liveDir = null;
-        public static TextBox backupDir = null;
-
-        private static GameObject[] games;
-
-        public static void SetExe(string path, out string replay) { games[currentGame].SetExe(path, out replay); }
-        public static bool SetLive(string path) { return games[currentGame].SetLive(path);  }
-        public static bool SetBackup(string path) { return games[currentGame].SetBackup(path); }
-        public static void LoadLive() { games[currentGame].LoadLive(ref replayLiveView); }
-        public static void LoadBackup() { games[currentGame].LoadBackup(ref replayBackupView); }
-        public static void LaunchGame() { if(games[currentGame].gameExe != "!") try { System.Diagnostics.Process.Start(games[currentGame].gameExe); } catch { } }
-        public static void OpenLiveFolder() { if (games[currentGame].dirLive != "!") try { System.Diagnostics.Process.Start(games[currentGame].dirLive); } catch { } }
-        public static void OpenBackupFolder() { if (games[currentGame].dirBackup != "!") try { System.Diagnostics.Process.Start(games[currentGame].dirBackup); } catch { } }
-        public static void OpenGameFolder() { if(games[currentGame].gameExe != "!") try { System.Diagnostics.Process.Start(Path.GetDirectoryName(games[currentGame].gameExe)); } catch { } }
-        //public static ListViewItem GetGameListEntry(int i) { return games[i].listEntry; }
-        public static void UpdateCurrentGame(ref TextBlock title, ref TextBox exe, ref TextBox live, ref TextBox backup)
+        private void CheckFileNameFocusable()
         {
-            currentGame = gameListView.SelectedIndex;
-            title.Text = "Currently selected game: " + GameData.titles[currentGame];
-            if (games[currentGame].dirBackup != "!")
+            if(fnMultiEnabled.IsChecked == false)
             {
-                backup.Text = games[currentGame].dirBackup;
-                LoadBackup();
-            } else
-            {
-                backup.Text = "click to browse for backup folder";
-                List<ReplayEntry> replayListBackup = new List<ReplayEntry>();
-                replayBackupView.ItemsSource = replayListBackup;
-            }
-            if (games[currentGame].dirLive != "!")
-            {
-                live.Text = games[currentGame].dirLive;
-                LoadLive();
-            } else
-            {
-                live.Text = "click to browse for replay folder";
-                List<ReplayEntry> replayListLive = new List<ReplayEntry>();
-                replayLiveView.ItemsSource = replayListLive;
-            }
-            if (games[currentGame].gameExe != "!")
-            {
-                exe.Text = games[currentGame].gameExe;
-            } else
-            {
-                exe.Text = "click to browse for game exe";
-            }
-        }
-
-        public static void CheckMove(out bool hasGame, out bool hasLive, out bool hasBackup)
-        {
-            hasGame = games[currentGame].gameExe != "!" ? true : false;
-            hasLive = games[currentGame].dirLive != "!" ? true : false;
-            hasBackup = games[currentGame].dirBackup != "!" ? true : false;
-        }
-
-        public static void FileMove(bool toBackup, bool deleteOriginal)
-        {
-            if (games[currentGame].dirBackup != "!" && games[currentGame].dirLive != "!")
-            {
-                if (toBackup)
+                if(oReplayBackupList.SelectedIndex != -1)
                 {
-                    foreach (ReplayEntry item in replayLiveView.SelectedItems)
-                    {
-                        //ReplayEntry replayItem = item.Content as ReplayEntry;
-                        string dest = System.IO.Path.Combine(games[currentGame].dirBackup, item.Filename);
-                        bool proceed = true;
-                        if (System.IO.File.Exists(dest))
-                        {
-                            MessageBoxResult result = MessageBox.Show("The destination file \"" + dest + "\" already exists. Overwite?", "Info", MessageBoxButton.YesNo);
-                            if(result == MessageBoxResult.No)
-                            {
-                                proceed = false;
-                            }
-                        }
-                        if (proceed)
-                        {
-                            if (deleteOriginal)
-                            {
-                                System.IO.File.Move(item.FullPath, dest);
-                            }
-                            else
-                            {
-                                System.IO.File.Copy(item.FullPath, dest);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (ReplayEntry item in replayBackupView.SelectedItems)
-                    {
-                        //ReplayEntry replayItem = item.Content as ReplayEntry;
-                        string dest = System.IO.Path.Combine(games[currentGame].dirLive, item.Filename);
-                        bool proceed = true;
-                        if (System.IO.File.Exists(dest))
-                        {
-                            MessageBoxResult result = MessageBox.Show("The destination file \"" + dest + "\" already exists. Overwite?", "Info", MessageBoxButton.YesNo);
-                            if (result == MessageBoxResult.No)
-                            {
-                                proceed = false;
-                            } else
-                            {
-                                System.IO.File.Delete(dest);
-                            }
-                        }
-                        if (proceed)
-                        {
-                            if (deleteOriginal)
-                            {
-                                System.IO.File.Move(item.FullPath, dest);
-                            }
-                            else
-                            {
-                                System.IO.File.Copy(item.FullPath, dest);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        public static void RegenerateGameList(string gameVisible)
-        {
-            Properties.Settings.Default["gameVisibility"] = gameVisible;
-            Properties.Settings.Default.Save();
-            for(int i = 0; i < (int)GameList.thLast; i++)
-            {
-                games[i].listEntry.Visibility = gameVisible[i] == 'Y' ? Visibility.Visible : Visibility.Collapsed;
-            }
-
-            char[] v = ((string)Properties.Settings.Default["gameVisibility"]).ToCharArray();
-            int p = 0;
-            while (p < (int)GameList.thLast && v[p++] == 'N') { }
-            if (p > (int)GameList.thLast)
-            {
-                gameListView.SelectedIndex = -1;
-            }
-            else
-            {
-                gameListView.SelectedIndex = p - 1;
-            }
-        }
-
-        public static bool InitializeGames()
-        {
-            if(gameListView != null)
-            {
-                games = new GameObject[(int)GameList.thLast];
-                string gameVisible = (string)Properties.Settings.Default["gameVisibility"];
-                for (int i = 0; i < (int)GameList.thLast; i++)
-                {
-                    games[i] = new GameObject(i);
-                    games[i].listEntry.Visibility = gameVisible[i] == 'Y' ? Visibility.Visible : Visibility.Collapsed;
-                    gameListView.Items.Add(games[i].listEntry);
-                }
-                return true;
-            } else return false;
-        }
-
-        private class GameObject
-        {
-            public ListViewItem listEntry;
-            public int number;
-            public string dirLive, dirBackup, gameExe;
-
-            private FileInfo[] replaysLive, replaysBackup;
-            private DirectoryInfo dirLiveInfo, dirBackupInfo;
-
-            public GameObject(int i)
-            {
-                number = i;
-                CreateListEntry(i, ref listEntry);
-                gameExe = (string)Properties.Settings.Default[GameData.setting[number] + "_e"];
-                dirLive = (string)Properties.Settings.Default[GameData.setting[number] + "_l"];
-                dirBackup = (string)Properties.Settings.Default[GameData.setting[number] + "_b"];
-            }
-
-            public void SetExe(string path, out string replay)
-            {
-                gameExe = path;
-                Properties.Settings.Default[GameData.setting[number] + "_e"] = gameExe;
-                if(dirLive == "!")
-                {
-                    if(Directory.Exists(Path.GetDirectoryName(path) + "\\replay"))
-                    {
-                        //autodetect replay folder
-                        dirLive = Path.GetDirectoryName(path) + "\\replay";
-                        replay = dirLive;
-                        Properties.Settings.Default[GameData.setting[number] + "_l"] = dirLive;
-                    } else
-                    {
-                        replay = "!";
-                    }
+                    odFileNameBackup.Focusable = true;
+                    odFileNameBackup.Text = Path.GetFileNameWithoutExtension(((ReplayEntry)oReplayBackupList.SelectedItem).Filename);
                 } else
                 {
-                    replay = dirLive;
+                    odFileNameBackup.Focusable = false;
+                    odFileNameBackup.Text = "(no single replay selected)";
                 }
-                Properties.Settings.Default.Save();
-            }
-
-            public bool SetLive(string path)
-            {
-                if(path == dirBackup)
+                if(oReplayLiveList.SelectedIndex != -1)
                 {
-                    MessageBox.Show("Replay folder cannot be the same folder as the backup folder", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-                    return false;
+                    odFileNameLive.Focusable = true;
+                    odFileNameLive.Text = Path.GetFileNameWithoutExtension(((ReplayEntry)oReplayLiveList.SelectedItem).Filename);
                 } else
                 {
-                    dirLive = path;
-                    Properties.Settings.Default[GameData.setting[number] + "_l"] = dirLive;
-                    Properties.Settings.Default.Save();
-                    return true;
+                    odFileNameLive.Focusable = false;
+                    odFileNameLive.Text = "(no single replay selected)";
                 }
+                
             }
+        }
 
-            public bool SetBackup(string path)
-            {
-                if(path == dirLive)
-                {
-                    MessageBox.Show("Backup folder cannot be the same folder as the replay folder", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-                    return false;
-                } else
-                {
-                    dirBackup = path;
-                    Properties.Settings.Default[GameData.setting[number] + "_b"] = dirBackup;
-                    Properties.Settings.Default.Save();
-                    return true;
-                }
-            }
-
-            public void LoadLive(ref ListView list)
-            {
-                if (dirLive != "!")
-                {
-                    dirLiveInfo = new DirectoryInfo(dirLive);
-                    replaysLive = dirLiveInfo.GetFiles("*.rpy");
-                    List<ReplayEntry> replayListLive = new List<ReplayEntry>();
-                    foreach (FileInfo curFile in replaysLive)
-                    {
-                        string name = curFile.Name;
-                        float size = curFile.Length / 1024.0f;
-                        string path = curFile.FullName;
-                        replayListLive.Add(new ReplayEntry() { Filename = name, Filesize = size.ToString("#,###.#") + "KB", FullPath = path });
-                    }
-
-                    list.ItemsSource = replayListLive;
-                }
-            }
-
-            public void LoadBackup(ref ListView list)
-            {
-                //this one shouldn't be able to fail
-                if(dirBackup != "!")
-                {
-                    dirBackupInfo = new DirectoryInfo(dirBackup);
-                    replaysBackup = dirBackupInfo.GetFiles("*.rpy");    
-                    List<ReplayEntry> replayListBackup = new List<ReplayEntry>();
-                    foreach (FileInfo curFile in replaysBackup)
-                    {
-                        string name = curFile.Name;
-                        float size = curFile.Length / 1024.0f;
-                        string path = curFile.FullName;
-                        replayListBackup.Add(new ReplayEntry() { Filename = name, Filesize = (size.ToString("#,###.#") + "KB"), FullPath = path });
-                    }
-                    
-                    list.ItemsSource = replayListBackup;
-                }
-            }
-
-            private void CreateListEntry(int i, ref ListViewItem listItem)
-            {
-                ListViewItem entry = new ListViewItem();
-
-                StackPanel contentPanel1 = new StackPanel();
-                contentPanel1.Orientation = Orientation.Horizontal;
-
-                StackPanel contentPanel2 = new StackPanel();
-                contentPanel2.Orientation = Orientation.Vertical;
-                contentPanel2.Margin = new Thickness(10, 10, 10, 10);
-
-                Image image = new Image();
-                BitmapImage imageSource = new BitmapImage(new Uri((String)("pack://application:,,,/Resources/img_game/img_" + GameData.setting[i] + ".jpg"), UriKind.Absolute));
-                image.Source = imageSource;
-                image.Width = 50;
-
-                TextBlock entryTitle = new TextBlock();
-                TextBlock entryName = new TextBlock();
-                entryTitle.FontSize = 18;
-                entryName.FontSize = 12;
-                entryTitle.Text = GameData.titles[i];
-                entryName.Text = GameData.names[i];
-
-                contentPanel2.Children.Add(entryTitle);
-                contentPanel2.Children.Add(entryName);
-
-                contentPanel1.Children.Add(image);
-                contentPanel1.Children.Add(contentPanel2);
-
-                entry.Content = contentPanel1;
-                listItem = entry;
-            }
+        public void SetErrorMessage(string s)
+        {
+            oMessage.Message = new MaterialDesignThemes.Wpf.SnackbarMessage() { Content = s };
+            oMessage.IsActive = true;
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(3);
+            timer.Tick += EndErrorMessage;
+            timer.Start();
+        }
+        private void EndErrorMessage(object sender, EventArgs e)
+        {
+            oMessage.IsActive = false;
+            ((DispatcherTimer)sender).Stop();
         }
 
     }
 
-    public static class GameReplayDecoder
-    {
-        private static FileStream file;
-
-        public static bool ReadFile(ref ReplayEntry replay)
-        {
-            bool status = false;
-            if(replay.replay != null)
-            {
-                return true;
-            } else
-            {
-                replay.replay = new ReplayEntry.ReplayInfo();
-            }
-
-            file = new FileStream(replay.FullPath, FileMode.Open);
-
-            //read first 4 bytes
-            int hexIn;
-            String hex = string.Empty;
-
-            for(int i = 0; i < 4; i++)
-            {
-                if((hexIn = file.ReadByte()) != -1)
-                {
-                    hex = string.Concat(hex, string.Format("{0:X2}", hexIn));
-                } else
-                {
-                    file.Close();
-                    return false;
-                }
-            }
-
-            switch(hex)
-            {
-                case "54365250":
-                    //T6RP
-                    status = Read_T6RP(ref replay.replay);
-                    break;
-                case "54375250":
-                    //T7RP
-                    //status = Read_T7RP(ref replay.replay);
-                    break;
-                case "54385250":
-                    //T8RP
-                    status = Read_T8RP(ref replay.replay);
-                    break;
-                case "54395250":
-                    //T9RP
-                    status = Read_T9RP(ref replay.replay);
-                    break;
-                case "74393572":
-                    //t95r
-                    status = Read_t95r(ref replay.replay);
-                    break;
-                case "74313072":
-                    //t10r
-                    status = Read_t10r(ref replay.replay);
-                    break;
-                case "74313172":
-                    //t11r
-                    status = Read_t11r(ref replay.replay);
-                    break;
-                case "74313272":
-                    //t12r
-                    status = Read_t12r(ref replay.replay);
-                    break;
-                case "74313235":
-                    //t125
-                    status = Read_t125(ref replay.replay);
-                    break;
-                case "31323872":
-                    //128r
-                    status = Read_128r(ref replay.replay);
-                    break;
-                case "74313372":
-                    //t13r
-                    //has both td and ddc for some fucking reason
-                    //since im reading the user data at the end though it doesnt matter
-                    status = Read_t13r(ref replay.replay);
-                    break;
-                case "74313433":
-                    //t143
-                    status = Read_t143(ref replay.replay);
-                    break;
-                case "74313572":
-                    //t15r
-                    status = Read_t15r(ref replay.replay);
-                    break;
-                case "74313672":
-                    //t16r
-                    status = Read_t16r(ref replay.replay);
-                    break;
-                case "74313536":
-                    //t156
-                    //shouldn't this be 165? gg zun
-                    status = Read_t156(ref replay.replay);
-                    break;
-                default:
-                    break;
-            }
-
-            file.Close();
-            return status;
-        }
-
-        private static UInt32 ReadUInt32()
-        {
-            uint buf = new uint();
-            UInt32 val = new UInt32();
-
-            for(int i = 0; i < 4; i++)
-            {
-                buf = (uint)file.ReadByte();
-                val += buf << (i * 8);
-            }
-
-            return val;
-        }
-
-        private static string ReadStringANSI()
-        {
-            int[] buf = new int[3];
-            string val = string.Empty;
-            buf[0] = file.ReadByte();
-            buf[1] = file.ReadByte();
-            if(buf[0] != 13 && buf[1] != 10)
-            {
-                buf[2] = file.ReadByte();
-                do
-                {
-                    val = string.Concat(val, Convert.ToChar(buf[0]).ToString());
-                    buf[0] = buf[1];
-                    buf[1] = buf[2];
-                    buf[2] = file.ReadByte();
-                } while (buf[0] != 13 && buf[1] != 10);
-            }
-
-            file.Seek(-1, SeekOrigin.Current);
-
-            return val;
-        }
-
-        //attempting to read japanese characters and failing
-        private static string ReadStringWide()
-        {
-            int[] buf = new int[3];
-            List<char> val = new List<char>();
-
-            buf[0] = file.ReadByte();
-            buf[1] = file.ReadByte();
-            if(buf[0] != 13 && buf[1] != 10)
-            {
-                buf[2] = file.ReadByte();
-                do
-                {
-                    val.Add((char)buf[0]);
-                    buf[0] = buf[1];
-                    buf[1] = buf[2];
-                    buf[2] = file.ReadByte();
-                } while (buf[0] != 13 && buf[1] != 10);
-            }
-
-            file.Seek(-1, SeekOrigin.Current);
-
-            Encoding iso = Encoding.GetEncoding("ISO-8859-1");
-            Encoding utf16 = Encoding.Unicode;
-
-            byte[] valUTF16 = utf16.GetBytes(val.ToArray());
-            byte[] valISO = Encoding.Convert(utf16, iso, valUTF16);
-            return iso.GetString(valISO);
-        }
-
-        private static bool JumpToUser(int loc)
-        {
-            file.Seek(loc, SeekOrigin.Begin);
-            UInt32 offset = ReadUInt32();
-            try { file.Seek(offset, SeekOrigin.Begin); }
-            catch { return false; }
-
-            string val = string.Empty;
-            int buf;
-            for (int i = 0; i < 4; i++)
-            {
-                buf = file.ReadByte();
-                val = string.Concat(val, string.Format("{0:X2}", buf));
-            }
-            return val == "55534552" ? true : false;
-        }
-        
-        /*
-         * Format of the Decoding Functions for Touhou 8 - onwards
-         * 
-         * Offset to USER info is stored at offset 0xC, length 4
-         * Jump to offset, return false if exception thrown
-         * Read USER to confirm correct jump, return false if not
-         * 
-         * Store the USER data length, it may come in handy?
-         * Terminating bytes for a string are 0x0D, 0x0A
-         * Jump to and read PLAYER NAME as string
-         * Jump to and read DATE as string
-         * Jump to and read CHARACTER as string, if the replay was encoded by a japanese copy of the game this reading will be gibberish
-         *      - Implement a lookup table for each game to convert the hex into a readable string
-         * Jump to and read SCORE as long, then format it to a string with thousand separators
-         * Jump to and read DIFFICULTY as string
-         * 
-         * */
-
-        private static bool Read_T6RP(ref ReplayEntry.ReplayInfo replay)
-        {
-            //lookup table
-            string[] chars = new string[4] { "ReimuA", "ReimuB", "MarisaA", "MarisaB" };
-            string[] difficulties = new string[5] { "Easy", "Normal", "Hard", "Lunatic", "Extra" };
-
-
-            int[] buf = new int[2];
-            file.Seek(2, SeekOrigin.Current);   //skip version number
-            buf[0] = file.ReadByte();   //shot type
-            replay.character = chars[buf[0]];
-            buf[1] = file.ReadByte();   //difficulty
-            replay.difficulty = difficulties[buf[1]];
-            file.Seek(6, SeekOrigin.Current);   //skip checksum to encryption key
-            byte key = (byte)file.ReadByte();
-
-            byte[] buffer = new byte[65];
-            for(int i = 0; i < 65; i++)
-            {
-                buffer[i] = (byte)file.ReadByte();
-                buffer[i] -= key;
-                key += 7;
-            }
-
-            for(int i = 1; i < 10; i++) //date[9], null terminated string
-            {
-                if (buffer[i] == 0x00) { i = 10; }
-                else
-                {
-                    replay.date = string.Concat(replay.date, Convert.ToChar(buffer[i]).ToString());
-                }
-            }
-
-            for(int i = 10; i < 19; i++)
-            {
-                if (buffer[i] == 0x00) { i = 19; }
-                else
-                {
-                    replay.name = string.Concat(replay.name, Convert.ToChar(buffer[i]).ToString());
-                }
-            }
-
-            uint score = new uint();
-            for(int i = 21; i < 25; i++)
-            {
-                score += (uint)buffer[i] << ((i - 21) * 8);
-            }
-            replay.score = score.ToString("N0");
-
-            return true;
-        }
-
-        private static bool Read_T7RP(ref ReplayEntry.ReplayInfo replay)
-        {
-            file.Seek(13, SeekOrigin.Begin);
-            byte key = (byte)file.ReadByte();
-            file.Seek(16, SeekOrigin.Begin);
-            byte[] buffer = new byte[65];
-            for (int i = 0; i < 65; i++)
-            {
-                buffer[i] = (byte)file.ReadByte();
-                buffer[i] -= key;
-                key += 7;
-            }
-            FileStream test = new FileStream("text.raw", FileMode.Create, FileAccess.Write);
-            test.Write(buffer, 0, buffer.Length);
-
-
-            return true;
-        }
-
-        private static bool Read_T8RP(ref ReplayEntry.ReplayInfo replay)
-        {
-            if (!JumpToUser(12)) return false;
-            
-            UInt32 length = ReadUInt32();
-            file.Seek(17, SeekOrigin.Current);
-            replay.name = ReadStringANSI();
-            file.Seek(11, SeekOrigin.Current);
-            replay.date = ReadStringANSI();
-            file.Seek(9, SeekOrigin.Current);
-            replay.character = ReadStringANSI();
-            file.Seek(8, SeekOrigin.Current);
-            long.TryParse(ReadStringANSI(), out long scoreConv);
-            replay.score = scoreConv.ToString("N0");
-            file.Seek(8, SeekOrigin.Current);
-            replay.difficulty = ReadStringANSI();
-            replay.stage = ReadStringANSI();
-
-            //check if spell practice or game replay
-            //actually do this later
-
-            return true;
-        }
-
-        private static bool Read_T9RP(ref ReplayEntry.ReplayInfo replay)
-        {
-            if (!JumpToUser(12)) return false;
-
-            UInt32 length = ReadUInt32();
-            file.Seek(17, SeekOrigin.Current);
-            replay.name = ReadStringANSI();
-            file.Seek(11, SeekOrigin.Current);
-            replay.date = ReadStringANSI();
-            file.Seek(8, SeekOrigin.Current);
-            replay.difficulty = ReadStringANSI();
-            file.Seek(8, SeekOrigin.Current);
-            replay.stage = ReadStringANSI();
-            return true;
-        }
-
-        private static bool Read_t95r(ref ReplayEntry.ReplayInfo replay)
-        {
-            if (!JumpToUser(12)) return false;
-
-            UInt32 length = ReadUInt32();
-            file.Seek(4, SeekOrigin.Current);
-            ReadStringANSI();
-            ReadStringANSI();
-            file.Seek(5, SeekOrigin.Current);
-            replay.name = ReadStringANSI();
-            replay.stage = ReadStringANSI() + " " + ReadStringANSI();
-            file.Seek(5, SeekOrigin.Current);
-            replay.date = ReadStringANSI();
-            file.Seek(6, SeekOrigin.Current);
-            long.TryParse(ReadStringANSI(), out long scoreConv);
-            replay.score = scoreConv.ToString("N0");
-
-            return true;
-        }
-
-        //  the replay user data format for touhou 10 through to 16 (and presumably from here on in) is identical
-
-        private static bool Read_t10r(ref ReplayEntry.ReplayInfo replay)
-        {
-            if (!JumpToUser(12)) return false;
-
-            UInt32 length = ReadUInt32();
-            file.Seek(4, SeekOrigin.Current);
-            ReadStringANSI();   //SJIS, 東方XYZ リプレイファイル情報, Touhou XYZ replay file info
-            ReadStringANSI();   //Skip over game version info
-            file.Seek(5, SeekOrigin.Current);
-            replay.name = ReadStringANSI();
-            file.Seek(5, SeekOrigin.Current);
-            replay.date = ReadStringANSI();
-            file.Seek(6, SeekOrigin.Current);
-            replay.character = ReadStringANSI();
-            file.Seek(5, SeekOrigin.Current);
-            replay.difficulty = ReadStringANSI();
-            // file.Seek(6, SeekOrigin.Current);
-            replay.stage = ReadStringANSI();   //stage
-            file.Seek(6, SeekOrigin.Current);
-            long.TryParse(ReadStringANSI() + "0", out long scoreConv);  //replay stores the value without the 0
-            replay.score = scoreConv.ToString("N0");
-
-            return true;
-        }
-
-        private static bool Read_t11r(ref ReplayEntry.ReplayInfo replay)
-        {
-            return Read_t10r(ref replay);
-        }
-
-        private static bool Read_t12r(ref ReplayEntry.ReplayInfo replay)
-        {
-            return Read_t10r(ref replay);
-        }
-
-        private static bool Read_t125(ref ReplayEntry.ReplayInfo replay)
-        {
-            if (!JumpToUser(12)) return false;
-
-            UInt32 length = ReadUInt32();
-            file.Seek(4, SeekOrigin.Current);
-            ReadStringANSI();
-            ReadStringANSI();
-            file.Seek(5, SeekOrigin.Current);
-            replay.name = ReadStringANSI();
-            file.Seek(5, SeekOrigin.Current);
-            replay.date = ReadStringANSI();
-            file.Seek(6, SeekOrigin.Current);
-            replay.character = ReadStringANSI();
-            replay.stage = ReadStringANSI();
-            file.Seek(6, SeekOrigin.Current);
-            long.TryParse(ReadStringANSI(), out long scoreConv);
-            replay.score = scoreConv.ToString("N0");
-
-            return true;
-        }
-
-        private static bool Read_128r(ref ReplayEntry.ReplayInfo replay)
-        {
-            if (!JumpToUser(12)) return false;
-
-            UInt32 length = ReadUInt32();
-            file.Seek(4, SeekOrigin.Current);
-            ReadStringANSI();
-            ReadStringANSI();
-            file.Seek(5, SeekOrigin.Current);
-            replay.name = ReadStringANSI();
-            file.Seek(5, SeekOrigin.Current);
-            replay.date = ReadStringANSI();
-            file.Seek(6, SeekOrigin.Current);
-            replay.stage = ReadStringANSI();
-            file.Seek(5, SeekOrigin.Current);
-            replay.difficulty = ReadStringANSI();
-            file.Seek(6, SeekOrigin.Current);
-            ReadStringANSI();   //stage
-            file.Seek(6, SeekOrigin.Current);
-            long.TryParse(ReadStringANSI() + "0", out long scoreConv);  //replay stores the value without the 0
-            replay.score = scoreConv.ToString("N0");
-
-            return true;
-        }
-
-        private static bool Read_t13r(ref ReplayEntry.ReplayInfo replay)
-        {
-            return Read_t10r(ref replay);
-        }
-
-        private static bool Read_t14r(ref ReplayEntry.ReplayInfo replay)
-        {
-            return Read_t10r(ref replay);
-        }
-
-        private static bool Read_t143(ref ReplayEntry.ReplayInfo replay)
-        {
-            if (!JumpToUser(12)) return false;
-
-            UInt32 length = ReadUInt32();
-            file.Seek(4, SeekOrigin.Current);
-            ReadStringANSI();
-            ReadStringANSI();
-            file.Seek(5, SeekOrigin.Current);
-            replay.name = ReadStringANSI();
-            file.Seek(5, SeekOrigin.Current);
-            replay.date = ReadStringANSI();
-            replay.stage = ReadStringANSI() + " " + ReadStringANSI();
-            file.Seek(6, SeekOrigin.Current);
-            long.TryParse(ReadStringANSI() + "0", out long scoreConv);  //replay stores the value without the 0
-            replay.score = scoreConv.ToString("N0");
-
-            return true;
-        }
-
-        private static bool Read_t15r(ref ReplayEntry.ReplayInfo replay)
-        {
-            return Read_t10r(ref replay);
-        }
-
-        private static bool Read_t156(ref ReplayEntry.ReplayInfo replay)
-        {
-            return Read_t143(ref replay);
-        }
-
-        private static bool Read_t16r(ref ReplayEntry.ReplayInfo replay)
-        {
-            return Read_t10r(ref replay);
-        }
-    }
-
-    public class ReplayEntry
-    {
-        public string Filename { get; set; }
-        public string Filesize { get; set; }
-        
-        public string FullPath;
-        public ReplayInfo replay;
-
-        public class ReplayInfo
-        {
-            public string name;
-            public string date;
-            public string character;
-            public string difficulty;
-            public string stage;
-            public string score;
-        }
-    }
-
-    public static class GameData
-    {
-        /*
-         *  In the future, I plan to have a data file that contains all the necessary
-         *  data for each game to be displayed and for the replay files to be decoded
-         *  if available. I'll also either create an external tool or bake in the capability
-         *  to edit this data file to enable easy expansion of this program for new releases
-         *  and additional fangames. For now though, baked in game information will suffice.
-         *  
-         *  I guess having it all in this class actually works nicely since I can just add in
-         *  loading functions to this class and populate these string arrays with the same info
-         */
-
-        public static readonly String[] titles =
-        {
-            "Touhou 6",
-            "Touhou 7",
-            "Touhou 8",
-            "Touhou 9",
-            "Touhou 9.5",
-            "Touhou 10",
-            "Touhou 11",
-            "Touhou 12",
-            "Touhou 12.5",
-            "Touhou 12.8",
-            "Touhou 13",
-            "Touhou 14",
-            "Touhou 14.3",
-            "Touhou 15",
-            "Touhou 16",
-            "Touhou 16.5"
-        };
-
-        public static readonly String[] names =
-        {
-            "Embodiment of Scarlet Devil",
-            "Perfect Cherry Blossom",
-            "Imperishable Night",
-            "Phantasmagoria of Flower View",
-            "Shoot the Bullet",
-            "Mountain of Faith",
-            "Subterranean Animism",
-            "Unidentified Fantastic Object",
-            "Double Spoiler",
-            "Great Fairy Wars",
-            "Ten Desires",
-            "Double Dealing Character",
-            "Impossible Spell Card",
-            "Legacy of Lunatic Kingdom",
-            "Hidden Star in Four Seasons",
-            "Violet Detector"
-        };
-
-        public static readonly String[] setting =
-        {
-            "th06",
-            "th07",
-            "th08",
-            "th09",
-            "th095",
-            "th10",
-            "th11",
-            "th12",
-            "th125",
-            "th128",
-            "th13",
-            "th14",
-            "th143",
-            "th15",
-            "th16",
-            "th165"
-        };
-    }
 }
 
