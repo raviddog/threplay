@@ -250,7 +250,7 @@ namespace threplay
 
         private void ModeGameSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            GameHandler.UpdateCurrentGame(ref oCurText, ref iDirGame, ref iDirLive, ref iDirBackup);
+            GameHandler.UpdateCurrentGame(ref oCurText, ref iDirGame, ref iDirLive, ref iDirBackup, ref outScoreLastBackup, ref fnBackupScorefile);
             CheckMove();
         }
 
@@ -440,7 +440,7 @@ namespace threplay
             oMessage.Message = new MaterialDesignThemes.Wpf.SnackbarMessage() { Content = s };
             oMessage.IsActive = true;
             DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(3);
+            timer.Interval = TimeSpan.FromSeconds(5);
             timer.Tick += EndErrorMessage;
             timer.Start();
         }
@@ -450,6 +450,11 @@ namespace threplay
             ((DispatcherTimer)sender).Stop();
         }
 
+        private void FnBackupScorefile_Click(object sender, RoutedEventArgs e)
+        {
+            //do error checks
+            GameHandler.BackupScore(ref outScoreLastBackup);
+        }
     }
 
 }

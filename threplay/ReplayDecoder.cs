@@ -279,7 +279,7 @@ namespace threplay
                 buffer[i] -= key;
                 key += 7;
             }
-            FileStream test = new FileStream("text.raw", FileMode.Create, FileAccess.Write);
+            FileStream test = new FileStream("test.raw", FileMode.Create, FileAccess.Write);
             test.Write(buffer, 0, buffer.Length);
 
 

@@ -28,7 +28,7 @@ namespace threplay
         public static void OpenBackupFolder() { if (games[currentGame].dirBackup != "!") try { System.Diagnostics.Process.Start(games[currentGame].dirBackup); } catch { } }
         public static void OpenGameFolder() { if (games[currentGame].gameExe != "!") try { System.Diagnostics.Process.Start(Path.GetDirectoryName(games[currentGame].gameExe)); } catch { } }
         //public static ListViewItem GetGameListEntry(int i) { return games[i].listEntry; }
-        public static void UpdateCurrentGame(ref TextBlock title, ref TextBox exe, ref TextBox live, ref TextBox backup)
+        public static void UpdateCurrentGame(ref TextBlock title, ref TextBox exe, ref TextBox live, ref TextBox backup, ref TextBlock scoreBackupDate, ref Button backupEnabled)
         {
             currentGame = gameListView.SelectedIndex;
             title.Text = "Currently selected game: " + GameData.titles[currentGame];
@@ -61,6 +61,52 @@ namespace threplay
             else
             {
                 exe.Text = "click to browse for game exe";
+            }
+            if(GameData.scorefileJ[currentGame] != null)
+            {
+                if(File.Exists(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]))
+                {
+                    FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]);
+                    scoreBackupDate.Text = scorefile.CreationTime.ToShortDateString();
+                } else
+                {
+                    scoreBackupDate.Text = "Never";
+                }
+                if(games[currentGame].dirLive != "!" && games[currentGame].dirBackup != "!")
+                {
+                    backupEnabled.IsEnabled = File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame]);
+                }
+            } else
+            {
+                if (File.Exists(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat"))
+                {
+                    FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat");
+                    scoreBackupDate.Text = scorefile.CreationTime.ToShortDateString();
+                } else
+                {
+                    scoreBackupDate.Text = "Never";
+                }
+                if (games[currentGame].gameExe != "!" && games[currentGame].dirBackup != "!")
+                {
+                    backupEnabled.IsEnabled = File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat");
+                }
+            }
+            
+        }
+
+        public static void BackupScore(ref TextBlock scoreBackupDate)
+        {
+            //error check this
+            if(GameData.scorefileJ[currentGame] != null)
+            {
+                File.Copy(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame], games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame], true);
+                FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame] + ".dat");
+                scoreBackupDate.Text = scorefile.CreationTime.ToShortDateString();
+            } else
+            {
+                File.Copy(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat", games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat", true);
+                FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat");
+                scoreBackupDate.Text = scorefile.CreationTime.ToShortDateString();
             }
         }
 
@@ -447,6 +493,26 @@ namespace threplay
             "th15",
             "th16",
             "th165"
+        };
+
+        public static readonly String[] scorefileJ =
+        {
+            "score.dat",
+            "score.dat",
+            "score.dat",
+            "score.dat",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
         };
     }
 }
