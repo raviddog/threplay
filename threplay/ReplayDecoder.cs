@@ -48,7 +48,7 @@ namespace threplay
                     break;
                 case "54375250":
                     //T7RP
-                    //status = Read_T7RP(ref replay.replay);
+                    status = Read_T7RP(ref replay.replay);
                     break;
                 case "54385250":
                     //T8RP
@@ -269,21 +269,117 @@ namespace threplay
 
         private static bool Read_T7RP(ref ReplayEntry.ReplayInfo replay)
         {
+            string[] chars = new string[] { "ReimuA", "ReimuB", "MarisaA", "MarisaB", "SakuyaA", "SakuyaB" };
+            string[] difficulties = new string[] { "Easy", "Normal", "Hard", "Lunatic", "Extra", "Phantasm" };
+            //raw data starts at 84
+            byte[] buffer = new byte[file.Length];
+
             file.Seek(13, SeekOrigin.Begin);
             byte key = (byte)file.ReadByte();
-            file.Seek(16, SeekOrigin.Begin);
-            byte[] buffer = new byte[65];
-            for (int i = 0; i < 65; i++)
+            file.Seek(0, SeekOrigin.Begin);
+            for (int i = 0; i < 16; i++)
+            {
+                buffer[i] = (byte)file.ReadByte();
+            }
+            for (int i = 16; i < file.Length; ++i)
             {
                 buffer[i] = (byte)file.ReadByte();
                 buffer[i] -= key;
                 key += 7;
             }
-            FileStream test = new FileStream("test.raw", FileMode.Create, FileAccess.Write);
-            test.Write(buffer, 0, buffer.Length);
+            uint length = 0, dlength = 0;
+            for (int i = 20; i < 24; i++)
+            {
+                length += (uint)(buffer[i] << ((i - 20) * 8));
+                dlength += (uint)(buffer[i + 4] << ((i - 24) * 8));
+            }
+            byte[] rawData = new byte[file.Length];
+            Array.ConstrainedCopy(buffer, 0x54, rawData, 0, buffer.Length - 0x54);
 
+            byte[] decodeData = new byte[dlength];
+            uint rlength = decompress(ref rawData, ref decodeData, length);
+
+            replay.character = chars[decodeData[2]];
+            replay.difficulty = difficulties[decodeData[3]];
+            for (int i = 4; i < 9; i++)
+            {
+                replay.date = string.Concat(replay.date, (Convert.ToChar(decodeData[i])).ToString());
+            }
+
+            for (int i = 10; i < 18; i++)
+            {
+                replay.name = string.Concat(replay.name, (Convert.ToChar(decodeData[i])).ToString());
+            }
+
+            uint score = 0;
+            for (int i = 24; i < 28; i++)
+            {
+                score += (uint)(decodeData[i] << ((i - 24) * 8));
+            }
+            score *= 10;
+            replay.score = score.ToString("N0");
 
             return true;
+        }
+
+        private static uint get_bit(ref byte[] buffer, ref uint pointer, ref byte filter, byte length)
+        {
+            //function rewritten in C# from https://github.com/Fluorohydride/threp/blob/master/common.cpp
+            uint result = 0;
+            byte current = buffer[pointer];
+            for (byte i = 0; i < length; ++i)
+            {
+                result <<= 1;
+                if ((current & filter) != 0x00)
+                {
+                    result |= 0x01;
+                }
+                filter >>= 1;
+                if (filter == 0)
+                {
+                    pointer++;
+                    current = buffer[pointer];
+                    filter = 0x80;
+                }
+            }
+            return result;
+        }
+
+        private static uint decompress(ref byte[] buffer, ref byte[] decode, uint length)
+        {
+            //function rewritten in C# from https://github.com/Fluorohydride/threp/blob/master/common.cpp
+            uint pointer = 0, dest = 0, index, bits;
+            byte filter = 0x80;
+            byte[] dict = new byte[8208];   //0x2010
+            while (pointer < length)
+            {
+                bits = get_bit(ref buffer, ref pointer, ref filter, 1);
+                if (pointer >= length) return dest;
+                if (bits != 0)
+                {
+                    bits = get_bit(ref buffer, ref pointer, ref filter, 8);
+                    if (pointer >= length) return dest;
+                    decode[dest] = (byte)bits;
+                    dict[dest & 0x1fff] = (byte)bits;
+                    dest++;
+                }
+                else
+                {
+                    bits = get_bit(ref buffer, ref pointer, ref filter, 13);
+                    if (pointer >= length) return dest;
+                    index = bits - 1;
+                    bits = get_bit(ref buffer, ref pointer, ref filter, 4);
+                    if (pointer >= length) return dest;
+                    bits += 3;
+                    for (int i = 0; i < bits; i++)
+                    {
+                        dict[dest & 0x1fff] = dict[index + i];
+                        decode[dest] = dict[index + i];
+                        dest++;
+                    }
+                }
+            }
+            return dest;
         }
 
         private static bool Read_T8RP(ref ReplayEntry.ReplayInfo replay)

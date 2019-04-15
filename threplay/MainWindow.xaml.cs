@@ -250,7 +250,8 @@ namespace threplay
 
         private void ModeGameSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            GameHandler.UpdateCurrentGame(ref oCurText, ref iDirGame, ref iDirLive, ref iDirBackup, ref outScoreLastBackup, ref fnBackupScorefile);
+            oMessage.IsActive = false;
+            GameHandler.UpdateCurrentGame(ref oCurText, ref iDirGame, ref iDirLive, ref iDirBackup, ref outScoreLiveModified, ref outScoreBackupModified, ref fnBackupScorefile);
             CheckMove();
         }
 
@@ -301,6 +302,7 @@ namespace threplay
             {
                 ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
                 odFileNameLive.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
+                GameReplayDecoder.ReadFile(ref replayEntry);
                 if(replayEntry.replay != null)
                 {
                     odFileDataLive.Text = replayEntry.replay.name;
@@ -340,7 +342,8 @@ namespace threplay
             {
                 ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
                 odFileNameBackup.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
-                if(replayEntry.replay != null)
+                GameReplayDecoder.ReadFile(ref replayEntry);
+                if (replayEntry.replay != null)
                 {
                     odFileDataBackup.Text = replayEntry.replay.name;
                     odFileDateBackup.Text = replayEntry.replay.date;
@@ -453,7 +456,7 @@ namespace threplay
         private void FnBackupScorefile_Click(object sender, RoutedEventArgs e)
         {
             //do error checks
-            GameHandler.BackupScore(ref outScoreLastBackup);
+            GameHandler.BackupScore(ref outScoreBackupModified);
         }
     }
 

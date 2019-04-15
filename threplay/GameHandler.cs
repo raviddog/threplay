@@ -28,7 +28,7 @@ namespace threplay
         public static void OpenBackupFolder() { if (games[currentGame].dirBackup != "!") try { System.Diagnostics.Process.Start(games[currentGame].dirBackup); } catch { } }
         public static void OpenGameFolder() { if (games[currentGame].gameExe != "!") try { System.Diagnostics.Process.Start(Path.GetDirectoryName(games[currentGame].gameExe)); } catch { } }
         //public static ListViewItem GetGameListEntry(int i) { return games[i].listEntry; }
-        public static void UpdateCurrentGame(ref TextBlock title, ref TextBox exe, ref TextBox live, ref TextBox backup, ref TextBlock scoreBackupDate, ref Button backupEnabled)
+        public static void UpdateCurrentGame(ref TextBlock title, ref TextBox exe, ref TextBox live, ref TextBox backup, ref TextBlock scoreLiveDate, ref TextBlock scoreBackupDate, ref Button backupEnabled)
         {
             currentGame = gameListView.SelectedIndex;
             title.Text = "Currently selected game: " + GameData.titles[currentGame];
@@ -66,29 +66,52 @@ namespace threplay
             {
                 if(File.Exists(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]))
                 {
-                    FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]);
-                    scoreBackupDate.Text = scorefile.CreationTime.ToShortDateString();
+                    FileInfo backupScore = new FileInfo(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]);
+                    scoreBackupDate.Text = backupScore.LastWriteTime.ToShortDateString();
                 } else
                 {
                     scoreBackupDate.Text = "Never";
                 }
-                if(games[currentGame].dirLive != "!" && games[currentGame].dirBackup != "!")
+                if(File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame]))
+                {
+                    FileInfo liveScore = new FileInfo(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame]);
+                    scoreLiveDate.Text = liveScore.LastWriteTime.ToShortDateString();
+                } else
+                {
+                    scoreLiveDate.Text = "None";
+                }
+                if(Directory.Exists(games[currentGame].dirLive) && Directory.Exists(games[currentGame].dirBackup))
                 {
                     backupEnabled.IsEnabled = File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame]);
+                } else
+                {
+                    backupEnabled.IsEnabled = false;
                 }
             } else
             {
                 if (File.Exists(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat"))
                 {
                     FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat");
-                    scoreBackupDate.Text = scorefile.CreationTime.ToShortDateString();
+                    scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
                 } else
                 {
                     scoreBackupDate.Text = "Never";
                 }
-                if (games[currentGame].gameExe != "!" && games[currentGame].dirBackup != "!")
+                if (File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat"))
+                {
+                    FileInfo liveScore = new FileInfo(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat");
+                    scoreLiveDate.Text = liveScore.LastWriteTime.ToShortDateString();
+                }
+                else
+                {
+                    scoreLiveDate.Text = "None";
+                }
+                if (Directory.Exists(games[currentGame].dirLive) && Directory.Exists(games[currentGame].dirBackup))
                 {
                     backupEnabled.IsEnabled = File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat");
+                } else
+                {
+                    backupEnabled.IsEnabled = false;
                 }
             }
             
@@ -100,13 +123,13 @@ namespace threplay
             if(GameData.scorefileJ[currentGame] != null)
             {
                 File.Copy(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame], games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame], true);
-                FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame] + ".dat");
-                scoreBackupDate.Text = scorefile.CreationTime.ToShortDateString();
+                FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]);
+                scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
             } else
             {
                 File.Copy(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat", games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat", true);
                 FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat");
-                scoreBackupDate.Text = scorefile.CreationTime.ToShortDateString();
+                scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
             }
         }
 
@@ -322,7 +345,7 @@ namespace threplay
                                 Filesize = (curFile.Length / 1024.0f).ToString("#,###.#") + "KB",
                                 FullPath = curFile.FullName
                             };
-                            GameReplayDecoder.ReadFile(ref replayInfo);
+                            //GameReplayDecoder.ReadFile(ref replayInfo);
                             replayListLive.Add(replayInfo);
                         }
                     }
@@ -355,7 +378,7 @@ namespace threplay
                                 Filesize = (curFile.Length / 1024.0f).ToString("#,###.#") + "KB",
                                 FullPath = curFile.FullName
                             };
-                            GameReplayDecoder.ReadFile(ref replayInfo);
+                            //GameReplayDecoder.ReadFile(ref replayInfo);
                             replayListBackup.Add(replayInfo);
                         }
                     }
