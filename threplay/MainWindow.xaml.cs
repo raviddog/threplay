@@ -243,21 +243,11 @@ namespace threplay
             GameHandler.LoadBackup();
         }
 
-        private void ModeGameViewToggle_MouseLeave(object sender, MouseEventArgs e)
-        {
-            modeGameViewToggle.Width = 65;
-        }
-
         private void ModeGameSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             oMessage.IsActive = false;
             GameHandler.UpdateCurrentGame(ref oCurText, ref iDirGame, ref iDirLive, ref iDirBackup, ref outScoreLiveModified, ref outScoreBackupModified, ref fnBackupScorefile);
             CheckMove();
-        }
-
-        private void ModeGameSelector_MouseEnter(object sender, MouseEventArgs e)
-        {
-            modeGameViewToggle.Width = 250;
         }
 
         private void FnLaunchFolder_Click(object sender, RoutedEventArgs e)
@@ -456,7 +446,10 @@ namespace threplay
         private void FnBackupScorefile_Click(object sender, RoutedEventArgs e)
         {
             //do error checks
-            GameHandler.BackupScore(ref outScoreBackupModified);
+            if(!GameHandler.BackupScore(ref outScoreBackupModified))
+            {
+                SetErrorMessage("Score.dat backup failed");     //if all goes well this shouldn't be able to trigger
+            }
         }
     }
 

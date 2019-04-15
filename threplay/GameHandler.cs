@@ -117,19 +117,29 @@ namespace threplay
             
         }
 
-        public static void BackupScore(ref TextBlock scoreBackupDate)
+        public static bool BackupScore(ref TextBlock scoreBackupDate)
         {
             //error check this
             if(GameData.scorefileJ[currentGame] != null)
             {
-                File.Copy(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame], games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame], true);
-                FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]);
-                scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
+                if (File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame]))
+                {
+                    File.Copy(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame], games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame], true);
+                    FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]);
+                    scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
+                    return true;
+                }
+                else return false;
             } else
             {
-                File.Copy(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat", games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat", true);
-                FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat");
-                scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
+                if (File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat"))
+                {
+                    File.Copy(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat", games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat", true);
+                    FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat");
+                    scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
+                    return true;
+                }
+                else return false;
             }
         }
 
@@ -163,11 +173,23 @@ namespace threplay
                         {
                             if (deleteOriginal)
                             {
-                                System.IO.File.Move(item.FullPath, dest);
+                                try
+                                {
+                                    File.Move(item.FullPath, dest);
+                                } catch
+                                {
+
+                                }
                             }
                             else
                             {
-                                System.IO.File.Copy(item.FullPath, dest);
+                                try
+                                {
+                                    File.Copy(item.FullPath, dest);
+                                } catch
+                                {
+
+                                }
                             }
                         }
                     }
@@ -195,11 +217,25 @@ namespace threplay
                         {
                             if (deleteOriginal)
                             {
-                                System.IO.File.Move(item.FullPath, dest);
+                                try
+                                {
+                                    File.Move(item.FullPath, dest);
+                                }
+                                catch
+                                {
+
+                                }
                             }
                             else
                             {
-                                System.IO.File.Copy(item.FullPath, dest);
+                                try
+                                {
+                                    File.Copy(item.FullPath, dest);
+                                }
+                                catch
+                                {
+
+                                }
                             }
                         }
                     }
@@ -325,14 +361,12 @@ namespace threplay
             {
                 if (dirLive != "!")
                 {
-                    try
-                    {
+                    if(Directory.Exists(dirLive)) {
                         dirLiveInfo = new DirectoryInfo(dirLive);
                         replaysLive = dirLiveInfo.GetFiles("*.rpy");
-                    }
-                    catch
+                    } else
                     {
-                        ((MainWindow)Application.Current.MainWindow).SetErrorMessage("Unable to open replay folder. Check that it is set correctly");
+                        ((MainWindow)Application.Current.MainWindow).SetErrorMessage("Unable to open replay folder. Check that it is set correctly.");
                     }
                     List<ReplayEntry> replayListLive = new List<ReplayEntry>();
                     if(replaysLive != null)
@@ -359,13 +393,13 @@ namespace threplay
                 //this one shouldn't be able to fail
                 if (dirBackup != "!")
                 {
-                    try
+                    if(Directory.Exists(dirBackup))
                     {
                         dirBackupInfo = new DirectoryInfo(dirBackup);
                         replaysBackup = dirBackupInfo.GetFiles("*.rpy");
-                    } catch
+                    } else
                     {
-                        ((MainWindow)Application.Current.MainWindow).SetErrorMessage("Unable to open backup folder. Check that it is set correctly");
+                        ((MainWindow)Application.Current.MainWindow).SetErrorMessage("Unable to open backup folder. Check that it is set correctly.");
                     }
                     List<ReplayEntry> replayListBackup = new List<ReplayEntry>();
                     if(replaysBackup != null)

@@ -11,14 +11,13 @@ This tool supports:
 - Touhou 14.3 - Impossible Spell Card
 - Touhou 16.5 - Violet Detector
 
-Replay decoding was developed based on info provided by [http://opensrc.club/projects/thrp/](http://opensrc.club/projects/thrp/), [https://pytouhou.linkmauve.fr/doc/06/t6rp.xhtml](https://pytouhou.linkmauve.fr/doc/06/t6rp.xhtml) and Fluorohydride's [threp](https://github.com/Fluorohydride/threp)
+Replay decoding was developed based on info from [http://opensrc.club/projects/thrp/](http://opensrc.club/projects/thrp/), [https://pytouhou.linkmauve.fr/doc/06/t6rp.xhtml](https://pytouhou.linkmauve.fr/doc/06/t6rp.xhtml) and [Fluorohydride's threp](https://github.com/Fluorohydride/threp)
 
 ## Features
 
 - Move, copy and rename replays to and from a backup folder for each game
 - View replay data like player name, score, etc directly within the program for easier organisation of replays
-- Launch the specified game executable
-- Open the game folder, or either of the specified replay folders
+- Open and launch the game, or any of the specified folders
 
 ## Todo
 
