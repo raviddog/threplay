@@ -2,6 +2,8 @@
 
 **Touhou Replay Manager** is a tool to help manage your Touhou replay files. It allows you to easily backup, restore and keep track of your replays and also serves as a unified game launcher.
 
+[Download the most recent version: v0.2-beta](https://github.com/raviddog/threplay/releases/tag/v0.2-beta)
+
 This tool supports:
 
 - Mainline Touhou games from 6 through to 16
