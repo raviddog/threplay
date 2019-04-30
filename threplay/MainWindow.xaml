@@ -111,7 +111,7 @@
                         <TextBlock x:Name="odLabelFileName" Text="File Name: " Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"/>
                         <TextBlock Text="Replay Name / Date:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"/>
                         <TextBlock Text="Shottype / Score:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center"/>
-                        <TextBlock Text="Stage / Difficulty: " Grid.Column="0" Grid.Row="3" VerticalAlignment="Center"/>
+                        <TextBlock Text="Difficulty / Stage: " Grid.Column="0" Grid.Row="3" VerticalAlignment="Center"/>
                         <TextBox x:Name="odFileNameLive" LostFocus="OdFileNameLive_LostFocus" GotFocus="OdFileNameLive_GotFocus" Text="(no single replay selected)" Focusable="False" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Margin="2,0,2,0"/>
                         <TextBox x:Name="odFileNameBackup" LostFocus="OdFileNameBackup_LostFocus" GotFocus="OdFileNameBackup_GotFocus" Text="(no single replay selected)" Focusable="False" Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="0" Margin="2,0,2,0"/>
                         <TextBlock x:Name="odFileDataLive" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center"/>
@@ -122,10 +122,10 @@
                         <TextBlock x:Name="odFileShotBackup" Grid.Column="3" Grid.Row="2" VerticalAlignment="Center"/>
                         <TextBlock x:Name="odFileScoreLive" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center"/>
                         <TextBlock x:Name="odFileScoreBackup" Grid.Column="4" Grid.Row="2" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="odFileStageLive" Grid.Column="1" Grid.Row="3" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="odFileStageBackup" Grid.Column="3" Grid.Row="3" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="odFileDifficultyLive" Grid.Column="2" Grid.Row="3" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="odFileDifficultyBackup" Grid.Column="4" Grid.Row="3" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="odFileStageLive" Grid.Column="2" Grid.Row="3" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="odFileStageBackup" Grid.Column="4" Grid.Row="3" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="odFileDifficultyLive" Grid.Column="1" Grid.Row="3" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="odFileDifficultyBackup" Grid.Column="3" Grid.Row="3" VerticalAlignment="Center"/>
                     </Grid>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="60,0,0,0">
                         <Button x:Name="fnLaunchGame" Content="Launch Game" Height="28" Click="FnLaunchGame_Click" Margin="0,0,8,0" IsEnabled="False"/>
@@ -147,7 +147,8 @@
                         <Grid Grid.Column="0">
                             <TextBlock Text="Current Replay Folder" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,0,0,0"/>
                             <ListView x:Name="oReplayLiveList" SelectionMode="Single" Margin="0,24,0,0"
-                                      MinWidth="350" MinHeight="100" SelectionChanged="OReplayLiveList_SelectionChanged">
+                                      MinWidth="350" MinHeight="100" SelectionChanged="OReplayLiveList_SelectionChanged"
+                                      AllowDrop="True" Drop="OReplayLiveList_Drop">
                                 <ListView.View>
                                     <GridView>
                                         <GridViewColumn Header="Filename" Width="120" DisplayMemberBinding="{Binding Filename}" />
@@ -159,7 +160,8 @@
                         <Grid Grid.Column="2">
                             <TextBlock Text="Backup Replay Folder" Margin="15,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                             <ListView x:Name="oReplayBackupList" SelectionMode="Single" Margin="0,24,0,0"
-                                      MinWidth="350" MinHeight="100" SelectionChanged="OReplayBackupList_SelectionChanged">
+                                      MinWidth="350" MinHeight="100" SelectionChanged="OReplayBackupList_SelectionChanged"
+                                      AllowDrop="True" Drop="OReplayBackupList_Drop">
                                 <ListView.View>
                                     <GridView>
                                         <GridViewColumn Header="Filename" Width="120" DisplayMemberBinding="{Binding Filename}" />

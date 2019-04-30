@@ -44,42 +44,52 @@ namespace threplay
             {
                 case "54365250":
                     //T6RP
+                    replay.replay.game = 0;
                     status = Read_T6RP(ref replay.replay);
                     break;
                 case "54375250":
                     //T7RP
+                    replay.replay.game = 1;
                     status = Read_T7RP(ref replay.replay);
                     break;
                 case "54385250":
                     //T8RP
+                    replay.replay.game = 2;
                     status = Read_T8RP(ref replay.replay);
                     break;
                 case "54395250":
                     //T9RP
+                    replay.replay.game = 3;
                     status = Read_T9RP(ref replay.replay);
                     break;
                 case "74393572":
                     //t95r
+                    replay.replay.game = 4;
                     status = Read_t95r(ref replay.replay);
                     break;
                 case "74313072":
                     //t10r
+                    replay.replay.game = 5;
                     status = Read_t10r(ref replay.replay);
                     break;
                 case "74313172":
                     //t11r
+                    replay.replay.game = 6;
                     status = Read_t11r(ref replay.replay);
                     break;
                 case "74313272":
                     //t12r
+                    replay.replay.game = 7;
                     status = Read_t12r(ref replay.replay);
                     break;
                 case "74313235":
                     //t125
+                    replay.replay.game = 8;
                     status = Read_t125(ref replay.replay);
                     break;
                 case "31323872":
                     //128r
+                    replay.replay.game = 9;
                     status = Read_128r(ref replay.replay);
                     break;
                 case "74313372":
@@ -90,19 +100,23 @@ namespace threplay
                     break;
                 case "74313433":
                     //t143
+                    replay.replay.game = 12;
                     status = Read_t143(ref replay.replay);
                     break;
                 case "74313572":
                     //t15r
+                    replay.replay.game = 13;
                     status = Read_t15r(ref replay.replay);
                     break;
                 case "74313672":
                     //t16r
+                    replay.replay.game = 14;
                     status = Read_t16r(ref replay.replay);
                     break;
                 case "74313536":
                     //t156
                     //shouldn't this be 165? gg zun
+                    replay.replay.game = 15;
                     status = Read_t156(ref replay.replay);
                     break;
                 default:
@@ -528,7 +542,33 @@ namespace threplay
 
         private static bool Read_t13r(ref ReplayEntry.ReplayInfo replay)
         {
-            return Read_t10r(ref replay);
+            if (!JumpToUser(12)) return false;
+
+            UInt32 length = ReadUInt32();
+            file.Seek(4, SeekOrigin.Current);
+            file.Seek(4, SeekOrigin.Current);   //which game
+
+            byte ver = (byte)file.ReadByte();
+            if (ver == 144) replay.game = 10;
+            else replay.game = 11;
+
+            ReadStringANSI();   //SJIS, 東方XYZ リプレイファイル情報, Touhou XYZ replay file info
+            ReadStringANSI();   //Skip over game version info
+            file.Seek(5, SeekOrigin.Current);
+            replay.name = ReadStringANSI();
+            file.Seek(5, SeekOrigin.Current);
+            replay.date = ReadStringANSI();
+            file.Seek(6, SeekOrigin.Current);
+            replay.character = ReadStringANSI();
+            file.Seek(5, SeekOrigin.Current);
+            replay.difficulty = ReadStringANSI();
+            // file.Seek(6, SeekOrigin.Current);
+            replay.stage = ReadStringANSI();   //stage
+            file.Seek(6, SeekOrigin.Current);
+            long.TryParse(ReadStringANSI() + "0", out long scoreConv);  //replay stores the value without the 0
+            replay.score = scoreConv.ToString("N0");
+
+            return true;
         }
 
         private static bool Read_t14r(ref ReplayEntry.ReplayInfo replay)

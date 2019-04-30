@@ -280,7 +280,10 @@ namespace threplay
         {
             oReplayBackupList.SelectionMode = SelectionMode.Single;
             oReplayLiveList.SelectionMode = SelectionMode.Single;
-            odFileGrid.Visibility = Visibility.Visible;
+            if(iViewDir.IsExpanded == false)
+            {
+                odFileGrid.Visibility = Visibility.Visible;
+            }
 
             CheckFileNameFocusable();
         }
@@ -288,6 +291,7 @@ namespace threplay
         private void OReplayLiveList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CheckFileNameFocusable();
+            iViewDir.IsExpanded = false;
             if(fnMultiEnabled.IsChecked == false && oReplayLiveList.SelectedIndex != -1)
             {
                 ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
@@ -328,6 +332,7 @@ namespace threplay
         private void OReplayBackupList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CheckFileNameFocusable();
+            iViewDir.IsExpanded = false;
             if (fnMultiEnabled.IsChecked == false && oReplayBackupList.SelectedIndex != -1)
             {
                 ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
@@ -449,6 +454,40 @@ namespace threplay
             if(!GameHandler.BackupScore(ref outScoreBackupModified))
             {
                 SetErrorMessage("Score.dat backup failed");     //if all goes well this shouldn't be able to trigger
+            }
+        }
+
+        private void OReplayLiveList_Drop(object sender, DragEventArgs e)
+        {
+            if(e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (GameHandler.AddReplay(false, files) == 1)
+                {
+                    SetErrorMessage("Operation complete. Some non-replay files were ignored.");
+                } else
+                {
+                    SetErrorMessage("Operation complete");
+                }
+
+                GameHandler.LoadLive();
+            }
+        }
+
+        private void OReplayBackupList_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if(GameHandler.AddReplay(true, files) == 1)
+                {
+                    SetErrorMessage("Operation complete. Some non-replay files were ignored.");
+                }
+                else
+                {
+                    SetErrorMessage("Operation complete");
+                }
+                GameHandler.LoadBackup();
             }
         }
     }

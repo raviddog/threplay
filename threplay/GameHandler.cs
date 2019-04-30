@@ -178,7 +178,7 @@ namespace threplay
                                     File.Move(item.FullPath, dest);
                                 } catch
                                 {
-
+                                    
                                 }
                             }
                             else
@@ -280,6 +280,63 @@ namespace threplay
                 return true;
             }
             else return false;
+        }
+
+        public static int AddReplay(bool backup, string[] files)
+        {
+            bool ignoreNotif = false;
+            foreach(string file in files)
+            {
+                string extension = file.Substring(file.Length - 4);
+                if(extension != ".rpy")
+                {
+                    //not replay file
+                    //ignore?
+                    if(!ignoreNotif)
+                    {
+                        ignoreNotif = true;
+                        //((MainWindow)Application.Current.MainWindow).SetErrorMessage("Non replay files detected and ignored.");
+                    }
+                } else
+                {
+                    ReplayEntry data = new ReplayEntry();
+                    data.FullPath = file;
+                    GameReplayDecoder.ReadFile(ref data);
+                    
+                    
+
+                    FileInfo fileInfo = new FileInfo(file);
+                    if (backup)
+                    {
+                        if(Directory.Exists(games[data.replay.game].dirBackup))
+                        {
+                            if(File.Exists(games[data.replay.game].dirBackup + "\\" + fileInfo.Name))
+                            {
+                                //overwrite or like generate the next name?
+                            } else
+                            {
+                                File.Copy(file, games[data.replay.game].dirBackup + "\\" + fileInfo.Name);
+                            }
+                        }
+                    }
+                    else
+                    { 
+                        if(Directory.Exists(games[data.replay.game].dirLive))
+                        {
+                            if (File.Exists(games[data.replay.game].dirLive + "\\" + fileInfo.Name))
+                            {
+                                //overwrite or like generate the next name?
+                            }
+                            else
+                            {
+                                File.Copy(file, games[data.replay.game].dirLive + "\\" + fileInfo.Name);
+                            }
+                        }
+                    }
+                }
+            }
+            if (ignoreNotif) return 1;
+            else return 0;
         }
 
         private class GameObject
@@ -470,6 +527,7 @@ namespace threplay
 
         public class ReplayInfo
         {
+            public int game;
             public string name;
             public string date;
             public string character;
