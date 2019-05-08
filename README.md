@@ -6,7 +6,7 @@
 
 This tool supports:
 
-- Mainline Touhou games from 6 through to 16
+- Mainline Touhou games from 6 through to 17
 - Touhou 9.5 - Shoot the Bullet
 - Touhou 12.5 - Double Spoiler
 - Touhou 12.8 - Great Fairy Wars
@@ -18,6 +18,7 @@ Replay decoding was developed based on info from [http://opensrc.club/projects/t
 ## Features
 
 - Move, copy and rename replays to and from a backup folder for each game
+- Drag and drop support for copying new replays into your folders without having to navigate to them
 - View replay data like player name, score, etc directly within the program for easier organisation of replays
 - Open and launch the game, or any of the specified folders
 
