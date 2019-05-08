@@ -203,6 +203,9 @@ namespace threplay
                             if (result == MessageBoxResult.No)
                             {
                                 proceed = false;
+                            } else
+                            {
+                                System.IO.File.Delete(dest);
                             }
                         }
                         if (proceed)
