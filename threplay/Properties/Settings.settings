@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="gameVisibility" Roaming="true" Type="System.String" Scope="User">
-      <Value Profile="(Default)">YYYYYYYYYYYYYYYY</Value>
+      <Value Profile="(Default)">YYYYYYYYYYYYYYYYY</Value>
     </Setting>
     <Setting Name="th06_l" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
@@ -101,52 +101,61 @@
     <Setting Name="th165_b" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th06_e" Type="System.String" Scope="User">
+    <Setting Name="th06_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th07_e" Type="System.String" Scope="User">
+    <Setting Name="th07_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th08_e" Type="System.String" Scope="User">
+    <Setting Name="th08_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th09_e" Type="System.String" Scope="User">
+    <Setting Name="th09_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th095_e" Type="System.String" Scope="User">
+    <Setting Name="th095_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th10_e" Type="System.String" Scope="User">
+    <Setting Name="th10_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th11_e" Type="System.String" Scope="User">
+    <Setting Name="th11_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th12_e" Type="System.String" Scope="User">
+    <Setting Name="th12_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th125_e" Type="System.String" Scope="User">
+    <Setting Name="th125_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th128_e" Type="System.String" Scope="User">
+    <Setting Name="th128_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th13_e" Type="System.String" Scope="User">
+    <Setting Name="th13_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th14_e" Type="System.String" Scope="User">
+    <Setting Name="th14_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th143_e" Type="System.String" Scope="User">
+    <Setting Name="th143_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th15_e" Type="System.String" Scope="User">
+    <Setting Name="th15_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th16_e" Type="System.String" Scope="User">
+    <Setting Name="th16_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th165_e" Type="System.String" Scope="User">
+    <Setting Name="th165_e" Roaming="true" Type="System.String" Scope="User">
+      <Value Profile="(Default)">!</Value>
+    </Setting>
+    <Setting Name="th17_l" Roaming="true" Type="System.String" Scope="User">
+      <Value Profile="(Default)">!</Value>
+    </Setting>
+    <Setting Name="th17_b" Roaming="true" Type="System.String" Scope="User">
+      <Value Profile="(Default)">!</Value>
+    </Setting>
+    <Setting Name="th17_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
   </Settings>

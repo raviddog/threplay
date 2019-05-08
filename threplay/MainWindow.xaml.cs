@@ -32,6 +32,7 @@ namespace threplay
         th15,
         th16,
         th165,
+        th17,
 
         thLast
     };
@@ -46,6 +47,20 @@ namespace threplay
                 //first run?
             }
             Bluegrams.Application.PortableSettingsProvider.ApplyProvider(Properties.Settings.Default);
+
+
+            if (((string)Properties.Settings.Default["gameVisibility"]).Length < (int)GameList.thLast)
+            {
+                int buffer = (int)GameList.thLast - ((string)Properties.Settings.Default["gameVisibility"]).Length;
+                for(int i = 0; i < buffer; i++)
+                {
+                    Properties.Settings.Default["gameVisibility"] = string.Concat(Properties.Settings.Default["gameVisibility"], "Y");
+                }
+                //Properties.Settings.Default.Upgrade();
+                //turns out the program just adds settings automatically if they're not there, which is awesome
+                Properties.Settings.Default.Save();
+            }
+
 
             GameHandler.gameListView = modeGameSelector;
             GameHandler.replayLiveView = oReplayLiveList;

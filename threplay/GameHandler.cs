@@ -567,7 +567,8 @@ namespace threplay
             "Touhou 14.3",
             "Touhou 15",
             "Touhou 16",
-            "Touhou 16.5"
+            "Touhou 16.5",
+            "Touhou 17"
         };
 
         public static readonly String[] names =
@@ -587,7 +588,8 @@ namespace threplay
             "Impossible Spell Card",
             "Legacy of Lunatic Kingdom",
             "Hidden Star in Four Seasons",
-            "Violet Detector"
+            "Violet Detector",
+            "Wily Beast and Weakest Creature"
         };
 
         public static readonly String[] setting =
@@ -607,7 +609,8 @@ namespace threplay
             "th143",
             "th15",
             "th16",
-            "th165"
+            "th165",
+            "th17"
         };
 
         public static readonly String[] scorefileJ =
@@ -628,6 +631,7 @@ namespace threplay
             null,
             null,
             null,
+            null
         };
     }
 }
