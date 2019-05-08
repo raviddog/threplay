@@ -111,7 +111,7 @@ namespace threplay
                         {
                             FileInfo replayFile = new FileInfo(((ReplayEntry)oReplayLiveList.SelectedItem).FullPath);
                             replayFile.MoveTo(replayFile.DirectoryName + "\\" + odFileNameLive.Text + ".rpy");
-                        } catch (Exception ex)
+                        } catch
                         {
                             //have actual messages later
                             SetErrorMessage("Error renaming file");
@@ -127,7 +127,7 @@ namespace threplay
                         {
                             FileInfo replayFile = new FileInfo(((ReplayEntry)oReplayBackupList.SelectedItem).FullPath);
                             replayFile.MoveTo(replayFile.DirectoryName + "\\" + odFileNameLive.Text + ".rpy");
-                        } catch (Exception ex)
+                        } catch
                         {
                             //have actual messages later
                             SetErrorMessage("Error renaming file");
@@ -477,14 +477,8 @@ namespace threplay
             if(e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                if (GameHandler.AddReplay(false, files) == 1)
-                {
-                    SetErrorMessage("Operation complete. Some non-replay files were ignored.");
-                } else
-                {
-                    SetErrorMessage("Operation complete");
-                }
-
+                string err = GameHandler.AddReplay(false, files);
+                SetErrorMessage(err);
                 GameHandler.LoadLive();
             }
         }
@@ -494,14 +488,8 @@ namespace threplay
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                if(GameHandler.AddReplay(true, files) == 1)
-                {
-                    SetErrorMessage("Operation complete. Some non-replay files were ignored.");
-                }
-                else
-                {
-                    SetErrorMessage("Operation complete");
-                }
+                string err = GameHandler.AddReplay(true, files);
+                SetErrorMessage(err);
                 GameHandler.LoadBackup();
             }
         }

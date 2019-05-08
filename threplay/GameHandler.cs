@@ -66,16 +66,28 @@ namespace threplay
             {
                 if(File.Exists(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]))
                 {
-                    FileInfo backupScore = new FileInfo(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]);
-                    scoreBackupDate.Text = backupScore.LastWriteTime.ToShortDateString();
+                    try
+                    {
+                        FileInfo backupScore = new FileInfo(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]);
+                        scoreBackupDate.Text = backupScore.LastWriteTime.ToShortDateString();
+                    } catch
+                    {
+                        scoreBackupDate.Text = "Unable to open";
+                    }
                 } else
                 {
                     scoreBackupDate.Text = "Never";
                 }
                 if(File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame]))
                 {
-                    FileInfo liveScore = new FileInfo(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame]);
-                    scoreLiveDate.Text = liveScore.LastWriteTime.ToShortDateString();
+                    try
+                    {
+                        FileInfo liveScore = new FileInfo(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame]);
+                        scoreLiveDate.Text = liveScore.LastWriteTime.ToShortDateString();
+                    } catch
+                    {
+                        scoreLiveDate.Text = "Unable to open";
+                    }
                 } else
                 {
                     scoreLiveDate.Text = "None";
@@ -91,16 +103,28 @@ namespace threplay
             {
                 if (File.Exists(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat"))
                 {
-                    FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat");
-                    scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
+                    try
+                    {
+                        FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat");
+                        scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
+                    } catch
+                    {
+                        scoreBackupDate.Text = "Unable to open";
+                    }
                 } else
                 {
                     scoreBackupDate.Text = "Never";
                 }
                 if (File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat"))
                 {
-                    FileInfo liveScore = new FileInfo(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat");
-                    scoreLiveDate.Text = liveScore.LastWriteTime.ToShortDateString();
+                    try
+                    {
+                        FileInfo liveScore = new FileInfo(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat");
+                        scoreLiveDate.Text = liveScore.LastWriteTime.ToShortDateString();
+                    } catch
+                    {
+                        scoreLiveDate.Text = "Unable to open";
+                    }
                 }
                 else
                 {
@@ -124,7 +148,13 @@ namespace threplay
             {
                 if (File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame]))
                 {
-                    File.Copy(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame], games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame], true);
+                    try
+                    {
+                        File.Copy(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame], games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame], true);
+                    } catch
+                    {
+                        return false;
+                    }
                     FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]);
                     scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
                     return true;
@@ -134,7 +164,13 @@ namespace threplay
             {
                 if (File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat"))
                 {
-                    File.Copy(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat", games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat", true);
+                    try
+                    {
+                        File.Copy(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat", games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat", true);
+                    } catch
+                    {
+                        return false;
+                    }
                     FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat");
                     scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
                     return true;
@@ -282,61 +318,85 @@ namespace threplay
             else return false;
         }
 
-        public static int AddReplay(bool backup, string[] files)
+        public static string AddReplay(bool backup, string[] files)
         {
-            bool ignoreNotif = false;
+            bool ignoreNotif = false, readError = false, fileExists = false;
             foreach(string file in files)
             {
                 string extension = file.Substring(file.Length - 4);
                 if(extension != ".rpy")
                 {
                     //not replay file
-                    //ignore?
-                    if(!ignoreNotif)
-                    {
-                        ignoreNotif = true;
-                        //((MainWindow)Application.Current.MainWindow).SetErrorMessage("Non replay files detected and ignored.");
-                    }
+
+                    ignoreNotif = true;
+                    //((MainWindow)Application.Current.MainWindow).SetErrorMessage("Non replay files detected and ignored.");
                 } else
                 {
                     ReplayEntry data = new ReplayEntry();
                     data.FullPath = file;
-                    GameReplayDecoder.ReadFile(ref data);
-                    
-                    
-
-                    FileInfo fileInfo = new FileInfo(file);
-                    if (backup)
+                    if(GameReplayDecoder.ReadFile(ref data))
                     {
-                        if(Directory.Exists(games[data.replay.game].dirBackup))
+                        FileInfo fileInfo = new FileInfo(file);
+                        if (backup)
                         {
-                            if(File.Exists(games[data.replay.game].dirBackup + "\\" + fileInfo.Name))
+                            if(Directory.Exists(games[data.replay.game].dirBackup))
                             {
-                                //overwrite or like generate the next name?
-                            } else
-                            {
-                                File.Copy(file, games[data.replay.game].dirBackup + "\\" + fileInfo.Name);
+                                if(File.Exists(games[data.replay.game].dirBackup + "\\" + fileInfo.Name))
+                                {
+                                    //overwrite or like generate the next name?
+                                    fileExists = true;
+                                } else
+                                {
+                                    try
+                                    {
+                                        File.Copy(file, games[data.replay.game].dirBackup + "\\" + fileInfo.Name);
+                                    }
+                                    catch
+                                    {
+                                        readError = true;
+                                    }
+                                }
                             }
                         }
-                    }
-                    else
-                    { 
-                        if(Directory.Exists(games[data.replay.game].dirLive))
-                        {
-                            if (File.Exists(games[data.replay.game].dirLive + "\\" + fileInfo.Name))
+                        else
+                        { 
+                            if(Directory.Exists(games[data.replay.game].dirLive))
                             {
-                                //overwrite or like generate the next name?
-                            }
-                            else
-                            {
-                                File.Copy(file, games[data.replay.game].dirLive + "\\" + fileInfo.Name);
+                                if (File.Exists(games[data.replay.game].dirLive + "\\" + fileInfo.Name))
+                                {
+                                    //overwrite or like generate the next name?
+                                    fileExists = true;
+                                }
+                                else
+                                {
+                                    try
+                                    {
+                                        File.Copy(file, games[data.replay.game].dirLive + "\\" + fileInfo.Name);
+                                    } catch
+                                    {
+                                        readError = true;
+                                    }
+                                }
                             }
                         }
+                    } else
+                    {
+                        readError = true;
                     }
                 }
             }
-            if (ignoreNotif) return 1;
-            else return 0;
+            string message = "Operation complete.";
+            if (ignoreNotif && readError)
+            {
+                message = string.Concat(message, " Some files were not replays or could not be read, and were ignored."); ;
+            } else
+            {
+                if(ignoreNotif) message = string.Concat(message, " Some non-replay files were ignored.");
+                if (readError) message = string.Concat(message, " Some files could not be read and were ignored.");
+            }
+            if (fileExists) MessageBox.Show("A replay with that filename already exists. Please rename it and try again.", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            return message;
         }
 
         private class GameObject
@@ -363,7 +423,14 @@ namespace threplay
                 Properties.Settings.Default[GameData.setting[number] + "_e"] = gameExe;
                 if (dirLive == "!")
                 {
-                    if (Directory.Exists(Path.GetDirectoryName(path) + "\\replay"))
+                    string appdatapath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
+                            "\\ShanghaiAlice\\" + GameData.setting[GameHandler.currentGame] + "\\replay";
+                    if(Directory.Exists(appdatapath))
+                    {
+                        //catch games that use appdata but the user created a replay folder inside the game folder
+                        //consider autodetecting this too? i dont want to duplicate code and the user will probably click the replay field anyway
+                        replay = "!";
+                    } else if (Directory.Exists(Path.GetDirectoryName(path) + "\\replay"))
                     {
                         //autodetect replay folder
                         dirLive = Path.GetDirectoryName(path) + "\\replay";
@@ -418,13 +485,15 @@ namespace threplay
             {
                 if (dirLive != "!")
                 {
-                    if(Directory.Exists(dirLive)) {
+                    try
+                    {
                         dirLiveInfo = new DirectoryInfo(dirLive);
                         replaysLive = dirLiveInfo.GetFiles("*.rpy");
-                    } else
+                    } catch
                     {
                         ((MainWindow)Application.Current.MainWindow).SetErrorMessage("Unable to open replay folder. Check that it is set correctly.");
                     }
+
                     List<ReplayEntry> replayListLive = new List<ReplayEntry>();
                     if(replaysLive != null)
                     {
@@ -450,14 +519,15 @@ namespace threplay
                 //this one shouldn't be able to fail
                 if (dirBackup != "!")
                 {
-                    if(Directory.Exists(dirBackup))
+                    try
                     {
                         dirBackupInfo = new DirectoryInfo(dirBackup);
                         replaysBackup = dirBackupInfo.GetFiles("*.rpy");
-                    } else
+                    } catch
                     {
                         ((MainWindow)Application.Current.MainWindow).SetErrorMessage("Unable to open backup folder. Check that it is set correctly.");
                     }
+
                     List<ReplayEntry> replayListBackup = new List<ReplayEntry>();
                     if(replaysBackup != null)
                     {
@@ -514,29 +584,7 @@ namespace threplay
         }
 
     }
-
     
-
-    public class ReplayEntry
-    {
-        public string Filename { get; set; }
-        public string Filesize { get; set; }
-
-        public string FullPath;
-        public ReplayInfo replay;
-
-        public class ReplayInfo
-        {
-            public int game;
-            public string name;
-            public string date;
-            public string character;
-            public string difficulty;
-            public string stage;
-            public string score;
-        }
-    }
-
     public static class GameData
     {
         /*

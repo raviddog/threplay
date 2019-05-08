@@ -21,7 +21,13 @@ namespace threplay
                 replay.replay = new ReplayEntry.ReplayInfo();
             }
 
-            file = new FileStream(replay.FullPath, FileMode.Open);
+            try
+            {
+                file = new FileStream(replay.FullPath, FileMode.Open);
+            } catch
+            {
+                return false;
+            }
 
             //read first 4 bytes
             int hexIn;
@@ -620,6 +626,26 @@ namespace threplay
         private static bool Read_t17r(ref ReplayEntry.ReplayInfo replay)
         {
             return Read_t10r(ref replay);
+        }
+    }
+
+    public class ReplayEntry
+    {
+        public string Filename { get; set; }
+        public string Filesize { get; set; }
+
+        public string FullPath;
+        public ReplayInfo replay;
+
+        public class ReplayInfo
+        {
+            public int game;
+            public string name;
+            public string date;
+            public string character;
+            public string difficulty;
+            public string stage;
+            public string score;
         }
     }
 }
