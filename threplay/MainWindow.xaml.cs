@@ -126,7 +126,7 @@ namespace threplay
                         try
                         {
                             FileInfo replayFile = new FileInfo(((ReplayEntry)oReplayBackupList.SelectedItem).FullPath);
-                            replayFile.MoveTo(replayFile.DirectoryName + "\\" + odFileNameLive.Text + ".rpy");
+                            replayFile.MoveTo(replayFile.DirectoryName + "\\" + odFileNameBackup.Text + ".rpy");
                         } catch
                         {
                             //have actual messages later
