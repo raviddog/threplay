@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Ookii.Dialogs.Wpf;
 
 namespace threplay
 {
@@ -60,6 +61,17 @@ namespace threplay
         private void FnSettingsCancel_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        private void FnSettingsSetBackup_Click(object sender, RoutedEventArgs e)
+        {
+            VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog();
+            dialog.Description = "Please select a folder";
+            dialog.UseDescriptionForTitle = true;
+            if((bool)dialog.ShowDialog(this))
+            {
+                GameHandler.SetAllBackup(dialog.SelectedPath);
+            }
         }
     }
 

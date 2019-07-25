@@ -14,12 +14,9 @@
         Title="ViewSettings" Height="450" Width="300" WindowStyle="ToolWindow" ResizeMode="NoResize">
     <Grid>
         <ListView x:Name="modeSettingVisibilityToggleList" SelectedIndex="-1"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,32"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,60"
                     ScrollViewer.VerticalScrollBarVisibility="Visible" IsTextSearchEnabled="False"
                     SelectionMode="Multiple" SelectedItem="-1">
-            <ListView.Effect>
-                <DropShadowEffect/>
-            </ListView.Effect>
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Game" DisplayMemberBinding="{Binding name}"/>
@@ -33,7 +30,8 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <Button x:Name="fnSettingsApply" Content="Apply" IsDefault="True" Height="28" Margin="2,2,80,2" Click="FnSettingsApply_Click" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
-        <Button x:Name="fnSettingsCancel" Content="Cancel" IsCancel="True" Height="28" Margin="80,2,2,2" Click="FnSettingsCancel_Click" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+        <Button x:Name="fnSettingsSetBackup" Content="Set All Backup Folders" Click="FnSettingsSetBackup_Click" Height="24" Margin="5,0,5,32" VerticalAlignment="Bottom"/>
+        <Button x:Name="fnSettingsApply" Content="Apply" Height="24" Margin="2,2,80,4" IsDefault="True" Click="FnSettingsApply_Click" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+        <Button x:Name="fnSettingsCancel" Content="Cancel" Height="24" IsCancel="True" Margin="80,2,2,4" Click="FnSettingsCancel_Click" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
     </Grid>
 </Window>

@@ -402,6 +402,26 @@ namespace threplay
             return message;
         }
 
+        public static bool SetAllBackup(string path)
+        {
+            bool success = true;
+            path = string.Concat(path, "\\");
+            for(int i = 0; i < (int)GameList.thLast; i++)
+            {
+                if(!Directory.Exists(path + GameData.setting[i]))
+                {
+                    Directory.CreateDirectory(path + GameData.setting[i]);
+                }
+
+                if(!games[i].SetBackup(path + GameData.setting[i]))
+                {
+                    success = false;
+                }
+            }
+
+            return success;
+        }
+
         private class GameObject
         {
             public ListViewItem listEntry;
@@ -484,6 +504,8 @@ namespace threplay
                 }
             }
 
+
+
             public void LoadLive(ref ListView list)
             {
                 if (dirLive != "!")
@@ -509,7 +531,10 @@ namespace threplay
                                 FullPath = curFile.FullName
                             };
                             //GameReplayDecoder.ReadFile(ref replayInfo);
+                            //if(replayInfo.replay.game == number)
+                            
                             replayListLive.Add(replayInfo);
+                            
                         }
                     }
 
@@ -543,7 +568,10 @@ namespace threplay
                                 FullPath = curFile.FullName
                             };
                             //GameReplayDecoder.ReadFile(ref replayInfo);
+                            //if(replayInfo.replay.game == number)
+                            
                             replayListBackup.Add(replayInfo);
+                            
                         }
                     }
 
@@ -640,7 +668,7 @@ namespace threplay
             "Legacy of Lunatic Kingdom",
             "Hidden Star in Four Seasons",
             "Violet Detector",
-            "Wily Beast and Weakest Creature"
+            "Wily Beast & Weakest Creature"
         };
 
         public static readonly String[] setting =
