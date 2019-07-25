@@ -49,8 +49,11 @@ namespace threplay
             }
             Bluegrams.Application.PortableSettingsProvider.ApplyProvider(Properties.Settings.Default);
 
-            AutoUpdater.CheckForUpdateEvent += CheckForUpdates;
-            AutoUpdater.Start("https://raviddog.github.io/versioninfo-xml/threplay.xml");
+            if((bool)Properties.Settings.Default["updates"])
+            {
+                AutoUpdater.CheckForUpdateEvent += CheckForUpdates;
+                AutoUpdater.Start("https://raviddog.github.io/versioninfo-xml/threplay.xml");
+            }
 
 
             if (((string)Properties.Settings.Default["gameVisibility"]).Length < (int)GameList.thLast)

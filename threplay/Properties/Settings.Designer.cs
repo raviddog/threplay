@@ -698,5 +698,18 @@ namespace threplay.Properties {
                 this["th17_e"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
+        public bool updates {
+            get {
+                return ((bool)(this["updates"]));
+            }
+            set {
+                this["updates"] = value;
+            }
+        }
     }
 }

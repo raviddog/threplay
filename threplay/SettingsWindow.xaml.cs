@@ -41,9 +41,12 @@ namespace threplay
                     modeSettingVisibilityToggleList.SelectedItems.Add(modeSettingVisibilityToggleList.Items[i]);
                 }
             }
+            optUpdates.IsChecked = (bool)Properties.Settings.Default["updates"];
         }
         private void FnSettingsApply_Click(object sender, RoutedEventArgs e)
         {
+            Properties.Settings.Default["updates"] = optUpdates.IsChecked;
+            Properties.Settings.Default.Save();
             char[] gameVisible = new char[(int)GameList.thLast];
             for(int i = 0; i < (int)GameList.thLast; i++)
             {
