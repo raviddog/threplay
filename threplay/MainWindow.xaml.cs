@@ -394,6 +394,7 @@ namespace threplay
         private void FnSettings_MouseUp(object sender, MouseButtonEventArgs e)
         {
             SettingsWindow settingsWindow = new SettingsWindow();
+            settingsWindow.Owner = this;
             settingsWindow.ShowDialog();
         }
 
