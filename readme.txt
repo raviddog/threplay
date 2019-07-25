@@ -18,6 +18,8 @@ Click on a replay to show details. Click on the file name to rename it, press en
 
 The date last modified is read from your score.dat files, click the Backup button under it to copy your score file to the backup directory. There's no restore button because the program isn't designed for that.
 
-The big settings button in the bottom left allows you to toggle which games are visible, in case you only play some of them.
+The big settings button in the bottom left allows you to toggle which games are visible, in case you only play some of them. There is also a function to select a master folder for all your backup folders to be created under.
 
 You can drag and drop replays onto either the current or backup replay lists to copy them into the folders.
+
+The program checks for updates silently at startup. If an update is found it will show an install button.
