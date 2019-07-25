@@ -133,6 +133,7 @@
                         <Button x:Name="fnLaunchLive" Content="Open Replay Folder" Height="28" Click="FnLaunchLive_Click" Margin="0,0,8,0" IsEnabled="False"/>
                         <Button x:Name="fnLaunchBackup" Content="Open Backup Folder" Height="28" Click="FnLaunchBackup_Click" Margin="0,0,8,0" IsEnabled="False"/>
                     </StackPanel>
+                    <Button x:Name="fnUpdate"  Content="Install Update" Height="28" Click="FnUpdate_Click" Visibility="Collapsed" IsEnabled="False" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
                     <materialDesign:Snackbar x:Name="oMessage" IsActive="False" HorizontalAlignment="Right"/>
                 </Grid>
                 <DockPanel>

@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 
 using Ookii.Dialogs.Wpf;
+using AutoUpdaterDotNET;
 
 namespace threplay
 {
@@ -47,6 +48,9 @@ namespace threplay
                 //first run?
             }
             Bluegrams.Application.PortableSettingsProvider.ApplyProvider(Properties.Settings.Default);
+
+            AutoUpdater.CheckForUpdateEvent += CheckForUpdates;
+            AutoUpdater.Start("https://raviddog.github.io/versioninfo-xml/threplay.xml");
 
 
             if (((string)Properties.Settings.Default["gameVisibility"]).Length < (int)GameList.thLast)
@@ -491,6 +495,37 @@ namespace threplay
                 string err = GameHandler.AddReplay(true, files);
                 SetErrorMessage(err);
                 GameHandler.LoadBackup();
+            }
+        }
+
+        private void CheckForUpdates(UpdateInfoEventArgs args)
+        {
+            if(args != null)
+            {
+                if(args.IsUpdateAvailable)
+                {
+                    SetErrorMessage("New update available");
+                    fnUpdate.Visibility = Visibility.Visible;
+                    fnUpdate.IsEnabled = true;
+                }
+            } else
+            {
+                //error checking updates
+            }
+        }
+
+        private void FnUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if(AutoUpdater.DownloadUpdate())
+                {
+                    System.Windows.Application.Current.Shutdown();
+                }
+
+            } catch
+            {
+                SetErrorMessage("Error installing update");
             }
         }
     }
