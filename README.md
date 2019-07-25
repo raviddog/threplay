@@ -2,7 +2,7 @@
 
 **Touhou Replay Manager** is a tool to help manage your Touhou replay files. It allows you to easily backup, restore and keep track of your replays and also serves as a unified game launcher.
 
-[Download the most recent version: v0.3-beta](https://github.com/raviddog/threplay/releases/tag/v0.3-beta)
+[Download the most recent version: v1.0-RC1](https://github.com/raviddog/threplay/releases/tag/v1.0-RC1)
 
 This tool supports:
 
@@ -22,7 +22,7 @@ Replay decoding was developed based on info from [http://opensrc.club/projects/t
 - View replay data like player name, score, etc directly within the program for easier organisation of replays
 - Open and launch the game, or any of the specified folders
 
-## Todo
+The below features are not implemented, but may be if significant interest is shown in them
 
 - full replay data viewing functionality similar to the online replay uploaders
 - applocale support for game launching
