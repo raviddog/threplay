@@ -22,4 +22,4 @@ The big settings button in the bottom left allows you to toggle which games are 
 
 You can drag and drop replays onto either the current or backup replay lists to copy them into the folders.
 
-The program checks for updates silently at startup. If an update is found it will show an install button.
+The program checks for updates silently at startup. If an update is found it will show an install button. You can disable this functionality in the settings window.
