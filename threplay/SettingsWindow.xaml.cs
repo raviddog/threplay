@@ -73,7 +73,10 @@ namespace threplay
             dialog.UseDescriptionForTitle = true;
             if((bool)dialog.ShowDialog(this))
             {
-                GameHandler.SetAllBackup(dialog.SelectedPath);
+                if (!GameHandler.SetAllBackup(dialog.SelectedPath))
+                {
+                    MessageBox.Show("Some folders failed to be set");
+                };
             }
         }
     }

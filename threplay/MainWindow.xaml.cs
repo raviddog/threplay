@@ -79,18 +79,24 @@ namespace threplay
             char[] v = ((string)Properties.Settings.Default["gameVisibility"]).ToCharArray();
             int p = 0;
             while (p < (int)GameList.thLast && v[p++] == 'N') { }
-            if (p > (int)GameList.thLast)
+            if (p >= (int)GameList.thLast)
             {
                 GameHandler.gameListView.SelectedIndex = -1;
             } else
             {
                 GameHandler.gameListView.SelectedIndex = p - 1;
             }
+
+            GameHandler.UpdateCurrentGame(ref oCurText, ref iDirGame, ref iDirLive, ref iDirBackup, ref outScoreLiveModified, ref outScoreBackupModified, ref fnBackupScorefile);
+            CheckMove();
         }
 
         private void FnLaunchGame_Click(object sender, RoutedEventArgs e)
         {
-            GameHandler.LaunchGame();
+            if(!GameHandler.LaunchGame())
+            {
+                SetErrorMessage("Error opening game");
+            }
         }
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -274,7 +280,10 @@ namespace threplay
 
         private void FnLaunchFolder_Click(object sender, RoutedEventArgs e)
         {
-            GameHandler.OpenGameFolder();
+            if(!GameHandler.OpenGameFolder())
+            {
+                SetErrorMessage("Error opening game folder");
+            }
         }
 
         private void IViewDir_Expanded(object sender, RoutedEventArgs e)
@@ -400,12 +409,18 @@ namespace threplay
 
         private void FnLaunchLive_Click(object sender, RoutedEventArgs e)
         {
-            GameHandler.OpenLiveFolder();
+            if(!GameHandler.OpenLiveFolder())
+            {
+                SetErrorMessage("Error opening replay folder");
+            }
         }
 
         private void FnLaunchBackup_Click(object sender, RoutedEventArgs e)
         {
-            GameHandler.OpenBackupFolder();
+            if(!GameHandler.OpenBackupFolder())
+            {
+                SetErrorMessage("Error opening backup folder");
+            }
         }
 
         private void OdFileNameLive_GotFocus(object sender, RoutedEventArgs e)
@@ -531,6 +546,11 @@ namespace threplay
             {
                 SetErrorMessage("Error installing update");
             }
+        }
+
+        private void OMessage_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            oMessage.IsActive = false;
         }
     }
 

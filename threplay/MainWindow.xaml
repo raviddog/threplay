@@ -134,7 +134,7 @@
                         <Button x:Name="fnLaunchBackup" Content="Open Backup Folder" Height="28" Click="FnLaunchBackup_Click" Margin="0,0,8,0" IsEnabled="False"/>
                     </StackPanel>
                     <Button x:Name="fnUpdate"  Content="Install Update" Height="28" Click="FnUpdate_Click" Visibility="Collapsed" IsEnabled="False" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-                    <materialDesign:Snackbar x:Name="oMessage" IsActive="False" HorizontalAlignment="Right"/>
+                    <materialDesign:Snackbar x:Name="oMessage" IsActive="False" HorizontalAlignment="Right" MouseDoubleClick="OMessage_MouseDoubleClick"/>
                 </Grid>
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top" x:Name="oCurText" FontSize="24" Text="Test" HorizontalAlignment="Stretch" Margin="0,0,0,4"/>

@@ -23,119 +23,202 @@ namespace threplay
         public static bool SetBackup(string path) { return games[currentGame].SetBackup(path); }
         public static void LoadLive() { games[currentGame].LoadLive(ref replayLiveView); }
         public static void LoadBackup() { games[currentGame].LoadBackup(ref replayBackupView); }
-        public static void LaunchGame() { if (games[currentGame].gameExe != "!") try { System.Diagnostics.Process.Start(games[currentGame].gameExe); } catch { } }
-        public static void OpenLiveFolder() { if (games[currentGame].dirLive != "!") try { System.Diagnostics.Process.Start(games[currentGame].dirLive); } catch { } }
-        public static void OpenBackupFolder() { if (games[currentGame].dirBackup != "!") try { System.Diagnostics.Process.Start(games[currentGame].dirBackup); } catch { } }
-        public static void OpenGameFolder() { if (games[currentGame].gameExe != "!") try { System.Diagnostics.Process.Start(Path.GetDirectoryName(games[currentGame].gameExe)); } catch { } }
+        public static bool LaunchGame()
+        {
+            if (games[currentGame].gameExe != "!")
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(games[currentGame].gameExe);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            else return false;
+        }
+        public static bool OpenLiveFolder()
+        {
+            if (games[currentGame].dirLive != "!")
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(games[currentGame].dirLive);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            else return false;
+        }
+        public static bool OpenBackupFolder()
+        {
+            if (games[currentGame].dirBackup != "!")
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(games[currentGame].dirBackup);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            else return false;
+        }
+        public static bool OpenGameFolder()
+        {
+            if (games[currentGame].gameExe != "!")
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(Path.GetDirectoryName(games[currentGame].gameExe));
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            else return false;
+        }
+
         //public static ListViewItem GetGameListEntry(int i) { return games[i].listEntry; }
         public static void UpdateCurrentGame(ref TextBlock title, ref TextBox exe, ref TextBox live, ref TextBox backup, ref TextBlock scoreLiveDate, ref TextBlock scoreBackupDate, ref Button backupEnabled)
         {
             currentGame = gameListView.SelectedIndex;
-            title.Text = "Currently selected game: " + GameData.titles[currentGame];
-            if (games[currentGame].dirBackup != "!")
+            if (currentGame == -1)
             {
-                backup.Text = games[currentGame].dirBackup;
-                LoadBackup();
-            }
-            else
-            {
-                backup.Text = "click to browse for backup folder";
-                List<ReplayEntry> replayListBackup = new List<ReplayEntry>();
-                replayBackupView.ItemsSource = replayListBackup;
-            }
-            if (games[currentGame].dirLive != "!")
-            {
-                live.Text = games[currentGame].dirLive;
-                LoadLive();
-            }
-            else
-            {
-                live.Text = "click to browse for replay folder";
-                List<ReplayEntry> replayListLive = new List<ReplayEntry>();
-                replayLiveView.ItemsSource = replayListLive;
-            }
-            if (games[currentGame].gameExe != "!")
-            {
-                exe.Text = games[currentGame].gameExe;
-            }
-            else
-            {
-                exe.Text = "click to browse for game exe";
-            }
-            if(GameData.scorefileJ[currentGame] != null)
-            {
-                if(File.Exists(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]))
-                {
-                    try
-                    {
-                        FileInfo backupScore = new FileInfo(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]);
-                        scoreBackupDate.Text = backupScore.LastWriteTime.ToShortDateString();
-                    } catch
-                    {
-                        scoreBackupDate.Text = "Unable to open";
-                    }
-                } else
-                {
-                    scoreBackupDate.Text = "Never";
-                }
-                if(File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame]))
-                {
-                    try
-                    {
-                        FileInfo liveScore = new FileInfo(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame]);
-                        scoreLiveDate.Text = liveScore.LastWriteTime.ToShortDateString();
-                    } catch
-                    {
-                        scoreLiveDate.Text = "Unable to open";
-                    }
-                } else
-                {
-                    scoreLiveDate.Text = "None";
-                }
-                if(Directory.Exists(games[currentGame].dirLive) && Directory.Exists(games[currentGame].dirBackup))
-                {
-                    backupEnabled.IsEnabled = File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame]);
-                } else
-                {
-                    backupEnabled.IsEnabled = false;
-                }
+                title.Text = "No game selected";
+                exe.Text = "";
+                live.Text = "";
+                backup.Text = "";
+                exe.IsEnabled = false;
+                live.IsEnabled = false;
+                backup.IsEnabled = false;
+                replayLiveView.ItemsSource = new List<ReplayEntry>();
+                replayBackupView.ItemsSource = new List<ReplayEntry>();
+
+                scoreLiveDate.Text = "";
+                scoreBackupDate.Text = "";
+                backupEnabled.IsEnabled = false;
+
             } else
             {
-                if (File.Exists(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat"))
+                exe.IsEnabled = true;
+                live.IsEnabled = true;
+                backup.IsEnabled = true;
+                title.Text = "Currently selected game: " + GameData.titles[currentGame];
+                if (games[currentGame].dirBackup != "!")
                 {
-                    try
-                    {
-                        FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat");
-                        scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
-                    } catch
-                    {
-                        scoreBackupDate.Text = "Unable to open";
-                    }
-                } else
-                {
-                    scoreBackupDate.Text = "Never";
-                }
-                if (File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat"))
-                {
-                    try
-                    {
-                        FileInfo liveScore = new FileInfo(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat");
-                        scoreLiveDate.Text = liveScore.LastWriteTime.ToShortDateString();
-                    } catch
-                    {
-                        scoreLiveDate.Text = "Unable to open";
-                    }
+                    backup.Text = games[currentGame].dirBackup;
+                    LoadBackup();
                 }
                 else
                 {
-                    scoreLiveDate.Text = "None";
+                    backup.Text = "click to browse for backup folder";
+                    List<ReplayEntry> replayListBackup = new List<ReplayEntry>();
+                    replayBackupView.ItemsSource = replayListBackup;
                 }
-                if (Directory.Exists(games[currentGame].dirLive) && Directory.Exists(games[currentGame].dirBackup))
+                if (games[currentGame].dirLive != "!")
                 {
-                    backupEnabled.IsEnabled = File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat");
+                    live.Text = games[currentGame].dirLive;
+                    LoadLive();
+                }
+                else
+                {
+                    live.Text = "click to browse for replay folder";
+                    List<ReplayEntry> replayListLive = new List<ReplayEntry>();
+                    replayLiveView.ItemsSource = replayListLive;
+                }
+                if (games[currentGame].gameExe != "!")
+                {
+                    exe.Text = games[currentGame].gameExe;
+                }
+                else
+                {
+                    exe.Text = "click to browse for game exe";
+                }
+                if(GameData.scorefileJ[currentGame] != null)
+                {
+                    if(File.Exists(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]))
+                    {
+                        try
+                        {
+                            FileInfo backupScore = new FileInfo(games[currentGame].dirBackup + "\\" + GameData.scorefileJ[currentGame]);
+                            scoreBackupDate.Text = backupScore.LastWriteTime.ToShortDateString();
+                        } catch
+                        {
+                            scoreBackupDate.Text = "Unable to open";
+                        }
+                    } else
+                    {
+                        scoreBackupDate.Text = "Never";
+                    }
+                    if(File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame]))
+                    {
+                        try
+                        {
+                            FileInfo liveScore = new FileInfo(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame]);
+                            scoreLiveDate.Text = liveScore.LastWriteTime.ToShortDateString();
+                        } catch
+                        {
+                            scoreLiveDate.Text = "Unable to open";
+                        }
+                    } else
+                    {
+                        scoreLiveDate.Text = "None";
+                    }
+                    if(Directory.Exists(games[currentGame].dirLive) && Directory.Exists(games[currentGame].dirBackup))
+                    {
+                        backupEnabled.IsEnabled = File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\" + GameData.scorefileJ[currentGame]);
+                    } else
+                    {
+                        backupEnabled.IsEnabled = false;
+                    }
                 } else
                 {
-                    backupEnabled.IsEnabled = false;
+                    if (File.Exists(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat"))
+                    {
+                        try
+                        {
+                            FileInfo scorefile = new FileInfo(games[currentGame].dirBackup + "\\score" + GameData.setting[currentGame] + ".dat");
+                            scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
+                        } catch
+                        {
+                            scoreBackupDate.Text = "Unable to open";
+                        }
+                    } else
+                    {
+                        scoreBackupDate.Text = "Never";
+                    }
+                    if (File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat"))
+                    {
+                        try
+                        {
+                            FileInfo liveScore = new FileInfo(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat");
+                            scoreLiveDate.Text = liveScore.LastWriteTime.ToShortDateString();
+                        } catch
+                        {
+                            scoreLiveDate.Text = "Unable to open";
+                        }
+                    }
+                    else
+                    {
+                        scoreLiveDate.Text = "None";
+                    }
+                    if (Directory.Exists(games[currentGame].dirLive) && Directory.Exists(games[currentGame].dirBackup))
+                    {
+                        backupEnabled.IsEnabled = File.Exists(Directory.GetParent(games[currentGame].dirLive) + "\\score" + GameData.setting[currentGame] + ".dat");
+                    } else
+                    {
+                        backupEnabled.IsEnabled = false;
+                    }
                 }
             }
             
@@ -181,9 +264,17 @@ namespace threplay
 
         public static void CheckMove(out bool hasGame, out bool hasLive, out bool hasBackup)
         {
-            hasGame = games[currentGame].gameExe != "!" ? true : false;
-            hasLive = games[currentGame].dirLive != "!" ? true : false;
-            hasBackup = games[currentGame].dirBackup != "!" ? true : false;
+            if(currentGame ==  -1)
+            {
+                hasGame = false;
+                hasLive = false;
+                hasBackup = false;
+            } else
+            {
+                hasGame = games[currentGame].gameExe != "!" ? true : false;
+                hasLive = games[currentGame].dirLive != "!" ? true : false;
+                hasBackup = games[currentGame].dirBackup != "!" ? true : false;
+            }
         }
 
         public static void FileMove(bool toBackup, bool deleteOriginal)
@@ -294,7 +385,7 @@ namespace threplay
             char[] v = ((string)Properties.Settings.Default["gameVisibility"]).ToCharArray();
             int p = 0;
             while (p < (int)GameList.thLast && v[p++] == 'N') { }
-            if (p > (int)GameList.thLast)
+            if (p >= (int)GameList.thLast)
             {
                 gameListView.SelectedIndex = -1;
             }
