@@ -414,7 +414,7 @@ namespace threplay
 
         public static string AddReplay(bool backup, string[] files)
         {
-            bool ignoreNotif = false, readError = false, fileExists = false;
+            bool ignoreNotif = false, readError = false, fileExists = false, tooManyFiles = false;
             foreach(string file in files)
             {
                 string extension = file.Substring(file.Length - 4);
@@ -438,7 +438,21 @@ namespace threplay
                                 if(File.Exists(games[data.replay.game].dirBackup + "\\" + fileInfo.Name))
                                 {
                                     //overwrite or like generate the next name?
+                                    //  SUPER HACK TO MAKE GASTARI HAPPY
+                                    int userNum = 0;
+                                    while(File.Exists(games[data.replay.game].dirBackup + "\\" + GameData.setting[currentGame] + "_ud" + userNum.ToString("0000") + ".rpy")) {
+                                        userNum++;
+                                    }
+
+                                    if(userNum < 10000) {
+                                        File.Copy(file, games[data.replay.game].dirBackup + "\\" + GameData.setting[currentGame] + "_ud" + userNum.ToString("0000") + ".rpy");
+                                    } else {
+                                        //  why do you have this many replays
+                                        tooManyFiles = true;
+                                    }
+
                                     fileExists = true;
+
                                 } else
                                 {
                                     try
@@ -459,6 +473,19 @@ namespace threplay
                                 if (File.Exists(games[data.replay.game].dirLive + "\\" + fileInfo.Name))
                                 {
                                     //overwrite or like generate the next name?
+                                    //  SUPER HACK TO MAKE GASTARI HAPPY
+                                    int userNum = 0;
+                                    while(File.Exists(games[data.replay.game].dirLive + "\\" + GameData.setting[currentGame] + "_ud" + userNum.ToString("0000") + ".rpy")) {
+                                        userNum++;
+                                    }
+
+                                    if(userNum < 10000) {
+                                        File.Copy(file, games[data.replay.game].dirLive + "\\" + GameData.setting[currentGame] + "_ud" + userNum.ToString("0000") + ".rpy");
+                                    } else {
+                                        //  why do you have this many replays
+                                        tooManyFiles = true;
+                                    }
+                                    
                                     fileExists = true;
                                 }
                                 else
@@ -488,8 +515,14 @@ namespace threplay
                 if(ignoreNotif) message = string.Concat(message, " Some non-replay files were ignored.");
                 if (readError) message = string.Concat(message, " Some files could not be read and were ignored.");
             }
-            if (fileExists) MessageBox.Show("A replay with that filename already exists. Please rename it and try again.", "Error",
-                MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            if(fileExists) {
+                MessageBox.Show("Some replays had conflicting names. These have been renamed to user replays (thXX_udYYYY.rpy).", "Info",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            if(tooManyFiles) {
+                MessageBox.Show("Could not find a free user replay number. Some files failed to copy. You may want to consider deleting some user replays.", "Info",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            }
             return message;
         }
 
