@@ -40,10 +40,13 @@ namespace threplay
 
         thLast
     };
+
+    
     
     public partial class MainWindow : Window
     {
         public PaletteHelper palette;
+        UpdateInfoEventArgs updateArgs;
         public MainWindow()
         {
             InitializeComponent();
@@ -55,6 +58,7 @@ namespace threplay
             Bluegrams.Application.PortableSettingsProvider.ApplyProvider(Properties.Settings.Default);
 
 
+            AutoUpdater.RunUpdateAsAdmin = false;
             if((bool)Properties.Settings.Default["updates"])
             {
                 AutoUpdater.CheckForUpdateEvent += CheckForUpdates;
@@ -545,6 +549,7 @@ namespace threplay
                 if(args.IsUpdateAvailable)
                 {
                     SetErrorMessage("New update available");
+                    updateArgs = args;
                     fnUpdate.Visibility = Visibility.Visible;
                     fnUpdate.IsEnabled = true;
                 }
@@ -558,7 +563,7 @@ namespace threplay
         {
             try
             {
-                if(AutoUpdater.DownloadUpdate())
+                if(AutoUpdater.DownloadUpdate(updateArgs))
                 {
                     System.Windows.Application.Current.Shutdown();
                 }
