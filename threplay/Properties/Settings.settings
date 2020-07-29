@@ -158,7 +158,7 @@
     <Setting Name="th17_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="updates" Roaming="true" Type="System.Boolean" Scope="User">
+    <Setting Name="updates" Roaming="true" GenerateDefaultValueInCode="false" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>

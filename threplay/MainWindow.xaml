@@ -34,6 +34,27 @@
         </EventTrigger>
     </Window.Triggers>
     <Grid>
+        <DockPanel x:Name="tutorialLayerView" Panel.ZIndex="2" Background="#7F000000" Visibility="Collapsed">
+            <Grid MouseLeftButtonDown="Grid_MouseLeftButtonDown">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="65"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="&lt;-- Game Selector" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="28" Grid.Column="1" Margin="12,120"/>
+                <TextBlock Text="File management controls" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="24" Grid.Column="1" Grid.ColumnSpan="3"
+                           Margin="0,150,0,0" MaxWidth="200" TextWrapping="WrapWithOverflow" TextAlignment="Center"/>
+                <TextBlock Text="Replays in selected replay folder for current game" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           TextWrapping="WrapWithOverflow" TextAlignment="Center" FontSize="24" Grid.Column="1" Margin="20"/>
+                <TextBlock Text="Replays in selected backup folder for current game" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           TextWrapping="WrapWithOverflow" TextAlignment="Center" FontSize="24" Grid.Column="3" Margin="20"/>
+                <TextBlock Text="Replay info for selected replays for each folder" VerticalAlignment="Bottom" HorizontalAlignment="Center" Grid.Column="1"
+                           Grid.ColumnSpan="3" Margin="0,0,0,100" FontSize="24"/>
+                <TextBlock Text="&lt;-- Settings (Change visible games, create/set a central backup folder)" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                           FontSize="24" Grid.Column="1" Grid.ColumnSpan="3" Margin="12,0,0,20"/>
+            </Grid>
+        </DockPanel>
         <DockPanel HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="65" Background="{DynamicResource MaterialDesignPaper}"
                 Panel.ZIndex="1" x:Name="modeGameViewToggle">
             <DockPanel.Effect>
@@ -97,9 +118,9 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="150"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="2*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>

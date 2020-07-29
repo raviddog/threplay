@@ -3,10 +3,13 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 using Ookii.Dialogs.Wpf;
 using AutoUpdaterDotNET;
+using MaterialDesignColors;
+using MaterialDesignThemes.Wpf;
 
 namespace threplay
 {
@@ -40,14 +43,17 @@ namespace threplay
     
     public partial class MainWindow : Window
     {
+        public PaletteHelper palette;
         public MainWindow()
         {
             InitializeComponent();
             if(!File.Exists("portable.config"))
             {
                 //first run?
+                tutorialLayerView.Visibility = Visibility.Visible;
             }
             Bluegrams.Application.PortableSettingsProvider.ApplyProvider(Properties.Settings.Default);
+
 
             if((bool)Properties.Settings.Default["updates"])
             {
@@ -89,6 +95,21 @@ namespace threplay
 
             GameHandler.UpdateCurrentGame(ref oCurText, ref iDirGame, ref iDirLive, ref iDirBackup, ref outScoreLiveModified, ref outScoreBackupModified, ref fnBackupScorefile);
             CheckMove();
+
+            palette = new PaletteHelper();
+            ITheme theme = Theme.Create(Theme.Dark, Colors.DarkOrange, Colors.Yellow);
+            //theme.SetBaseTheme(Theme.Dark);
+
+            //PrimaryColor pc = PrimaryColor.DeepOrange;
+            //Color c = SwatchHelper.Lookup[(MaterialDesignColor)PrimaryColor.DeepOrange];
+
+            //theme.SetPrimaryColor(SwatchHelper.Lookup[(MaterialDesignColor)PrimaryColor.Cyan]);
+            //theme.SetSecondaryColor(SwatchHelper.Lookup[(MaterialDesignColor)SecondaryColor.Red]);
+            //palette.SetTheme(theme);
+
+            ResourceDictionaryExtensions.SetTheme(Application.Current.Resources, theme);
+
+            
         }
 
         private void FnLaunchGame_Click(object sender, RoutedEventArgs e)
@@ -551,6 +572,55 @@ namespace threplay
         private void OMessage_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             oMessage.IsActive = false;
+        }
+
+        private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            //  first run autodetect modern replay folders
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
+                    "\\ShanghaiAlice\\";
+            MessageBoxResult msg;
+            if(Directory.Exists(path)) {
+                msg = MessageBoxResult.No;
+                msg = MessageBox.Show("Found the %appdata%\\ShanghaiAlice\\ folder. Would you like to try and autodetect existing modern replay folders?", "Info", MessageBoxButton.YesNo, MessageBoxImage.Information);
+
+                if(msg == MessageBoxResult.Yes) {
+                    int count = 0;
+                    for(int i = 0; i < GameData.setting.Length; i++) {
+                        if(GameData.scorefileJ[i] == null) {
+                            //  is in appdata
+                            string repPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
+                                "\\ShanghaiAlice\\" + GameData.setting[i] + "\\replay";
+                            if(Directory.Exists(repPath)) {
+                                GameHandler.currentGame = i;
+                                GameHandler.SetLive(repPath);
+                                count++;
+                            }
+                        }
+                    }
+                    MessageBox.Show("Updated " + count + " folders.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+
+            msg = MessageBoxResult.No;
+            msg = MessageBox.Show("Would you like to set your replay backup folder now?", "Info", MessageBoxButton.YesNo, MessageBoxImage.Information);
+            if(msg == MessageBoxResult.Yes) {
+                VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog();
+                dialog.Description = "Please select a folder";
+                dialog.UseDescriptionForTitle = true;
+                if((bool)dialog.ShowDialog(this)) {
+                    if(!GameHandler.SetAllBackup(dialog.SelectedPath)) {
+                        MessageBox.Show("Some folders failed to be set");
+                    };
+                }
+            }
+
+
+            oMessage.IsActive = false;
+            GameHandler.UpdateCurrentGame(ref oCurText, ref iDirGame, ref iDirLive, ref iDirBackup, ref outScoreLiveModified, ref outScoreBackupModified, ref fnBackupScorefile);
+            CheckMove();
+
+            tutorialLayerView.Visibility = Visibility.Collapsed;
         }
     }
 
