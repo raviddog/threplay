@@ -25,19 +25,6 @@ namespace threplay.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("YYYYYYYYYYYYYYYYY")]
-        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
-        public string gameVisibility {
-            get {
-                return ((string)(this["gameVisibility"]));
-            }
-            set {
-                this["gameVisibility"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("!")]
         [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public string th06_l {
@@ -701,6 +688,7 @@ namespace threplay.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public bool updates {
             get {
@@ -708,6 +696,55 @@ namespace threplay.Properties {
             }
             set {
                 this["updates"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th18tr_l {
+            get {
+                return ((string)(this["th18tr_l"]));
+            }
+            set {
+                this["th18tr_l"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th18tr_b {
+            get {
+                return ((string)(this["th18tr_b"]));
+            }
+            set {
+                this["th18tr_b"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!")]
+        public string th18tr_e {
+            get {
+                return ((string)(this["th18tr_e"]));
+            }
+            set {
+                this["th18tr_e"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("YYYYYYYYYYYYYYYYYY")]
+        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
+        public string gameVisibility {
+            get {
+                return ((string)(this["gameVisibility"]));
+            }
+            set {
+                this["gameVisibility"] = value;
             }
         }
     }

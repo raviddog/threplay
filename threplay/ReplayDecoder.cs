@@ -131,6 +131,11 @@ namespace threplay
                     replay.replay.game = 16;
                     status = Read_t17r(ref replay.replay);
                     break;
+                case "74313874":
+                    //  change this to actual one on full game release
+                    replay.replay.game = 17;
+                    status = Read_t18t(ref replay.replay);
+                    break;
                 default:
                     break;
             }
@@ -624,6 +629,11 @@ namespace threplay
         }
 
         private static bool Read_t17r(ref ReplayEntry.ReplayInfo replay)
+        {
+            return Read_t10r(ref replay);
+        }
+
+        private static bool Read_t18t(ref ReplayEntry.ReplayInfo replay)
         {
             return Read_t10r(ref replay);
         }

@@ -771,7 +771,8 @@ namespace threplay
             "Touhou 15",
             "Touhou 16",
             "Touhou 16.5",
-            "Touhou 17"
+            "Touhou 17",
+            "Touhou 18 Trial"
         };
 
         public static readonly String[] names =
@@ -792,7 +793,8 @@ namespace threplay
             "Legacy of Lunatic Kingdom",
             "Hidden Star in Four Seasons",
             "Violet Detector",
-            "Wily Beast & Weakest Creature"
+            "Wily Beast & Weakest Creature",
+            "Unconnected Marketeers Trial Edition"
         };
 
         public static readonly String[] setting =
@@ -813,7 +815,8 @@ namespace threplay
             "th15",
             "th16",
             "th165",
-            "th17"
+            "th17",
+            "th18tr"
         };
 
         public static readonly String[] scorefileJ =
@@ -822,6 +825,7 @@ namespace threplay
             "score.dat",
             "score.dat",
             "score.dat",
+            null,
             null,
             null,
             null,

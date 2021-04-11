@@ -37,6 +37,7 @@ namespace threplay
         th16,
         th165,
         th17,
+        th18tr,
 
         thLast
     };

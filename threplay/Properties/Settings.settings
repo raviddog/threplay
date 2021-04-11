@@ -2,9 +2,6 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="threplay.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="gameVisibility" Roaming="true" Type="System.String" Scope="User">
-      <Value Profile="(Default)">YYYYYYYYYYYYYYYYY</Value>
-    </Setting>
     <Setting Name="th06_l" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
@@ -158,8 +155,20 @@
     <Setting Name="th17_e" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="updates" Roaming="true" GenerateDefaultValueInCode="false" Type="System.Boolean" Scope="User">
+    <Setting Name="updates" Roaming="true" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="th18tr_l" Type="System.String" Scope="User">
+      <Value Profile="(Default)">!</Value>
+    </Setting>
+    <Setting Name="th18tr_b" Type="System.String" Scope="User">
+      <Value Profile="(Default)">!</Value>
+    </Setting>
+    <Setting Name="th18tr_e" Type="System.String" Scope="User">
+      <Value Profile="(Default)">!</Value>
+    </Setting>
+    <Setting Name="gameVisibility" Roaming="true" Type="System.String" Scope="User">
+      <Value Profile="(Default)">YYYYYYYYYYYYYYYYYY</Value>
     </Setting>
   </Settings>
 </SettingsFile>
