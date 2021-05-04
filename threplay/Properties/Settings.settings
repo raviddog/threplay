@@ -158,13 +158,13 @@
     <Setting Name="updates" Roaming="true" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="th18tr_l" Type="System.String" Scope="User">
+    <Setting Name="th18_l" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th18tr_b" Type="System.String" Scope="User">
+    <Setting Name="th18_b" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
-    <Setting Name="th18tr_e" Type="System.String" Scope="User">
+    <Setting Name="th18_e" Type="System.String" Scope="User">
       <Value Profile="(Default)">!</Value>
     </Setting>
     <Setting Name="gameVisibility" Roaming="true" Type="System.String" Scope="User">

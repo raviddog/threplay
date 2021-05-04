@@ -702,36 +702,36 @@ namespace threplay.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("!")]
-        public string th18tr_l {
+        public string th18_l {
             get {
-                return ((string)(this["th18tr_l"]));
+                return ((string)(this["th18_l"]));
             }
             set {
-                this["th18tr_l"] = value;
+                this["th18_l"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("!")]
-        public string th18tr_b {
+        public string th18_b {
             get {
-                return ((string)(this["th18tr_b"]));
+                return ((string)(this["th18_b"]));
             }
             set {
-                this["th18tr_b"] = value;
+                this["th18_b"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("!")]
-        public string th18tr_e {
+        public string th18_e {
             get {
-                return ((string)(this["th18tr_e"]));
+                return ((string)(this["th18_e"]));
             }
             set {
-                this["th18tr_e"] = value;
+                this["th18_e"] = value;
             }
         }
         

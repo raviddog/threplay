@@ -772,7 +772,7 @@ namespace threplay
             "Touhou 16",
             "Touhou 16.5",
             "Touhou 17",
-            "Touhou 18 Trial"
+            "Touhou 18"
         };
 
         public static readonly String[] names =
@@ -794,7 +794,7 @@ namespace threplay
             "Hidden Star in Four Seasons",
             "Violet Detector",
             "Wily Beast & Weakest Creature",
-            "Unconnected Marketeers Trial Edition"
+            "Unconnected Marketeers"
         };
 
         public static readonly String[] setting =
@@ -816,7 +816,7 @@ namespace threplay
             "th16",
             "th165",
             "th17",
-            "th18tr"
+            "th18"
         };
 
         public static readonly String[] scorefileJ =

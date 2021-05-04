@@ -126,15 +126,12 @@ namespace threplay
                     status = Read_t156(ref replay.replay);
                     break;
                 case "74313772":
-                    //im guessing the full release will be t17r
-                    //judging by the trial's replay format, nothing has changed which is good
                     replay.replay.game = 16;
                     status = Read_t17r(ref replay.replay);
                     break;
-                case "74313874":
-                    //  change this to actual one on full game release
+                case "74313872":
                     replay.replay.game = 17;
-                    status = Read_t18t(ref replay.replay);
+                    status = Read_t18r(ref replay.replay);
                     break;
                 default:
                     break;
@@ -633,7 +630,7 @@ namespace threplay
             return Read_t10r(ref replay);
         }
 
-        private static bool Read_t18t(ref ReplayEntry.ReplayInfo replay)
+        private static bool Read_t18r(ref ReplayEntry.ReplayInfo replay)
         {
             return Read_t10r(ref replay);
         }
