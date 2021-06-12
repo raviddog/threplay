@@ -628,6 +628,11 @@ namespace threplay
 
             tutorialLayerView.Visibility = Visibility.Collapsed;
         }
+
+        private void fnBackupScorefileAll_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
 }
