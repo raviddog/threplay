@@ -640,7 +640,7 @@ namespace threplay
     {
         public string Filename { get; set; }
         public string Filesize { get; set; }
-
+        public string Date { get; set; }
         public string FullPath;
         public ReplayInfo replay;
 

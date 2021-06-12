@@ -11,7 +11,7 @@
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
-        Title="ViewSettings" Height="480" Width="300" WindowStyle="ToolWindow" ResizeMode="NoResize"
+        Title="ViewSettings" Height="480" Width="320" WindowStyle="ToolWindow" ResizeMode="NoResize"
         Closed="Window_Closed">
     <Grid>
         <ListView x:Name="modeSettingVisibilityToggleList" SelectedIndex="-1"

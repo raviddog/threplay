@@ -173,8 +173,8 @@
                                       AllowDrop="True" Drop="OReplayLiveList_Drop">
                                 <ListView.View>
                                     <GridView>
-                                        <GridViewColumn Header="Filename" Width="120" DisplayMemberBinding="{Binding Filename}" />
-                                        <GridViewColumn Header="Filesize" Width="80" DisplayMemberBinding="{Binding Filesize}" />
+                                        <GridViewColumn Header="Filename" Width="140" DisplayMemberBinding="{Binding Filename}" />
+                                        <GridViewColumn Header="Date" Width="140" DisplayMemberBinding="{Binding Date}" />
                                     </GridView>
                                 </ListView.View>
                             </ListView>
@@ -186,8 +186,8 @@
                                       AllowDrop="True" Drop="OReplayBackupList_Drop">
                                 <ListView.View>
                                     <GridView>
-                                        <GridViewColumn Header="Filename" Width="120" DisplayMemberBinding="{Binding Filename}" />
-                                        <GridViewColumn Header="Filesize" Width="80" DisplayMemberBinding="{Binding Filesize}" />
+                                        <GridViewColumn Header="Filename" Width="140" DisplayMemberBinding="{Binding Filename}" />
+                                        <GridViewColumn Header="Date" Width="140" DisplayMemberBinding="{Binding Date}" />
                                     </GridView>
                                 </ListView.View>
                             </ListView>

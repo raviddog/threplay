@@ -652,7 +652,8 @@ namespace threplay
                             {
                                 Filename = curFile.Name,
                                 Filesize = (curFile.Length / 1024.0f).ToString("#,###.#") + "KB",
-                                FullPath = curFile.FullName
+                                FullPath = curFile.FullName,
+                                Date = curFile.LastWriteTime.ToString("dd/MM/yy HH:mm")
                             };
                             //GameReplayDecoder.ReadFile(ref replayInfo);
                             //if(replayInfo.replay.game == number)
@@ -689,7 +690,8 @@ namespace threplay
                             {
                                 Filename = curFile.Name,
                                 Filesize = (curFile.Length / 1024.0f).ToString("#,###.#") + "KB",
-                                FullPath = curFile.FullName
+                                FullPath = curFile.FullName,
+                                Date = curFile.LastWriteTime.ToString("dd/MM/yy HH:mm")
                             };
                             //GameReplayDecoder.ReadFile(ref replayInfo);
                             //if(replayInfo.replay.game == number)
