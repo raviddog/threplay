@@ -113,7 +113,7 @@ namespace threplay
             //palette.SetTheme(theme);
 
             ResourceDictionaryExtensions.SetTheme(Application.Current.Resources, theme);
-
+            idRbtnTabInfo.IsChecked = true;
             
         }
 
@@ -134,7 +134,7 @@ namespace threplay
             {
                 oReplayLiveList.SelectedIndex = -1;
                 oReplayBackupList.SelectedIndex = -1;
-                iViewDir.Focus();
+                //iViewDir.Focus();
                 e.Handled = true;
             } else if(e.Key == Key.Enter)
             {
@@ -263,11 +263,11 @@ namespace threplay
             fnTransferToLive.IsEnabled = hasLive && hasBackup;
             if (hasLive && hasBackup)
             {
-                iViewDirIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.FolderOpen;
+                //iViewDirIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.FolderOpen;
             }
             else
             {
-                iViewDirIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.FolderSearchOutline;
+                //iViewDirIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.FolderSearchOutline;
                 if (hasLive && !hasBackup)
                 {
                     SetErrorMessage("Please select a backup folder");
@@ -312,19 +312,6 @@ namespace threplay
             }
         }
 
-        private void IViewDir_Expanded(object sender, RoutedEventArgs e)
-        {
-            odFileGrid.Visibility = Visibility.Collapsed;
-        }
-
-        private void IViewDir_Collapsed(object sender, RoutedEventArgs e)
-        {
-            if(fnMultiEnabled.IsChecked == false)
-            {
-                odFileGrid.Visibility = Visibility.Visible;
-            }
-        }
-
         private void FnMultiEnabled_Checked(object sender, RoutedEventArgs e)
         {
             oReplayBackupList.SelectionMode = SelectionMode.Multiple;
@@ -337,10 +324,10 @@ namespace threplay
         {
             oReplayBackupList.SelectionMode = SelectionMode.Single;
             oReplayLiveList.SelectionMode = SelectionMode.Single;
-            if(iViewDir.IsExpanded == false)
-            {
+            //if(iViewDir.IsExpanded == false)
+            //{
                 odFileGrid.Visibility = Visibility.Visible;
-            }
+            //}
 
             CheckFileNameFocusable();
         }
@@ -348,7 +335,7 @@ namespace threplay
         private void OReplayLiveList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CheckFileNameFocusable();
-            iViewDir.IsExpanded = false;
+            //iViewDir.IsExpanded = false;
             if(fnMultiEnabled.IsChecked == false && oReplayLiveList.SelectedIndex != -1)
             {
                 ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
@@ -389,7 +376,7 @@ namespace threplay
         private void OReplayBackupList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CheckFileNameFocusable();
-            iViewDir.IsExpanded = false;
+            //iViewDir.IsExpanded = false;
             if (fnMultiEnabled.IsChecked == false && oReplayBackupList.SelectedIndex != -1)
             {
                 ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
@@ -630,6 +617,24 @@ namespace threplay
         }
 
         private void fnBackupScorefileAll_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+
+        private void idRbtnTabDir_Checked(object sender, RoutedEventArgs e)
+        {
+            odDirGrid.Visibility = Visibility.Visible;
+            odFileGrid.Visibility = Visibility.Collapsed;
+        }
+
+        private void idRbtnTabInfo_Checked(object sender, RoutedEventArgs e)
+        {
+            odDirGrid.Visibility = Visibility.Collapsed;
+            odFileGrid.Visibility = Visibility.Visible;
+        }
+
+        private void idRbtnTabPacks_Checked(object sender, RoutedEventArgs e)
         {
 
         }

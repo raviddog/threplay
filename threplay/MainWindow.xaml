@@ -90,31 +90,30 @@
         <DockPanel>
             <Grid HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="75"/>
             <DockPanel Margin="8">
-                <Grid DockPanel.Dock="Bottom" Height="120">
-                    <Expander x:Name="iViewDir" ExpandDirection="Right" IsExpanded="False"
-                              Expanded="IViewDir_Expanded" Collapsed="IViewDir_Collapsed">
-                        <Expander.Header>
-                            <materialDesign:PackIcon x:Name="iViewDirIcon" Kind="FolderSearchOutline" Width="32" Height="32" />
-                        </Expander.Header>
-                        <Grid MinWidth="700">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="100"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="28"/>
-                                <RowDefinition Height="28"/>
-                                <RowDefinition Height="28"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Text="Game Exe:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Replay Folder:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"/>
-                            <TextBlock Text="Backup Folder:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center"/>
-                            <TextBox x:Name="iDirGame" GotFocus="IDirGame_GotFocus" Text="click to browse for game exe" Grid.Column="1" Grid.Row="0" FontWeight="Normal"/>
-                            <TextBox x:Name="iDirLive" GotFocus="IDirLive_GotFocus" Text="click to browse for replay folder" Grid.Column="1" Grid.Row="1" FontWeight="Normal"/>
-                            <TextBox x:Name="iDirBackup" GotFocus="IDirBackup_GotFocus" Text="click to browse for backup folder" Grid.Column="1" Grid.Row="2" FontWeight="Normal"/>
-                        </Grid>
-                    </Expander>
-                    <Grid x:Name="odFileGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="60,0,0,0">
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Height="32">
+                    <RadioButton x:Name="idRbtnTabDir" GroupName="Nav" Checked="idRbtnTabDir_Checked" Content="Game Directories" IsChecked="False" Style="{StaticResource MaterialDesignTabRadioButton}"/>
+                    <RadioButton x:Name="idRbtnTabInfo" GroupName="Nav" Checked="idRbtnTabInfo_Checked" Content="Replay Info" IsChecked="False" Style="{StaticResource MaterialDesignTabRadioButton}"/>
+                    <RadioButton x:Name="idRbtnTabPacks" GroupName="Nav" Checked="idRbtnTabPacks_Checked" Content="Replay Folders" IsChecked="False" Style="{StaticResource MaterialDesignTabRadioButton}"/>
+                </StackPanel>
+                <Grid DockPanel.Dock="Bottom" Height="160">
+                    <Grid x:Name="odDirGrid" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="32"/>
+                            <RowDefinition Height="32"/>
+                            <RowDefinition Height="32"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Game Exe:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Replay Folder:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"/>
+                        <TextBlock Text="Backup Folder:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center"/>
+                        <TextBox x:Name="iDirGame" GotFocus="IDirGame_GotFocus" Text="click to browse for game exe" Grid.Column="1" Grid.Row="0" FontWeight="Normal"/>
+                        <TextBox x:Name="iDirLive" GotFocus="IDirLive_GotFocus" Text="click to browse for replay folder" Grid.Column="1" Grid.Row="1" FontWeight="Normal"/>
+                        <TextBox x:Name="iDirBackup" GotFocus="IDirBackup_GotFocus" Text="click to browse for backup folder" Grid.Column="1" Grid.Row="2" FontWeight="Normal"/>
+                    </Grid>
+                    <Grid x:Name="odFileGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="150"/>
                             <ColumnDefinition Width="*"/>
@@ -147,13 +146,13 @@
                         <TextBlock x:Name="odFileStageBackup" Grid.Column="4" Grid.Row="3" VerticalAlignment="Center"/>
                         <TextBlock x:Name="odFileDifficultyLive" Grid.Column="1" Grid.Row="3" VerticalAlignment="Center"/>
                         <TextBlock x:Name="odFileDifficultyBackup" Grid.Column="3" Grid.Row="3" VerticalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,0,0,8" Grid.Row="4" Grid.ColumnSpan="5">
+                            <Button x:Name="fnLaunchGame" Height="24" Content="Launch Game" Click="FnLaunchGame_Click" Margin="0,0,8,0" IsEnabled="False"/>
+                            <Button x:Name="fnLaunchFolder" Height="24" Content="Open Game Folder" Click="FnLaunchFolder_Click" Margin="0,0,8,0" IsEnabled="False"/>
+                            <Button x:Name="fnLaunchLive" Height="24" Content="Open Replay Folder" Click="FnLaunchLive_Click" Margin="0,0,8,0" IsEnabled="False"/>
+                            <Button x:Name="fnLaunchBackup" Height="24" Content="Open Backup Folder" Click="FnLaunchBackup_Click" Margin="0,0,8,0" IsEnabled="False"/>
+                        </StackPanel>
                     </Grid>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="60,0,0,0">
-                        <Button x:Name="fnLaunchGame" Content="Launch Game" Height="24" Click="FnLaunchGame_Click" Margin="0,0,8,0" IsEnabled="False"/>
-                        <Button x:Name="fnLaunchFolder" Content="Open Game Folder" Height="24" Click="FnLaunchFolder_Click" Margin="0,0,8,0" IsEnabled="False"/>
-                        <Button x:Name="fnLaunchLive" Content="Open Replay Folder" Height="24" Click="FnLaunchLive_Click" Margin="0,0,8,0" IsEnabled="False"/>
-                        <Button x:Name="fnLaunchBackup" Content="Open Backup Folder" Height="24" Click="FnLaunchBackup_Click" Margin="0,0,8,0" IsEnabled="False"/>
-                    </StackPanel>
                     <Button x:Name="fnUpdate"  Content="Install Update" Height="24" Click="FnUpdate_Click" Visibility="Collapsed" IsEnabled="False" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
                     <materialDesign:Snackbar x:Name="oMessage" IsActive="False" HorizontalAlignment="Right" MouseUp="OMessage_MouseDoubleClick"/>
                 </Grid>
