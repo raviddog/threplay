@@ -262,6 +262,49 @@ namespace threplay
             }
         }
 
+        public static bool BackupScoreAll(ref TextBlock scoreBackupDate)
+        {
+            bool success = true;
+            for(int i = 0; i < GameData.scorefileJ.Length; i++) {
+                if(GameData.scorefileJ[i] != null) {
+                    if(File.Exists(Directory.GetParent(games[i].dirLive) + "\\" + GameData.scorefileJ[i])) {
+                        try {
+                            File.Copy(Directory.GetParent(games[i].dirLive) + "\\" + GameData.scorefileJ[i], games[i].dirBackup + "\\" + GameData.scorefileJ[i], true);
+                        } catch {
+                            success = false;
+                            break;
+                        }
+                        FileInfo scorefile = new FileInfo(games[i].dirBackup + "\\" + GameData.scorefileJ[i]);
+                        if(i == currentGame) {
+                            scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
+                        }
+                        break;
+                    } else {
+                        success = false;
+                        break;
+                    }
+                } else {
+                    if(File.Exists(Directory.GetParent(games[i].dirLive) + "\\score" + GameData.setting[i] + ".dat")) {
+                        try {
+                            File.Copy(Directory.GetParent(games[i].dirLive) + "\\score" + GameData.setting[i] + ".dat", games[i].dirBackup + "\\score" + GameData.setting[i] + ".dat", true);
+                        } catch {
+                            success = false;
+                            break;
+                        }
+                        FileInfo scorefile = new FileInfo(games[i].dirBackup + "\\score" + GameData.setting[i] + ".dat");
+                        if(i == currentGame) {
+                            scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
+                        }
+                        break;
+                    } else {
+                        success = false;
+                        break;
+                    }
+                }
+            }
+            return success;
+        }
+
         public static void CheckMove(out bool hasGame, out bool hasLive, out bool hasBackup)
         {
             if(currentGame ==  -1)

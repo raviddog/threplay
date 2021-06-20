@@ -618,7 +618,10 @@ namespace threplay
 
         private void fnBackupScorefileAll_Click(object sender, RoutedEventArgs e)
         {
-
+            //do error checks
+            if(!GameHandler.BackupScoreAll(ref outScoreBackupModified)) {
+                SetErrorMessage("Some backups were unable to be completed");     //if all goes well this shouldn't be able to trigger
+            }
         }
 
 

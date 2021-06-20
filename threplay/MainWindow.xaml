@@ -208,7 +208,7 @@
                             <TextBlock Text="Backup Date:" HorizontalAlignment="Center" Margin="0,2,0,0"/>
                             <TextBlock x:Name="outScoreBackupModified" HorizontalAlignment="Center" Margin="0,2,0,0"/>
                             <Button x:Name="fnBackupScorefile" Content="Backup" Click="FnBackupScorefile_Click" Width="100" Height="24" IsEnabled="False" HorizontalAlignment="Center" Margin="0,8,0,0"/>
-                            <Button x:Name="fnBackupScorefileAll" Content="Backup All" Click="fnBackupScorefileAll_Click" Width="100" Height="24" IsEnabled="False" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                            <Button x:Name="fnBackupScorefileAll" Content="Backup All" Click="fnBackupScorefileAll_Click" Width="100" Height="24" HorizontalAlignment="Center" Margin="0,8,0,0"/>
                         </StackPanel>
                     </Grid>
                 </DockPanel>
