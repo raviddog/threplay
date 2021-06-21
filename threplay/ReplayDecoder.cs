@@ -102,6 +102,7 @@ namespace threplay
                     //t13r
                     //has both td and ddc for some fucking reason
                     //since im reading the user data at the end though it doesnt matter
+                    //  replay game = either 10 or 11
                     status = Read_t13r(ref replay.replay);
                     break;
                 case "74313433":
@@ -295,6 +296,16 @@ namespace threplay
             return true;
         }
 
+        private static uint Read_Uint(ref byte[] buffer, uint offset)
+        {
+            uint result = buffer[offset];
+            result += (uint)buffer[offset + 1] << 8;
+            result += (uint)buffer[offset + 2] << 16;
+            result += (uint)buffer[offset + 3] << 24;
+            return result;
+
+        }
+
         private static bool Read_T7RP(ref ReplayEntry.ReplayInfo replay)
         {
             string[] chars = new string[] { "ReimuA", "ReimuB", "MarisaA", "MarisaB", "SakuyaA", "SakuyaB" };
@@ -372,7 +383,7 @@ namespace threplay
             }
             return result;
         }
-
+        
         private static uint decompress(ref byte[] buffer, ref byte[] decode, uint length)
         {
             //function rewritten in C# from https://github.com/Fluorohydride/threp/blob/master/common.cpp
@@ -408,6 +419,36 @@ namespace threplay
                 }
             }
             return dest;
+        }
+
+        private static void decode(ref byte[] buffer, int length, int block_size, byte _base, byte add)
+        {
+            //function rewritten in C# from https://github.com/Fluorohydride/threp/blob/master/common.cpp
+            byte[] tbuf = new byte[length];
+            Array.Copy(buffer, tbuf, length);
+            int i, p = 0, tp1, tp2, hf, left = length;
+            if((left % block_size) < (block_size / 4))
+                left -= left % block_size;
+            left -= length & 1;
+            while(left != 0) {
+                if(left < block_size)
+                    block_size = left;
+                tp1 = p + block_size - 1;
+                tp2 = p + block_size - 2;
+                hf = (block_size + (block_size & 0x1)) / 2;
+                for(i = 0; i < hf; ++i, ++p) {
+                    buffer[tp1] = (byte)(tbuf[p] ^ _base);
+                    _base += add;
+                    tp1 -= 2;
+                }
+                hf = block_size / 2;
+                for(i = 0; i < hf; ++i, ++p) {
+                    buffer[tp2] = (byte)(tbuf[p] ^ _base);
+                    _base += add;
+                    tp2 -= 2;
+                }
+                left -= block_size;
+            }
         }
 
         private static bool Read_T8RP(ref ReplayEntry.ReplayInfo replay)
@@ -499,6 +540,41 @@ namespace threplay
 
         private static bool Read_t11r(ref ReplayEntry.ReplayInfo replay)
         {
+            byte[] buffer = new byte[file.Length];
+            file.Seek(0, SeekOrigin.Begin);
+            file.Read(buffer, 0, (int)file.Length);
+
+            uint length = Read_Uint(ref buffer, 28);
+            uint dlength = Read_Uint(ref buffer, 32);
+
+            byte[] decodedata = new byte[dlength];
+            Array.Copy(buffer, 36, buffer, 0, buffer.Length - 36);
+            decode(ref buffer, (int)length, 0x800, 0xaa, 0xe1);
+            decode(ref buffer, (int)length, 0x40, 0x3d, 0x7a);
+            decompress(ref buffer, ref decodedata, length);
+
+            uint stageoffset = 0x70, stage = decodedata[0x58];
+            if(stage > 6) {
+                stage = 6;
+            }
+
+            replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[stage];
+
+            for(int i = 0; i < stage; ++i) {
+                replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                replay.splits[i].stage = decodedata[stageoffset];
+                replay.splits[i].score = Read_Uint(ref decodedata, stageoffset + 0xc) * 10;
+                replay.splits[i].power = (0.05f * (float)Read_Uint(ref decodedata, stageoffset + 0x10)).ToString("0.00");
+                replay.splits[i].piv = Read_Uint(ref decodedata, stageoffset + 0x14);
+                uint lives = decodedata[stageoffset + 0x18];
+                uint pieces = decodedata[stageoffset + 0x1a];
+
+                replay.splits[i].lives = lives.ToString() + " (" + pieces + "/5)";
+                replay.splits[i].graze = Read_Uint(ref decodedata, stageoffset + 0x34);
+                stageoffset += Read_Uint(ref decodedata, stageoffset + 0x8) + 0x90;
+            }
+
+
             return Read_t10r(ref replay);
         }
 
@@ -653,6 +729,17 @@ namespace threplay
             public string difficulty;
             public string stage;
             public string score;
+            public ReplaySplits[] splits;
+            
+            public class ReplaySplits
+            {
+                public uint stage;
+                public uint score;
+                public string power;
+                public uint piv;
+                public string lives;
+                public uint graze;
+            }
         }
     }
 }
