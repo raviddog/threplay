@@ -226,6 +226,128 @@ namespace threplay
             return val == "55534552" ? true : false;
         }
 
+        private static uint Read_BufferedUint(ref byte[] buffer, uint offset)
+        {
+            uint result = buffer[offset];
+            result += (uint)buffer[offset + 1] << 8;
+            result += (uint)buffer[offset + 2] << 16;
+            result += (uint)buffer[offset + 3] << 24;
+            return result;
+
+        }
+
+        private static uint get_bit(ref byte[] buffer, ref uint pointer, ref byte filter, byte length)
+        {
+            //function rewritten in C# from https://github.com/Fluorohydride/threp/blob/master/common.cpp
+            uint result = 0;
+            byte current = buffer[pointer];
+            for(byte i = 0; i < length; ++i) {
+                result <<= 1;
+                if((current & filter) != 0x00) {
+                    result |= 0x01;
+                }
+                filter >>= 1;
+                if(filter == 0) {
+                    pointer++;
+                    current = buffer[pointer];
+                    filter = 0x80;
+                }
+            }
+            return result;
+        }
+
+        private static uint decompress(ref byte[] buffer, ref byte[] decode, uint length)
+        {
+            //function rewritten in C# from https://github.com/Fluorohydride/threp/blob/master/common.cpp
+            uint pointer = 0, dest = 0, index, bits;
+            byte filter = 0x80;
+            byte[] dict = new byte[8208];   //0x2010
+            while(pointer < length) {
+                bits = get_bit(ref buffer, ref pointer, ref filter, 1);
+                if(pointer >= length)
+                    return dest;
+                if(bits != 0) {
+                    bits = get_bit(ref buffer, ref pointer, ref filter, 8);
+                    if(pointer >= length)
+                        return dest;
+                    decode[dest] = (byte)bits;
+                    dict[dest & 0x1fff] = (byte)bits;
+                    dest++;
+                } else {
+                    bits = get_bit(ref buffer, ref pointer, ref filter, 13);
+                    if(pointer >= length)
+                        return dest;
+                    index = bits - 1;
+                    bits = get_bit(ref buffer, ref pointer, ref filter, 4);
+                    if(pointer >= length)
+                        return dest;
+                    bits += 3;
+                    for(int i = 0; i < bits; i++) {
+                        dict[dest & 0x1fff] = dict[index + i];
+                        decode[dest] = dict[index + i];
+                        dest++;
+                    }
+                }
+            }
+            return dest;
+        }
+
+        private static void decode(ref byte[] buffer, int length, int block_size, byte _base, byte add)
+        {
+            //function rewritten in C# from https://github.com/Fluorohydride/threp/blob/master/common.cpp
+            byte[] tbuf = new byte[length];
+            Array.Copy(buffer, tbuf, length);
+            int i, p = 0, tp1, tp2, hf, left = length;
+            if((left % block_size) < (block_size / 4))
+                left -= left % block_size;
+            left -= length & 1;
+            while(left != 0) {
+                if(left < block_size)
+                    block_size = left;
+                tp1 = p + block_size - 1;
+                tp2 = p + block_size - 2;
+                hf = (block_size + (block_size & 0x1)) / 2;
+                for(i = 0; i < hf; ++i, ++p) {
+                    buffer[tp1] = (byte)(tbuf[p] ^ _base);
+                    _base += add;
+                    tp1 -= 2;
+                }
+                hf = block_size / 2;
+                for(i = 0; i < hf; ++i, ++p) {
+                    buffer[tp2] = (byte)(tbuf[p] ^ _base);
+                    _base += add;
+                    tp2 -= 2;
+                }
+                left -= block_size;
+            }
+        }
+
+        private static bool Read_Userdata(ref ReplayEntry.ReplayInfo replay)
+        {
+            if(!JumpToUser(12))
+                return false;
+
+            UInt32 length = ReadUInt32();
+            file.Seek(4, SeekOrigin.Current);
+            ReadStringANSI();   //SJIS, 東方XYZ リプレイファイル情報, Touhou XYZ replay file info
+            ReadStringANSI();   //Skip over game version info
+            file.Seek(5, SeekOrigin.Current);
+            replay.name = ReadStringANSI();
+            file.Seek(5, SeekOrigin.Current);
+            replay.date = ReadStringANSI();
+            file.Seek(6, SeekOrigin.Current);
+            replay.character = ReadStringANSI();
+            file.Seek(5, SeekOrigin.Current);
+            replay.difficulty = ReadStringANSI();
+            // file.Seek(6, SeekOrigin.Current);
+            replay.stage = ReadStringANSI();   //stage
+            file.Seek(6, SeekOrigin.Current);
+            long.TryParse(ReadStringANSI() + "0", out long scoreConv);  //replay stores the value without the 0
+            replay.score = scoreConv.ToString("N0");
+
+            return true;
+        }
+
         /*
          * Format of the Decoding Functions for Touhou 8 - onwards
          * 
@@ -296,16 +418,6 @@ namespace threplay
             return true;
         }
 
-        private static uint Read_Uint(ref byte[] buffer, uint offset)
-        {
-            uint result = buffer[offset];
-            result += (uint)buffer[offset + 1] << 8;
-            result += (uint)buffer[offset + 2] << 16;
-            result += (uint)buffer[offset + 3] << 24;
-            return result;
-
-        }
-
         private static bool Read_T7RP(ref ReplayEntry.ReplayInfo replay)
         {
             string[] chars = new string[] { "ReimuA", "ReimuB", "MarisaA", "MarisaB", "SakuyaA", "SakuyaB" };
@@ -359,96 +471,6 @@ namespace threplay
             replay.score = score.ToString("N0");
 
             return true;
-        }
-
-        private static uint get_bit(ref byte[] buffer, ref uint pointer, ref byte filter, byte length)
-        {
-            //function rewritten in C# from https://github.com/Fluorohydride/threp/blob/master/common.cpp
-            uint result = 0;
-            byte current = buffer[pointer];
-            for (byte i = 0; i < length; ++i)
-            {
-                result <<= 1;
-                if ((current & filter) != 0x00)
-                {
-                    result |= 0x01;
-                }
-                filter >>= 1;
-                if (filter == 0)
-                {
-                    pointer++;
-                    current = buffer[pointer];
-                    filter = 0x80;
-                }
-            }
-            return result;
-        }
-        
-        private static uint decompress(ref byte[] buffer, ref byte[] decode, uint length)
-        {
-            //function rewritten in C# from https://github.com/Fluorohydride/threp/blob/master/common.cpp
-            uint pointer = 0, dest = 0, index, bits;
-            byte filter = 0x80;
-            byte[] dict = new byte[8208];   //0x2010
-            while (pointer < length)
-            {
-                bits = get_bit(ref buffer, ref pointer, ref filter, 1);
-                if (pointer >= length) return dest;
-                if (bits != 0)
-                {
-                    bits = get_bit(ref buffer, ref pointer, ref filter, 8);
-                    if (pointer >= length) return dest;
-                    decode[dest] = (byte)bits;
-                    dict[dest & 0x1fff] = (byte)bits;
-                    dest++;
-                }
-                else
-                {
-                    bits = get_bit(ref buffer, ref pointer, ref filter, 13);
-                    if (pointer >= length) return dest;
-                    index = bits - 1;
-                    bits = get_bit(ref buffer, ref pointer, ref filter, 4);
-                    if (pointer >= length) return dest;
-                    bits += 3;
-                    for (int i = 0; i < bits; i++)
-                    {
-                        dict[dest & 0x1fff] = dict[index + i];
-                        decode[dest] = dict[index + i];
-                        dest++;
-                    }
-                }
-            }
-            return dest;
-        }
-
-        private static void decode(ref byte[] buffer, int length, int block_size, byte _base, byte add)
-        {
-            //function rewritten in C# from https://github.com/Fluorohydride/threp/blob/master/common.cpp
-            byte[] tbuf = new byte[length];
-            Array.Copy(buffer, tbuf, length);
-            int i, p = 0, tp1, tp2, hf, left = length;
-            if((left % block_size) < (block_size / 4))
-                left -= left % block_size;
-            left -= length & 1;
-            while(left != 0) {
-                if(left < block_size)
-                    block_size = left;
-                tp1 = p + block_size - 1;
-                tp2 = p + block_size - 2;
-                hf = (block_size + (block_size & 0x1)) / 2;
-                for(i = 0; i < hf; ++i, ++p) {
-                    buffer[tp1] = (byte)(tbuf[p] ^ _base);
-                    _base += add;
-                    tp1 -= 2;
-                }
-                hf = block_size / 2;
-                for(i = 0; i < hf; ++i, ++p) {
-                    buffer[tp2] = (byte)(tbuf[p] ^ _base);
-                    _base += add;
-                    tp2 -= 2;
-                }
-                left -= block_size;
-            }
         }
 
         private static bool Read_T8RP(ref ReplayEntry.ReplayInfo replay)
@@ -515,27 +537,42 @@ namespace threplay
 
         private static bool Read_t10r(ref ReplayEntry.ReplayInfo replay)
         {
-            if (!JumpToUser(12)) return false;
+            byte[] buffer = new byte[file.Length];
+            file.Seek(0, SeekOrigin.Begin);
+            file.Read(buffer, 0, (int)file.Length);
 
-            UInt32 length = ReadUInt32();
-            file.Seek(4, SeekOrigin.Current);
-            ReadStringANSI();   //SJIS, 東方XYZ リプレイファイル情報, Touhou XYZ replay file info
-            ReadStringANSI();   //Skip over game version info
-            file.Seek(5, SeekOrigin.Current);
-            replay.name = ReadStringANSI();
-            file.Seek(5, SeekOrigin.Current);
-            replay.date = ReadStringANSI();
-            file.Seek(6, SeekOrigin.Current);
-            replay.character = ReadStringANSI();
-            file.Seek(5, SeekOrigin.Current);
-            replay.difficulty = ReadStringANSI();
-            // file.Seek(6, SeekOrigin.Current);
-            replay.stage = ReadStringANSI();   //stage
-            file.Seek(6, SeekOrigin.Current);
-            long.TryParse(ReadStringANSI() + "0", out long scoreConv);  //replay stores the value without the 0
-            replay.score = scoreConv.ToString("N0");
+            uint length = Read_BufferedUint(ref buffer, 28);
+            uint dlength = Read_BufferedUint(ref buffer, 32);
 
-            return true;
+            byte[] decodedata = new byte[dlength];
+            Array.Copy(buffer, 36, buffer, 0, buffer.Length - 36);
+            decode(ref buffer, (int)length, 0x400, 0xaa, 0xe1);
+            decode(ref buffer, (int)length, 0x80, 0x3d, 0x7a);
+            decompress(ref buffer, ref decodedata, length);
+
+            uint stageoffset = 0x64, stage = decodedata[0x4c];
+            if(stage > 6) {
+                stage = 6;
+            }
+
+            replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[stage];
+
+            for(int i = 0; i < stage; ++i) {
+                replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                replay.splits[i].stage = decodedata[stageoffset];
+                replay.splits[i].score = Read_BufferedUint(ref decodedata, stageoffset + 0xc) * 10;
+                replay.splits[i].power = (0.05f * (float)Read_BufferedUint(ref decodedata, stageoffset + 0x10)).ToString("0.00");
+                replay.splits[i].piv = Read_BufferedUint(ref decodedata, stageoffset + 0x14);
+                uint lives = decodedata[stageoffset + 0x1c];
+
+                replay.splits[i].lives = lives.ToString();
+                replay.splits[i].graze = 0;
+                replay.splits[i].bombs = "0";
+                stageoffset += Read_BufferedUint(ref decodedata, stageoffset + 0x8) + 0x1c4;
+            }
+
+
+            return Read_Userdata(ref replay);
         }
 
         private static bool Read_t11r(ref ReplayEntry.ReplayInfo replay)
@@ -544,8 +581,8 @@ namespace threplay
             file.Seek(0, SeekOrigin.Begin);
             file.Read(buffer, 0, (int)file.Length);
 
-            uint length = Read_Uint(ref buffer, 28);
-            uint dlength = Read_Uint(ref buffer, 32);
+            uint length = Read_BufferedUint(ref buffer, 28);
+            uint dlength = Read_BufferedUint(ref buffer, 32);
 
             byte[] decodedata = new byte[dlength];
             Array.Copy(buffer, 36, buffer, 0, buffer.Length - 36);
@@ -563,20 +600,20 @@ namespace threplay
             for(int i = 0; i < stage; ++i) {
                 replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
                 replay.splits[i].stage = decodedata[stageoffset];
-                replay.splits[i].score = Read_Uint(ref decodedata, stageoffset + 0xc) * 10;
-                replay.splits[i].power = (0.05f * (float)Read_Uint(ref decodedata, stageoffset + 0x10)).ToString("0.00");
-                replay.splits[i].piv = Read_Uint(ref decodedata, stageoffset + 0x14);
+                replay.splits[i].score = Read_BufferedUint(ref decodedata, stageoffset + 0xc) * 10;
+                replay.splits[i].power = (0.05f * (float)Read_BufferedUint(ref decodedata, stageoffset + 0x10)).ToString("0.00");
+                replay.splits[i].piv = Read_BufferedUint(ref decodedata, stageoffset + 0x14);
                 uint lives = decodedata[stageoffset + 0x18];
                 uint pieces = decodedata[stageoffset + 0x1a];
 
                 replay.splits[i].lives = lives.ToString() + " (" + pieces + "/5)";
-                replay.splits[i].graze = Read_Uint(ref decodedata, stageoffset + 0x34);
+                replay.splits[i].graze = Read_BufferedUint(ref decodedata, stageoffset + 0x34);
                 replay.splits[i].bombs = "0";
-                stageoffset += Read_Uint(ref decodedata, stageoffset + 0x8) + 0x90;
+                stageoffset += Read_BufferedUint(ref decodedata, stageoffset + 0x8) + 0x90;
             }
 
 
-            return Read_t10r(ref replay);
+            return Read_Userdata(ref replay);
         }
 
         private static bool Read_t12r(ref ReplayEntry.ReplayInfo replay)
@@ -585,8 +622,8 @@ namespace threplay
             file.Seek(0, SeekOrigin.Begin);
             file.Read(buffer, 0, (int)file.Length);
 
-            uint length = Read_Uint(ref buffer, 28);
-            uint dlength = Read_Uint(ref buffer, 32);
+            uint length = Read_BufferedUint(ref buffer, 28);
+            uint dlength = Read_BufferedUint(ref buffer, 32);
 
             byte[] decodedata = new byte[dlength];
             Array.Copy(buffer, 36, buffer, 0, buffer.Length - 36);
@@ -604,9 +641,9 @@ namespace threplay
             for(int i = 0; i < stage; ++i) {
                 replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
                 replay.splits[i].stage = decodedata[stageoffset];
-                replay.splits[i].score = Read_Uint(ref decodedata, stageoffset + 0xc) * 10;
-                replay.splits[i].power = ((float)Read_Uint(ref decodedata, stageoffset + 0x10) / 100f).ToString("0.00");
-                replay.splits[i].piv = (Read_Uint(ref decodedata, stageoffset + 0x14) / 1000) * 10;
+                replay.splits[i].score = Read_BufferedUint(ref decodedata, stageoffset + 0xc) * 10;
+                replay.splits[i].power = ((float)Read_BufferedUint(ref decodedata, stageoffset + 0x10) / 100f).ToString("0.00");
+                replay.splits[i].piv = (Read_BufferedUint(ref decodedata, stageoffset + 0x14) / 1000) * 10;
                 uint lives = decodedata[stageoffset + 0x18];
                 uint lpieces = decodedata[stageoffset + 0x1a];
                 if(lpieces > 0) {
@@ -635,11 +672,11 @@ namespace threplay
 
                 replay.splits[i].lives = lives.ToString() + " (" + lpieces + "/4)";
                 replay.splits[i].bombs = bombs.ToString() + " (" + bpieces + "/4)";
-                replay.splits[i].graze = Read_Uint(ref decodedata, stageoffset + 0x44);
-                stageoffset += Read_Uint(ref decodedata, stageoffset + 0x8) + 0xa0;
+                replay.splits[i].graze = Read_BufferedUint(ref decodedata, stageoffset + 0x44);
+                stageoffset += Read_BufferedUint(ref decodedata, stageoffset + 0x8) + 0xa0;
             }
 
-            return Read_t10r(ref replay);
+            return Read_Userdata(ref replay);
         }
 
         private static bool Read_t125(ref ReplayEntry.ReplayInfo replay)
@@ -724,8 +761,8 @@ namespace threplay
                 file.Seek(0, SeekOrigin.Begin);
                 file.Read(buffer, 0, (int)file.Length);
 
-                uint length = Read_Uint(ref buffer, 28);
-                uint dlength = Read_Uint(ref buffer, 32);
+                uint length = Read_BufferedUint(ref buffer, 28);
+                uint dlength = Read_BufferedUint(ref buffer, 32);
 
                 byte[] decodedata = new byte[dlength];
                 Array.Copy(buffer, 36, buffer, 0, buffer.Length - 36);
@@ -743,9 +780,9 @@ namespace threplay
                 for(int i = 0; i < stage; ++i) {
                     replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
                     replay.splits[i].stage = decodedata[stageoffset];
-                    replay.splits[i].score = Read_Uint(ref decodedata, stageoffset + 0x1c) * 10;
-                    replay.splits[i].power = ((float)Read_Uint(ref decodedata, stageoffset + 0x44) / 100f).ToString("0.00");
-                    replay.splits[i].piv = (Read_Uint(ref decodedata, stageoffset + 0x38) / 1000) *10;
+                    replay.splits[i].score = Read_BufferedUint(ref decodedata, stageoffset + 0x1c) * 10;
+                    replay.splits[i].power = ((float)Read_BufferedUint(ref decodedata, stageoffset + 0x44) / 100f).ToString("0.00");
+                    replay.splits[i].piv = (Read_BufferedUint(ref decodedata, stageoffset + 0x38) / 1000) *10;
                     uint lives = decodedata[stageoffset + 0x50];
                     uint lpieces = decodedata[stageoffset + 0x54];
                     uint bombs = decodedata[stageoffset + 0x5c];
@@ -753,12 +790,49 @@ namespace threplay
 
                     replay.splits[i].additional = "Trance: " + decodedata[stageoffset + 0x64] + "/600";
                     replay.splits[i].lives = lives.ToString() + " (" + lpieces + ")";   //  i dont have the piece table rn
-                    replay.splits[i].graze = Read_Uint(ref decodedata, stageoffset + 0x2c);
+                    replay.splits[i].graze = Read_BufferedUint(ref decodedata, stageoffset + 0x2c);
                     replay.splits[i].bombs = bombs.ToString() + " (" + bpieces + "/8)";
-                    stageoffset += Read_Uint(ref decodedata, stageoffset + 0x8) + 0xc4;
+                    stageoffset += Read_BufferedUint(ref decodedata, stageoffset + 0x8) + 0xc4;
                 }
             } else {
                 //  ddc decode
+                byte[] buffer = new byte[file.Length];
+                file.Seek(0, SeekOrigin.Begin);
+                file.Read(buffer, 0, (int)file.Length);
+
+                uint length = Read_BufferedUint(ref buffer, 28);
+                uint dlength = Read_BufferedUint(ref buffer, 32);
+
+                byte[] decodedata = new byte[dlength];
+                Array.Copy(buffer, 36, buffer, 0, buffer.Length - 36);
+                decode(ref buffer, (int)length, 0x400, 0x5c, 0xe1);
+                decode(ref buffer, (int)length, 0x100, 0x7d, 0x3a);
+                decompress(ref buffer, ref decodedata, length);
+
+                uint stageoffset = 0x94, stage = decodedata[0x78];
+                if(stage > 6) {
+                    stage = 6;
+                }
+
+                replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[stage];
+
+                for(int i = 0; i < stage; ++i) {
+                    replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                    replay.splits[i].stage = decodedata[stageoffset];
+                    replay.splits[i].score = Read_BufferedUint(ref decodedata, stageoffset + 0x1c) * 10;
+                    replay.splits[i].power = ((float)Read_BufferedUint(ref decodedata, stageoffset + 0x44) / 100f).ToString("0.00");
+                    replay.splits[i].piv = (Read_BufferedUint(ref decodedata, stageoffset + 0x38) / 1000) * 10;
+                    uint lives = decodedata[stageoffset + 0x50];
+                    uint lpieces = decodedata[stageoffset + 0x54];
+                    uint bombs = decodedata[stageoffset + 0x5c];
+                    uint bpieces = decodedata[stageoffset + 0x60];
+
+                    //replay.splits[i].additional = "Lives gained: " + decodedata[stageoffset + 0x58];
+                    replay.splits[i].lives = lives.ToString() + " (" + lpieces + "/3)";   //  i dont have the piece table rn
+                    replay.splits[i].graze = Read_BufferedUint(ref decodedata, stageoffset + 0x2c);
+                    replay.splits[i].bombs = bombs.ToString() + " (" + bpieces + "/8)";
+                    stageoffset += Read_BufferedUint(ref decodedata, stageoffset + 0x8) + 0xdc;
+                }
             }
 
             return true;
@@ -766,6 +840,19 @@ namespace threplay
 
         private static bool Read_t14r(ref ReplayEntry.ReplayInfo replay)
         {
+            byte[] buffer = new byte[file.Length];
+            file.Seek(0, SeekOrigin.Begin);
+            file.Read(buffer, 0, (int)file.Length);
+
+            uint length = Read_BufferedUint(ref buffer, 28);
+            uint dlength = Read_BufferedUint(ref buffer, 32);
+
+            byte[] decodedata = new byte[dlength];
+            Array.Copy(buffer, 36, buffer, 0, buffer.Length - 36);
+            decode(ref buffer, (int)length, 0x400, 0x5c, 0xe1);
+            decode(ref buffer, (int)length, 0x100, 0x7d, 0x3a);
+            decompress(ref buffer, ref decodedata, length);
+
             return Read_t10r(ref replay);
         }
 
@@ -791,7 +878,7 @@ namespace threplay
 
         private static bool Read_t15r(ref ReplayEntry.ReplayInfo replay)
         {
-            return Read_t10r(ref replay);
+            return Read_Userdata(ref replay);
         }
 
         private static bool Read_t156(ref ReplayEntry.ReplayInfo replay)
@@ -801,17 +888,17 @@ namespace threplay
 
         private static bool Read_t16r(ref ReplayEntry.ReplayInfo replay)
         {
-            return Read_t10r(ref replay);
+            return Read_Userdata(ref replay);
         }
 
         private static bool Read_t17r(ref ReplayEntry.ReplayInfo replay)
         {
-            return Read_t10r(ref replay);
+            return Read_Userdata(ref replay);
         }
 
         private static bool Read_t18r(ref ReplayEntry.ReplayInfo replay)
         {
-            return Read_t10r(ref replay);
+            return Read_Userdata(ref replay);
         }
     }
 
