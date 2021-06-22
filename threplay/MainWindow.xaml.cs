@@ -645,11 +645,13 @@ namespace threplay
         private void fnViewReplayAdvancedInfo_Click(object sender, RoutedEventArgs e)
         {
             ReplayEntry entry = (ReplayEntry)oReplayLiveList.SelectedItem;
-            string temp = "";
-            foreach(ReplayEntry.ReplayInfo.ReplaySplits st in entry.replay.splits) {
-                temp += st.stage.ToString() + " - Score: " + st.score + " | Power: " + st.power + " | PIV: " + st.piv + " | Lives: " + st.lives + " | Graze: " + st.graze + "\n";
+            if(entry.replay.splits != null) {
+                string temp = "";
+                foreach(ReplayEntry.ReplayInfo.ReplaySplits st in entry.replay.splits) {
+                    temp += st.stage.ToString() + " - Score: " + st.score + " | Power: " + st.power + " | PIV: " + st.piv + " | Lives: " + st.lives + " | Bombs: " + st.bombs + " | " + st.additional + " | Graze: " + st.graze + "\n";
+                }
+                MessageBox.Show(temp);
             }
-            MessageBox.Show(temp);
         }
     }
 

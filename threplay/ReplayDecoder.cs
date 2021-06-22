@@ -571,6 +571,7 @@ namespace threplay
 
                 replay.splits[i].lives = lives.ToString() + " (" + pieces + "/5)";
                 replay.splits[i].graze = Read_Uint(ref decodedata, stageoffset + 0x34);
+                replay.splits[i].bombs = "0";
                 stageoffset += Read_Uint(ref decodedata, stageoffset + 0x8) + 0x90;
             }
 
@@ -580,6 +581,64 @@ namespace threplay
 
         private static bool Read_t12r(ref ReplayEntry.ReplayInfo replay)
         {
+            byte[] buffer = new byte[file.Length];
+            file.Seek(0, SeekOrigin.Begin);
+            file.Read(buffer, 0, (int)file.Length);
+
+            uint length = Read_Uint(ref buffer, 28);
+            uint dlength = Read_Uint(ref buffer, 32);
+
+            byte[] decodedata = new byte[dlength];
+            Array.Copy(buffer, 36, buffer, 0, buffer.Length - 36);
+            decode(ref buffer, (int)length, 0x800, 0x5e, 0xe1);
+            decode(ref buffer, (int)length, 0x40, 0x7d, 0x3a);
+            decompress(ref buffer, ref decodedata, length);
+
+            uint stageoffset = 0x70, stage = decodedata[0x58];
+            if(stage > 6) {
+                stage = 6;
+            }
+
+            replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[stage];
+
+            for(int i = 0; i < stage; ++i) {
+                replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                replay.splits[i].stage = decodedata[stageoffset];
+                replay.splits[i].score = Read_Uint(ref decodedata, stageoffset + 0xc) * 10;
+                replay.splits[i].power = ((float)Read_Uint(ref decodedata, stageoffset + 0x10) / 100f).ToString("0.00");
+                replay.splits[i].piv = (Read_Uint(ref decodedata, stageoffset + 0x14) / 1000) * 10;
+                uint lives = decodedata[stageoffset + 0x18];
+                uint lpieces = decodedata[stageoffset + 0x1a];
+                if(lpieces > 0) {
+                    lpieces -= 1;
+                }
+                uint bombs = decodedata[stageoffset + 0x1c];
+                uint bpieces = decodedata[stageoffset + 0x1e];
+
+                replay.splits[i].additional = "UFOs: ";
+                for(int j = 0; j < 3; ++j) {
+                    switch(decodedata[stageoffset + 0x20 + j * 4]) {
+                        case 0:
+                            replay.splits[i].additional += "None ";
+                            break;
+                        case 1:
+                            replay.splits[i].additional += "Red ";
+                            break;
+                        case 2:
+                            replay.splits[i].additional += "Blue ";
+                            break;
+                        case 3:
+                            replay.splits[i].additional += "Green ";
+                            break;
+                    }
+                }
+
+                replay.splits[i].lives = lives.ToString() + " (" + lpieces + "/4)";
+                replay.splits[i].bombs = bombs.ToString() + " (" + bpieces + "/4)";
+                replay.splits[i].graze = Read_Uint(ref decodedata, stageoffset + 0x44);
+                stageoffset += Read_Uint(ref decodedata, stageoffset + 0x8) + 0xa0;
+            }
+
             return Read_t10r(ref replay);
         }
 
@@ -738,6 +797,8 @@ namespace threplay
                 public string power;
                 public uint piv;
                 public string lives;
+                public string bombs;
+                public string additional;
                 public uint graze;
             }
         }
