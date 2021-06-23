@@ -671,7 +671,7 @@ namespace threplay
                 }
 
                 replay.splits[i].lives = lives.ToString() + " (" + lpieces + "/4)";
-                replay.splits[i].bombs = bombs.ToString() + " (" + bpieces + "/4)";
+                replay.splits[i].bombs = bombs.ToString() + " (" + bpieces + "/3)";
                 replay.splits[i].graze = Read_BufferedUint(ref decodedata, stageoffset + 0x44);
                 stageoffset += Read_BufferedUint(ref decodedata, stageoffset + 0x8) + 0xa0;
             }
@@ -835,7 +835,7 @@ namespace threplay
                 }
             }
 
-            return true;
+            return Read_Userdata(ref replay);
         }
 
         private static bool Read_t14r(ref ReplayEntry.ReplayInfo replay)
@@ -855,6 +855,7 @@ namespace threplay
 
             return Read_t10r(ref replay);
         }
+
 
         private static bool Read_t143(ref ReplayEntry.ReplayInfo replay)
         {
@@ -878,6 +879,44 @@ namespace threplay
 
         private static bool Read_t15r(ref ReplayEntry.ReplayInfo replay)
         {
+            //  td decode
+            byte[] buffer = new byte[file.Length];
+            file.Seek(0, SeekOrigin.Begin);
+            file.Read(buffer, 0, (int)file.Length);
+
+            uint length = Read_BufferedUint(ref buffer, 28);
+            uint dlength = Read_BufferedUint(ref buffer, 32);
+
+            byte[] decodedata = new byte[dlength];
+            Array.Copy(buffer, 36, buffer, 0, buffer.Length - 36);
+            decode(ref buffer, (int)length, 0x400, 0x5c, 0xe1);
+            decode(ref buffer, (int)length, 0x100, 0x7d, 0x3a);
+            decompress(ref buffer, ref decodedata, length);
+
+            uint stageoffset = 0xa4, stage = decodedata[0x88];
+            if(stage > 6) {
+                stage = 6;
+            }
+
+            replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[stage];
+
+            for(int i = 0; i < stage; ++i) {
+                replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                replay.splits[i].stage = decodedata[stageoffset];
+                replay.splits[i].score = Read_BufferedUint(ref decodedata, stageoffset + 0x30) * 10;
+                replay.splits[i].power = ((float)Read_BufferedUint(ref decodedata, stageoffset + 0x64) / 100f).ToString("0.00");
+                replay.splits[i].piv = (Read_BufferedUint(ref decodedata, stageoffset + 0x58) / 1000) * 10;
+                uint lives = decodedata[stageoffset + 0x74];
+                uint lpieces = decodedata[stageoffset + 0x78];
+                uint bombs = decodedata[stageoffset + 0x80];
+                uint bpieces = decodedata[stageoffset + 0x84];
+
+                replay.splits[i].additional = "";
+                replay.splits[i].lives = lives.ToString() + " (" + lpieces + "/3)";   //  i dont have the piece table rn
+                replay.splits[i].graze = Read_BufferedUint(ref decodedata, stageoffset + 0x40);
+                replay.splits[i].bombs = bombs.ToString() + " (" + bpieces + "/8)";
+                stageoffset += Read_BufferedUint(ref decodedata, stageoffset + 0x8) + 0x238;
+            }
             return Read_Userdata(ref replay);
         }
 
@@ -888,16 +927,19 @@ namespace threplay
 
         private static bool Read_t16r(ref ReplayEntry.ReplayInfo replay)
         {
+            
             return Read_Userdata(ref replay);
         }
 
         private static bool Read_t17r(ref ReplayEntry.ReplayInfo replay)
         {
+            
             return Read_Userdata(ref replay);
         }
 
         private static bool Read_t18r(ref ReplayEntry.ReplayInfo replay)
         {
+            
             return Read_Userdata(ref replay);
         }
     }
