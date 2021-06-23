@@ -927,19 +927,133 @@ namespace threplay
 
         private static bool Read_t16r(ref ReplayEntry.ReplayInfo replay)
         {
-            
+            //  td decode
+            byte[] buffer = new byte[file.Length];
+            file.Seek(0, SeekOrigin.Begin);
+            file.Read(buffer, 0, (int)file.Length);
+
+            uint length = Read_BufferedUint(ref buffer, 28);
+            uint dlength = Read_BufferedUint(ref buffer, 32);
+
+            byte[] decodedata = new byte[dlength];
+            Array.Copy(buffer, 36, buffer, 0, buffer.Length - 36);
+            decode(ref buffer, (int)length, 0x400, 0x5c, 0xe1);
+            decode(ref buffer, (int)length, 0x100, 0x7d, 0x3a);
+            decompress(ref buffer, ref decodedata, length);
+
+            uint stageoffset = 0xa0, stage = decodedata[0x80];
+            if(stage > 6) {
+                stage = 6;
+            }
+
+            replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[stage];
+
+            for(int i = 0; i < stage; ++i) {
+                replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                replay.splits[i].stage = decodedata[stageoffset];
+                replay.splits[i].score = Read_BufferedUint(ref decodedata, stageoffset + 0x34) * 10;
+                replay.splits[i].power = ((float)Read_BufferedUint(ref decodedata, stageoffset + 0x68) / 100f).ToString("0.00");
+                replay.splits[i].piv = (Read_BufferedUint(ref decodedata, stageoffset + 0x5c) / 1000) * 10;
+                uint lives = decodedata[stageoffset + 0x78];
+                uint lpieces = decodedata[stageoffset + 0x7c];
+                uint bombs = decodedata[stageoffset + 0x84];
+                uint bpieces = decodedata[stageoffset + 0x88];
+
+                replay.splits[i].additional = "Season: " + Read_BufferedUint(ref decodedata, stageoffset + 0x8c) + "/" + Read_BufferedUint(ref decodedata, stageoffset + 0x90);
+                replay.splits[i].lives = lives.ToString();   //  i dont have the piece table rn
+                replay.splits[i].graze = Read_BufferedUint(ref decodedata, stageoffset + 0x44);
+                replay.splits[i].bombs = bombs.ToString() + " (" + bpieces + "/5)";
+                stageoffset += Read_BufferedUint(ref decodedata, stageoffset + 0x8) + 0x294;
+            }
             return Read_Userdata(ref replay);
         }
 
         private static bool Read_t17r(ref ReplayEntry.ReplayInfo replay)
         {
-            
+            //  td decode
+            byte[] buffer = new byte[file.Length];
+            file.Seek(0, SeekOrigin.Begin);
+            file.Read(buffer, 0, (int)file.Length);
+
+            uint length = Read_BufferedUint(ref buffer, 28);
+            uint dlength = Read_BufferedUint(ref buffer, 32);
+
+            byte[] decodedata = new byte[dlength];
+            Array.Copy(buffer, 36, buffer, 0, buffer.Length - 36);
+            decode(ref buffer, (int)length, 0x400, 0x5c, 0xe1);
+            decode(ref buffer, (int)length, 0x100, 0x7d, 0x3a);
+            decompress(ref buffer, ref decodedata, length);
+
+            uint stageoffset = 0xa0, stage = decodedata[0x84];
+            if(stage > 6) {
+                stage = 6;
+            }
+
+            replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[stage];
+
+            for(int i = 0; i < stage; ++i) {
+                replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                replay.splits[i].stage = decodedata[stageoffset];
+                replay.splits[i].score = Read_BufferedUint(ref decodedata, stageoffset + 0x34) * 10;
+                replay.splits[i].power = ((float)Read_BufferedUint(ref decodedata, stageoffset + 0x68) / 100f).ToString("0.00");
+                replay.splits[i].piv = (Read_BufferedUint(ref decodedata, stageoffset + 0x5c) / 1000) * 10;
+                uint lives = decodedata[stageoffset + 0x78];
+                uint lpieces = decodedata[stageoffset + 0x7c];
+                uint bombs = decodedata[stageoffset + 0x84];
+                uint bpieces = decodedata[stageoffset + 0x88];
+
+                //  token stuff starts at 0x9c
+                //  hyper might be c8 or dc
+
+                replay.splits[i].additional = "";
+                replay.splits[i].lives = lives.ToString() + " (" + lpieces + "/3)";   //  i dont have the piece table rn
+                replay.splits[i].graze = Read_BufferedUint(ref decodedata, stageoffset + 0x44);
+                replay.splits[i].bombs = bombs.ToString() + " (" + bpieces + "/3)";
+                stageoffset += Read_BufferedUint(ref decodedata, stageoffset + 0x8) + 0x158;
+            }
             return Read_Userdata(ref replay);
         }
 
         private static bool Read_t18r(ref ReplayEntry.ReplayInfo replay)
         {
-            
+            //  td decode
+            byte[] buffer = new byte[file.Length];
+            file.Seek(0, SeekOrigin.Begin);
+            file.Read(buffer, 0, (int)file.Length);
+
+            uint length = Read_BufferedUint(ref buffer, 28);
+            uint dlength = Read_BufferedUint(ref buffer, 32);
+
+            byte[] decodedata = new byte[dlength];
+            Array.Copy(buffer, 36, buffer, 0, buffer.Length - 36);
+            decode(ref buffer, (int)length, 0x400, 0x5c, 0xe1);
+            decode(ref buffer, (int)length, 0x100, 0x7d, 0x3a);
+            decompress(ref buffer, ref decodedata, length);
+
+            uint stageoffset = 0xc8, stage = decodedata[0xa8];
+            if(stage > 6) {
+                stage = 6;
+            }
+
+            replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[stage];
+
+            for(int i = 0; i < stage; ++i) {
+                replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                replay.splits[i].stage = decodedata[stageoffset];
+                replay.splits[i].score = Read_BufferedUint(ref decodedata, stageoffset + 0x88) * 10;
+                replay.splits[i].power = ((float)Read_BufferedUint(ref decodedata, stageoffset + 0xc4) / 100f).ToString("0.00");
+                replay.splits[i].piv = Read_BufferedUint(ref decodedata, stageoffset + 0xbc);
+                uint lives = decodedata[stageoffset + 0xd4];
+                uint lpieces = decodedata[stageoffset + 0xd8];
+                uint bombs = decodedata[stageoffset + 0xe4];
+                uint bpieces = decodedata[stageoffset + 0xe8];
+
+                replay.splits[i].additional = "";
+                replay.splits[i].lives = lives.ToString() + " (" + lpieces + "/3)";   //  i dont have the piece table rn
+                replay.splits[i].graze = 0;
+                replay.splits[i].bombs = bombs.ToString() + " (" + bpieces + "/3)";
+                stageoffset += Read_BufferedUint(ref decodedata, stageoffset + 0x8) + 0x126c;
+            }
             return Read_Userdata(ref replay);
         }
     }
