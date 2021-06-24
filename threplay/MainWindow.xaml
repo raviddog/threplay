@@ -93,7 +93,7 @@
                 <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Height="32">
                     <RadioButton x:Name="idRbtnTabDir" GroupName="Nav" Checked="idRbtnTabDir_Checked" Content="Game Directories" IsChecked="False" Style="{StaticResource MaterialDesignTabRadioButton}"/>
                     <RadioButton x:Name="idRbtnTabInfo" GroupName="Nav" Checked="idRbtnTabInfo_Checked" Content="Replay Info" IsChecked="False" Style="{StaticResource MaterialDesignTabRadioButton}"/>
-                    <RadioButton x:Name="idRbtnTabPacks" GroupName="Nav" Checked="idRbtnTabPacks_Checked" Content="Replay Folders" IsChecked="False" Style="{StaticResource MaterialDesignTabRadioButton}"/>
+                    <RadioButton x:Name="idRbtnTabPacks" Visibility="Collapsed" GroupName="Nav" Checked="idRbtnTabPacks_Checked" Content="Replay Folders" IsChecked="False" Style="{StaticResource MaterialDesignTabRadioButton}"/>
                 </StackPanel>
                 <Grid DockPanel.Dock="Bottom" Height="160">
                     <Grid x:Name="odDirGrid" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -151,7 +151,7 @@
                             <Button x:Name="fnLaunchFolder" Height="24" Content="Open Game Folder" Click="FnLaunchFolder_Click" Margin="0,0,8,0" IsEnabled="False"/>
                             <Button x:Name="fnLaunchLive" Height="24" Content="Open Replay Folder" Click="FnLaunchLive_Click" Margin="0,0,8,0" IsEnabled="False"/>
                             <Button x:Name="fnLaunchBackup" Height="24" Content="Open Backup Folder" Click="FnLaunchBackup_Click" Margin="0,0,8,0" IsEnabled="False"/>
-                            <Button x:Name="fnViewReplayAdvancedInfo" Height="24" Content="stuff" Click="fnViewReplayAdvancedInfo_Click" Margin="0,0,8,0" IsEnabled="True"/>
+                            <Button x:Name="fnViewReplayAdvancedInfo" Height="24" Content="View Stage Splits" Click="fnViewReplayAdvancedInfo_Click" Margin="0,0,8,0" IsEnabled="True"/>
                         </StackPanel>
                     </Grid>
                     <Button x:Name="fnUpdate"  Content="Install Update" Height="24" Click="FnUpdate_Click" Visibility="Collapsed" IsEnabled="False" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
