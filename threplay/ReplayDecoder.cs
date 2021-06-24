@@ -446,17 +446,12 @@ namespace threplay
             string[] difficulties = new string[] { "Easy", "Normal", "Hard", "Lunatic", "Extra", "Phantasm" };
             //raw data starts at 84
             byte[] buffer = new byte[file.Length];
-
-            file.Seek(13, SeekOrigin.Begin);
-            byte key = (byte)file.ReadByte();
             file.Seek(0, SeekOrigin.Begin);
-            for (int i = 0; i < 16; i++)
+            file.Read(buffer, 0, (int)file.Length);
+
+            byte key = buffer[0x0d];
+            for (int i = 16; i < buffer.Length; ++i)
             {
-                buffer[i] = (byte)file.ReadByte();
-            }
-            for (int i = 16; i < file.Length; ++i)
-            {
-                buffer[i] = (byte)file.ReadByte();
                 buffer[i] -= key;
                 key += 7;
             }
@@ -466,11 +461,20 @@ namespace threplay
                 length += (uint)(buffer[i] << ((i - 20) * 8));
                 dlength += (uint)(buffer[i + 4] << ((i - 24) * 8));
             }
-            byte[] rawData = new byte[file.Length];
-            Array.ConstrainedCopy(buffer, 0x54, rawData, 0, buffer.Length - 0x54);
+
+            uint[] score_offsets = new uint[7];
+            uint max_stage = 0;
+            for(uint i = 0; i < 7; i++) {
+                score_offsets[i] = Read_BufferedUint(ref buffer, (uint)(0x1c + 4 * i));
+                if(score_offsets[i] != 0x00) {
+                    max_stage = i;
+                }
+            }
+
+            Array.ConstrainedCopy(buffer, 0x54, buffer, 0, buffer.Length - 0x54);
 
             byte[] decodeData = new byte[dlength];
-            uint rlength = decompress(ref rawData, ref decodeData, length);
+            uint rlength = decompress(ref buffer, ref decodeData, length);
 
             replay.character = chars[decodeData[2]];
             replay.difficulty = difficulties[decodeData[3]];
@@ -484,13 +488,42 @@ namespace threplay
                 replay.name = string.Concat(replay.name, (Convert.ToChar(decodeData[i])).ToString());
             }
 
-            uint score = 0;
-            for (int i = 24; i < 28; i++)
-            {
-                score += (uint)(decodeData[i] << ((i - 24) * 8));
-            }
+            uint score = Read_BufferedUint(ref decodeData, 24);
             score *= 10;
             replay.score = score.ToString("N0");
+
+            
+
+            if(max_stage == 6) {
+                replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[1];
+                uint offset = score_offsets[6];
+                replay.splits[0] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                replay.splits[0].stage = 7;
+                replay.splits[0].score = Read_BufferedUint(ref decodeData, offset); //  stored as end of stage score in pcb
+                replay.splits[0].piv = Read_BufferedUint(ref decodeData, offset + 0x8);// + "/" + Read_BufferedUint(ref decodeData, offset + 0xc);
+                replay.splits[0].additional = "Point Items: " + Read_BufferedUint(ref decodeData, offset + 0x4) + " | CherryMAX: " + Read_BufferedUint(ref decodeData, offset + 0xc);
+                replay.splits[0].graze = Read_BufferedUint(ref decodeData, offset + 0x14);
+                replay.splits[0].power = decodeData[offset + 0x22].ToString();
+                replay.splits[0].lives = decodeData[offset + 0x23].ToString();
+                replay.splits[0].bombs = decodeData[offset + 0x24].ToString();
+            } else {
+                max_stage += 1;
+                replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[max_stage];
+                for(uint i = 0; i < max_stage; i++) {
+                    uint offset = score_offsets[i] - 0x54;
+                    replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                    if(offset != 0x00) {
+                        replay.splits[i].stage = i + 1;
+                        replay.splits[i].score = Read_BufferedUint(ref decodeData, offset); //  stored as end of stage score in pcb
+                        replay.splits[i].piv = Read_BufferedUint(ref decodeData, offset + 0x8);// + "/" + Read_BufferedUint(ref decodeData, offset + 0xc);
+                        replay.splits[i].additional = "Point Items: " + Read_BufferedUint(ref decodeData, offset + 0x4) + " | CherryMAX: " + Read_BufferedUint(ref decodeData, offset + 0xc);
+                        replay.splits[i].graze = Read_BufferedUint(ref decodeData, offset + 0x14);
+                        replay.splits[i].power = decodeData[offset + 0x22].ToString();
+                        replay.splits[i].lives = decodeData[offset + 0x23].ToString();
+                        replay.splits[i].bombs = decodeData[offset + 0x24].ToString();
+                    }
+                }
+            }
 
             return true;
         }
