@@ -372,48 +372,70 @@ namespace threplay
             string[] chars = new string[4] { "ReimuA", "ReimuB", "MarisaA", "MarisaB" };
             string[] difficulties = new string[5] { "Easy", "Normal", "Hard", "Lunatic", "Extra" };
 
+            byte[] buffer = new byte[file.Length];
+            file.Seek(0, SeekOrigin.Begin);
+            file.Read(buffer, 0, (int)file.Length);
 
-            int[] buf = new int[2];
-            file.Seek(2, SeekOrigin.Current);   //skip version number
-            buf[0] = file.ReadByte();   //shot type
-            replay.character = chars[buf[0]];
-            buf[1] = file.ReadByte();   //difficulty
-            replay.difficulty = difficulties[buf[1]];
-            file.Seek(6, SeekOrigin.Current);   //skip checksum to encryption key
-            byte key = (byte)file.ReadByte();
 
-            byte[] buffer = new byte[65];
-            for (int i = 0; i < 65; i++)
+            replay.character = chars[buffer[0x06]];
+            replay.difficulty = difficulties[buffer[0x07]];
+            byte key = buffer[0x0e];
+            
+            for (int i = 0x0f; i < buffer.Length; i++)
             {
-                buffer[i] = (byte)file.ReadByte();
                 buffer[i] -= key;
                 key += 7;
             }
 
-            for (int i = 1; i < 10; i++) //date[9], null terminated string
+            for (int i = 0x10; buffer[i] != 0x00; i++) //date[9], null terminated string
             {
-                if (buffer[i] == 0x00) { i = 10; }
-                else
-                {
-                    replay.date = string.Concat(replay.date, Convert.ToChar(buffer[i]).ToString());
+                replay.date = string.Concat(replay.date, Convert.ToChar(buffer[i]).ToString());
+            }
+
+            for (int i = 0x19; buffer[i] != 0x00; i++)
+            {
+                replay.name = string.Concat(replay.name, Convert.ToChar(buffer[i]).ToString());
+            }
+
+            replay.score = Read_BufferedUint(ref buffer, 0x24).ToString("N0");
+
+            uint[] score_offsets = new uint[7];
+            uint max_stage = 0;
+            for(uint i = 0; i < 7; i++) {
+                score_offsets[i] = Read_BufferedUint(ref buffer, (uint)(0x34 + 4 * i));
+                if(score_offsets[i] != 0x00) {
+                    max_stage = i;
                 }
             }
 
-            for (int i = 10; i < 19; i++)
-            {
-                if (buffer[i] == 0x00) { i = 19; }
-                else
-                {
-                    replay.name = string.Concat(replay.name, Convert.ToChar(buffer[i]).ToString());
+            if(max_stage == 6) {
+                replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[1];
+                uint offset = score_offsets[6];
+                replay.splits[0] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                replay.splits[0].stage = 7;
+                replay.splits[0].score = Read_BufferedUint(ref buffer, offset);
+                replay.splits[0].power = buffer[offset + 0x8].ToString();
+                replay.splits[0].lives = buffer[offset + 0x9].ToString();
+                replay.splits[0].bombs = buffer[offset + 0xa].ToString();
+                replay.splits[0].additional = "Rank: " + buffer[offset + 0xb];
+            } else {
+                max_stage += 1;
+                replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[max_stage];
+                for(uint i = 0; i < max_stage; i++) {
+                    uint offset = score_offsets[i];
+                        replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                    if(offset != 0x00) {
+                        replay.splits[i].stage = i + 1;
+                        replay.splits[i].score = Read_BufferedUint(ref buffer, offset);
+                        replay.splits[i].power = buffer[offset + 0x8].ToString();
+                        replay.splits[i].lives = buffer[offset + 0x9].ToString();
+                        replay.splits[i].bombs = buffer[offset + 0xa].ToString();
+                        replay.splits[i].additional = "Rank: " + buffer[offset + 0xb];
+                    }
                 }
             }
 
-            uint score = new uint();
-            for (int i = 21; i < 25; i++)
-            {
-                score += (uint)buffer[i] << ((i - 21) * 8);
-            }
-            replay.score = score.ToString("N0");
+
 
             return true;
         }
