@@ -272,16 +272,13 @@ namespace threplay
                             File.Copy(Directory.GetParent(games[i].dirLive) + "\\" + GameData.scorefileJ[i], games[i].dirBackup + "\\" + GameData.scorefileJ[i], true);
                         } catch {
                             success = false;
-                            break;
                         }
                         FileInfo scorefile = new FileInfo(games[i].dirBackup + "\\" + GameData.scorefileJ[i]);
                         if(i == currentGame) {
                             scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
                         }
-                        break;
                     } else {
                         success = false;
-                        break;
                     }
                 } else {
                     if(File.Exists(Directory.GetParent(games[i].dirLive) + "\\score" + GameData.setting[i] + ".dat")) {
@@ -289,16 +286,13 @@ namespace threplay
                             File.Copy(Directory.GetParent(games[i].dirLive) + "\\score" + GameData.setting[i] + ".dat", games[i].dirBackup + "\\score" + GameData.setting[i] + ".dat", true);
                         } catch {
                             success = false;
-                            break;
                         }
                         FileInfo scorefile = new FileInfo(games[i].dirBackup + "\\score" + GameData.setting[i] + ".dat");
                         if(i == currentGame) {
                             scoreBackupDate.Text = scorefile.LastWriteTime.ToShortDateString();
                         }
-                        break;
                     } else {
                         success = false;
-                        break;
                     }
                 }
             }
