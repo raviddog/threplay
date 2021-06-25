@@ -574,25 +574,20 @@ namespace threplay
                     "\\ShanghaiAlice\\";
             MessageBoxResult msg;
             if(Directory.Exists(path)) {
-                msg = MessageBoxResult.No;
-                msg = MessageBox.Show("Found the %appdata%\\ShanghaiAlice\\ folder. Would you like to try and autodetect existing modern replay folders?", "Info", MessageBoxButton.YesNo, MessageBoxImage.Information);
-
-                if(msg == MessageBoxResult.Yes) {
-                    int count = 0;
-                    for(int i = 0; i < GameData.setting.Length; i++) {
-                        if(GameData.scorefileJ[i] == null) {
-                            //  is in appdata
-                            string repPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
-                                "\\ShanghaiAlice\\" + GameData.setting[i] + "\\replay";
-                            if(Directory.Exists(repPath)) {
-                                GameHandler.currentGame = i;
-                                GameHandler.SetLive(repPath);
-                                count++;
-                            }
+                int count = 0;
+                for(int i = 0; i < GameData.setting.Length; i++) {
+                    if(GameData.scorefileJ[i] == null) {
+                        //  is in appdata
+                        string repPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
+                            "\\ShanghaiAlice\\" + GameData.setting[i] + "\\replay";
+                        if(Directory.Exists(repPath)) {
+                            GameHandler.currentGame = i;
+                            GameHandler.SetLive(repPath);
+                            count++;
                         }
                     }
-                    MessageBox.Show("Updated " + count + " folders.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
+                MessageBox.Show("Detected " + count + " replay folders in %appdata%\\ShanghaiAlice\\", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
             }
 
             msg = MessageBoxResult.No;
@@ -645,14 +640,44 @@ namespace threplay
         private void fnViewReplayAdvancedInfo_Click(object sender, RoutedEventArgs e)
         {
             ReplayEntry entry = (ReplayEntry)oReplayLiveList.SelectedItem;
-            if(entry.replay.splits != null) {
+            if(entry != null && entry.replay.splits != null) {
                 string temp = "";
                 foreach(ReplayEntry.ReplayInfo.ReplaySplits st in entry.replay.splits) {
                     if(st != null) {
-                        temp += st.stage.ToString() + " - Score: " + st.score + " | Power: " + st.power + " | PIV: " + st.piv + " | Lives: " + st.lives + " | Bombs: " + st.bombs + " | " + st.additional + " | Graze: " + st.graze + "\n";
+                        temp += st.stage.ToString() + " - Score: " + st.score.ToString("N0") + " | Power: " + st.power + " | PIV: " + st.piv.ToString("N0") + " | Lives: " + st.lives + " | Bombs: " + st.bombs + " | " + st.additional + " | Graze: " + st.graze.ToString("N0") + "\n";
                     }
                 }
                 MessageBox.Show(temp);
+            } else {
+                SetErrorMessage("No replay data available");
+            }
+        }
+
+        private void fnSetAllBackup_Click(object sender, RoutedEventArgs e)
+        {
+            VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog();
+            dialog.Description = "Please select a folder";
+            dialog.UseDescriptionForTitle = true;
+            if((bool)dialog.ShowDialog(this)) {
+                if(!GameHandler.SetAllBackup(dialog.SelectedPath)) {
+                    SetErrorMessage("Some folders failed to be set");
+                };
+            }
+        }
+
+        private void fnViewBackupReplayAdvancedInfo_Click(object sender, RoutedEventArgs e)
+        {
+            ReplayEntry entry = (ReplayEntry)oReplayBackupList.SelectedItem;
+            if(entry != null && entry.replay.splits != null) {
+                string temp = "";
+                foreach(ReplayEntry.ReplayInfo.ReplaySplits st in entry.replay.splits) {
+                    if(st != null) {
+                        temp += st.stage.ToString() + " - Score: " + st.score.ToString("N0") + " | Power: " + st.power + " | PIV: " + st.piv.ToString("N0") + " | Lives: " + st.lives + " | Bombs: " + st.bombs + " | " + st.additional + " | Graze: " + st.graze.ToString("N0") + "\n";
+                    }
+                }
+                MessageBox.Show(temp);
+            } else {
+                SetErrorMessage("No replay data available");
             }
         }
     }

@@ -68,16 +68,7 @@ namespace threplay
 
         private void FnSettingsSetBackup_Click(object sender, RoutedEventArgs e)
         {
-            VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog();
-            dialog.Description = "Please select a folder";
-            dialog.UseDescriptionForTitle = true;
-            if((bool)dialog.ShowDialog(this))
-            {
-                if (!GameHandler.SetAllBackup(dialog.SelectedPath))
-                {
-                    MessageBox.Show("Some folders failed to be set");
-                };
-            }
+            
         }
 
         private void Window_Closed(object sender, EventArgs e)

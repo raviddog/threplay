@@ -578,7 +578,7 @@ namespace threplay
 
             if(max_stage == score_offsets.Length - 1) {
                 replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[1];
-                uint offset = score_offsets[score_offsets.Length - 1];
+                uint offset = score_offsets[score_offsets.Length - 1] - 0x68;
                 replay.splits[0] = new ReplayEntry.ReplayInfo.ReplaySplits();
                 replay.splits[0].stage = 7;
                 replay.splits[0].score = Read_BufferedUint(ref decodeData, offset) * 10; //  stored as end of stage score in pcb
