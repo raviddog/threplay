@@ -842,7 +842,7 @@ namespace threplay
         {
             if (!JumpToUser(12)) return false;
 
-            UInt32 length = ReadUInt32();
+            ReadUInt32();
             file.Seek(4, SeekOrigin.Current);
             ReadStringANSI();
             ReadStringANSI();
@@ -859,6 +859,40 @@ namespace threplay
             file.Seek(6, SeekOrigin.Current);
             long.TryParse(ReadStringANSI() + "0", out long scoreConv);  //replay stores the value without the 0
             replay.score = scoreConv.ToString("N0");
+
+            //----------------------
+
+            byte[] buffer = new byte[file.Length];
+            file.Seek(0, SeekOrigin.Begin);
+            file.Read(buffer, 0, (int)file.Length);
+
+            uint length = Read_BufferedUint(ref buffer, 28);
+            uint dlength = Read_BufferedUint(ref buffer, 32);
+
+            byte[] decodedata = new byte[dlength];
+            Array.Copy(buffer, 36, buffer, 0, buffer.Length - 36);
+            decode(ref buffer, (int)length, 0x800, 0x5e, 0xe7);
+            decode(ref buffer, (int)length, 0x80, 0x7d, 0x36);
+            decompress(ref buffer, ref decodedata, length);
+
+            uint stageoffset = 0x70, stage = decodedata[0x58];
+
+            replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[stage];
+
+            for(int i = 0; i < stage; ++i) {
+                replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                //replay.splits[i].stage = decodedata[stageoffset];
+                replay.splits[i].score = Read_BufferedUint(ref decodedata, stageoffset + 0xc) * 10;
+                replay.splits[i].power = (Read_BufferedUint(ref decodedata, stageoffset + 0x10) + 1).ToString();
+                replay.splits[i].lives = (Read_BufferedUint(ref decodedata, stageoffset + 0x80) / 100).ToString() + "%";
+                replay.splits[i].bombs = (Read_BufferedUint(ref decodedata, stageoffset + 0x84) / 100).ToString() + "%";
+                replay.splits[i].additional = "Freeze Area: " + ((int)System.BitConverter.ToSingle(decodedata, (int)stageoffset + 0x88)).ToString() + "%";
+                ;
+
+                
+                stageoffset += Read_BufferedUint(ref decodedata, stageoffset + 0x8) + 0x90;
+            }
+
 
             return true;
         }
