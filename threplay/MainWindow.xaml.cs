@@ -340,7 +340,7 @@ namespace threplay
             {
                 ReplayEntry replayEntry = (ReplayEntry)oReplayLiveList.SelectedItem;
                 odFileNameLive.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
-                GameReplayDecoder.ReadFile(ref replayEntry);
+                //GameReplayDecoder.ReadFile(ref replayEntry);
                 if(replayEntry.replay != null)
                 {
                     odFileDataLive.Text = replayEntry.replay.name;
@@ -381,7 +381,7 @@ namespace threplay
             {
                 ReplayEntry replayEntry = (ReplayEntry)oReplayBackupList.SelectedItem;
                 odFileNameBackup.Text = Path.GetFileNameWithoutExtension(replayEntry.Filename);
-                GameReplayDecoder.ReadFile(ref replayEntry);
+                //GameReplayDecoder.ReadFile(ref replayEntry);
                 if (replayEntry.replay != null)
                 {
                     odFileDataBackup.Text = replayEntry.replay.name;
@@ -648,7 +648,9 @@ namespace threplay
             if(entry.replay.splits != null) {
                 string temp = "";
                 foreach(ReplayEntry.ReplayInfo.ReplaySplits st in entry.replay.splits) {
-                    temp += st.stage.ToString() + " - Score: " + st.score + " | Power: " + st.power + " | PIV: " + st.piv + " | Lives: " + st.lives + " | Bombs: " + st.bombs + " | " + st.additional + " | Graze: " + st.graze + "\n";
+                    if(st != null) {
+                        temp += st.stage.ToString() + " - Score: " + st.score + " | Power: " + st.power + " | PIV: " + st.piv + " | Lives: " + st.lives + " | Bombs: " + st.bombs + " | " + st.additional + " | Graze: " + st.graze + "\n";
+                    }
                 }
                 MessageBox.Show(temp);
             }

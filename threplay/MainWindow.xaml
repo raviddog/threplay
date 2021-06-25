@@ -173,9 +173,11 @@
                                       AllowDrop="True" Drop="OReplayLiveList_Drop">
                                 <ListView.View>
                                     <GridView>
-                                        <GridViewColumn Header="Filename" Width="130" DisplayMemberBinding="{Binding Filename}" />
-                                        <GridViewColumn Header="Date" Width="110" DisplayMemberBinding="{Binding Date}" />
-                                        <GridViewColumn Header="Size" Width="90" DisplayMemberBinding="{Binding Filesize}" />
+                                        <GridViewColumn Header="Filename" Width="120" DisplayMemberBinding="{Binding Filename}" />
+                                        <GridViewColumn Header="Name" Width="100" DisplayMemberBinding="{Binding ReplayName}" />
+                                        <GridViewColumn Header="Difficulty" Width="120" DisplayMemberBinding="{Binding ReplayDifficulty}"/>
+                                        <!--GridViewColumn Header="Date" Width="110" DisplayMemberBinding="{Binding Date}" />-->
+                                        <!--GridViewColumn Header="Size" Width="90" DisplayMemberBinding="{Binding Filesize}" />-->
                                     </GridView>
                                 </ListView.View>
                             </ListView>
@@ -187,9 +189,11 @@
                                       AllowDrop="True" Drop="OReplayBackupList_Drop">
                                 <ListView.View>
                                     <GridView>
-                                        <GridViewColumn Header="Filename" Width="130" DisplayMemberBinding="{Binding Filename}" />
-                                        <GridViewColumn Header="Date" Width="110" DisplayMemberBinding="{Binding Date}" />
-                                        <GridViewColumn Header="Size" Width="90" DisplayMemberBinding="{Binding Filesize}" />
+                                        <GridViewColumn Header="Filename" Width="120" DisplayMemberBinding="{Binding Filename}" />
+                                        <GridViewColumn Header="Name" Width="100" DisplayMemberBinding="{Binding ReplayName}" />
+                                        <GridViewColumn Header="Difficulty" Width="120" DisplayMemberBinding="{Binding ReplayDifficulty}"/>
+                                        <!--GridViewColumn Header="Date" Width="110" DisplayMemberBinding="{Binding Date}" />-->
+                                        <!--GridViewColumn Header="Size" Width="90" DisplayMemberBinding="{Binding Filesize}" />-->
                                     </GridView>
                                 </ListView.View>
                             </ListView>

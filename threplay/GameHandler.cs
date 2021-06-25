@@ -692,9 +692,9 @@ namespace threplay
                                 FullPath = curFile.FullName,
                                 Date = curFile.LastWriteTime.ToString("yy/MM/dd HH:mm")
                             };
-                            //GameReplayDecoder.ReadFile(ref replayInfo);
+                            GameReplayDecoder.ReadFile(ref replayInfo);
                             //if(replayInfo.replay.game == number)
-                            
+
                             replayListLive.Add(replayInfo);
                             
                         }
@@ -730,9 +730,9 @@ namespace threplay
                                 FullPath = curFile.FullName,
                                 Date = curFile.LastWriteTime.ToString("yy/MM/dd HH:mm")
                             };
-                            //GameReplayDecoder.ReadFile(ref replayInfo);
+                            GameReplayDecoder.ReadFile(ref replayInfo);
                             //if(replayInfo.replay.game == number)
-                            
+
                             replayListBackup.Add(replayInfo);
                             
                         }
