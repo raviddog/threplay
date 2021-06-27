@@ -643,8 +643,10 @@ namespace threplay
             if(entry != null && entry.replay.splits != null) {
                 string temp = "";
                 foreach(ReplayEntry.ReplayInfo.ReplaySplits st in entry.replay.splits) {
-                    if(st != null) {
+                    if(entry.replay.game != 3) {
                         temp += st.stage.ToString() + " - Score: " + st.score.ToString("N0") + " | Power: " + st.power + " | PIV: " + st.piv.ToString("N0") + " | Lives: " + st.lives + " | Bombs: " + st.bombs + " | " + st.additional + " | Graze: " + st.graze.ToString("N0") + "\n";
+                    } else {
+                        temp += st.stage.ToString() + " - Score: " + st.score.ToString("N0") + " | Lives: " + st.lives + " | " + st.additional + "\n";
                     }
                 }
                 MessageBox.Show(temp);
@@ -672,7 +674,11 @@ namespace threplay
                 string temp = "";
                 foreach(ReplayEntry.ReplayInfo.ReplaySplits st in entry.replay.splits) {
                     if(st != null) {
-                        temp += st.stage.ToString() + " - Score: " + st.score.ToString("N0") + " | Power: " + st.power + " | PIV: " + st.piv.ToString("N0") + " | Lives: " + st.lives + " | Bombs: " + st.bombs + " | " + st.additional + " | Graze: " + st.graze.ToString("N0") + "\n";
+                        if(entry.replay.game != 3) {
+                            temp += st.stage.ToString() + " - Score: " + st.score.ToString("N0") + " | Power: " + st.power + " | PIV: " + st.piv.ToString("N0") + " | Lives: " + st.lives + " | Bombs: " + st.bombs + " | " + st.additional + " | Graze: " + st.graze.ToString("N0") + "\n";
+                        } else {
+                            temp += st.stage.ToString() + " - Score: " + st.score.ToString("N0") + " | Lives: " + st.lives + " | " + st.additional + "\n";
+                        }
                     }
                 }
                 MessageBox.Show(temp);

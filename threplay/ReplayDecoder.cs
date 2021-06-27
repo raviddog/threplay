@@ -636,9 +636,11 @@ namespace threplay
 
         private static bool Read_T9RP(ref ReplayEntry.ReplayInfo replay)
         {
+            string[] chars = { "Reimu", "Marisa", "Sakuya", "Youmu", "Reisen", "Cirno", "Lyrica", "Mystia", "Tewi", "Aya", "Medicine", "Yuuka", "Komachi", "Eiki", "Merlin", "Lunasa" };
+
             if (!JumpToUser(12)) return false;
 
-            UInt32 length = ReadUInt32();
+            ReadUInt32();
             file.Seek(17, SeekOrigin.Current);
             replay.name = ReadStringANSI();
             file.Seek(11, SeekOrigin.Current);
@@ -647,6 +649,50 @@ namespace threplay
             replay.difficulty = ReadStringANSI();
             file.Seek(8, SeekOrigin.Current);
             replay.stage = ReadStringANSI();
+
+            //-----------------------
+
+            byte[] buffer = new byte[file.Length];
+            file.Seek(0, SeekOrigin.Begin);
+            file.Read(buffer, 0, (int)file.Length);
+
+            byte key = buffer[0x15];
+            uint length = Read_BufferedUint(ref buffer, 0x0c);
+            for(int i = 24; i < buffer.Length; ++i) {
+                buffer[i] -= key;
+                key += 7;
+            }
+            uint dlength = Read_BufferedUint(ref buffer, 0x1c);
+
+            uint[] score_offsets = new uint[10];
+            uint[] score_offsets_p2 = new uint[10];
+            uint max_stage = 0;
+            for(uint i = 0; i < score_offsets.Length; i++) {
+                score_offsets[i] = Read_BufferedUint(ref buffer, (uint)(0x20 + 4 * i));
+                score_offsets_p2[i] = Read_BufferedUint(ref buffer, (uint)(0x48 + 4 * i));
+                if(score_offsets[i] != 0x00) {
+                    max_stage = i;
+                }
+            }
+
+            Array.ConstrainedCopy(buffer, 0xc0, buffer, 0, buffer.Length - 0xc0);
+
+            byte[] decodeData = new byte[dlength];
+            uint rlength = decompress(ref buffer, ref decodeData, length - 0xc0);
+
+            max_stage += 1;
+            replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[max_stage];
+            for(uint i = 0; i < max_stage; i++) {
+                if(score_offsets[i] != 0x00) {
+                    replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                    uint offset = score_offsets[i] - 0xc0;
+                    uint offset_p2 = score_offsets_p2[i] - 0xc0;
+                    replay.splits[i].score = Read_BufferedUint(ref decodeData, offset) * 10; //  stored as end of stage score in pcb
+                    replay.splits[i].lives = decodeData[offset + 0x8].ToString();
+                    replay.splits[i].additional = chars[decodeData[offset + 0x6]] + " vs " + chars[decodeData[offset_p2 + 0x6]];
+                }
+            }
+
             return true;
         }
 
