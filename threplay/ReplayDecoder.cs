@@ -636,7 +636,7 @@ namespace threplay
 
         private static bool Read_T9RP(ref ReplayEntry.ReplayInfo replay)
         {
-            string[] chars = { "Reimu", "Marisa", "Sakuya", "Youmu", "Reisen", "Cirno", "Lyrica", "Mystia", "Tewi", "Aya", "Medicine", "Yuuka", "Komachi", "Eiki", "Merlin", "Lunasa" };
+            string[] chars = { "Reimu", "Marisa", "Sakuya", "Youmu", "Reisen", "Cirno", "Lyrica", "Mystia", "Tewi", "Yuuka", "Aya", "Medicine", "Komachi", "Eiki", "Merlin", "Lunasa" };
 
             if (!JumpToUser(12)) return false;
 
@@ -664,15 +664,17 @@ namespace threplay
             }
             uint dlength = Read_BufferedUint(ref buffer, 0x1c);
 
-            uint[] score_offsets = new uint[10];
-            uint[] score_offsets_p2 = new uint[10];
+            uint[] score_offset = new uint[40];
+
             uint max_stage = 0;
-            for(uint i = 0; i < score_offsets.Length; i++) {
-                score_offsets[i] = Read_BufferedUint(ref buffer, (uint)(0x20 + 4 * i));
-                score_offsets_p2[i] = Read_BufferedUint(ref buffer, (uint)(0x48 + 4 * i));
-                if(score_offsets[i] != 0x00) {
+            for(uint i = 0; i < 10; i++) {
+                score_offset[i] = Read_BufferedUint(ref buffer, (uint)(0x20 + 4 * i));
+                if(score_offset[i] != 0x00) {
                     max_stage = i;
                 }
+            }
+            for(uint i = 10; i < 40; i++) {
+                score_offset[i] = Read_BufferedUint(ref buffer, (uint)(0x20 + 4 * i));
             }
 
             Array.ConstrainedCopy(buffer, 0xc0, buffer, 0, buffer.Length - 0xc0);
@@ -681,16 +683,25 @@ namespace threplay
             uint rlength = decompress(ref buffer, ref decodeData, length - 0xc0);
 
             max_stage += 1;
-            replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[max_stage];
-            for(uint i = 0; i < max_stage; i++) {
-                if(score_offsets[i] != 0x00) {
-                    replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
-                    uint offset = score_offsets[i] - 0xc0;
-                    uint offset_p2 = score_offsets_p2[i] - 0xc0;
-                    replay.splits[i].score = Read_BufferedUint(ref decodeData, offset) * 10; //  stored as end of stage score in pcb
-                    replay.splits[i].lives = decodeData[offset + 0x8].ToString();
-                    replay.splits[i].additional = chars[decodeData[offset + 0x6]] + " vs " + chars[decodeData[offset_p2 + 0x6]];
+            if(score_offset[9] == 0x00) {
+                replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[max_stage];
+                //  story mode
+                for(uint i = 0; i < max_stage; i++) {
+                    if(score_offset[i] != 0x00) {
+                        replay.splits[i] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                        replay.splits[i].stage = i + 1;
+                        uint offset = score_offset[i] - 0xc0;
+                        uint offset_p2 = score_offset[10 + i] - 0xc0;
+                        replay.splits[i].score = Read_BufferedUint(ref decodeData, offset) * 10; //  stored as end of stage score in pcb
+                        replay.splits[i].lives = decodeData[offset + 0x8].ToString();
+                        replay.splits[i].additional = chars[decodeData[offset + 0x6]] + " vs " + chars[decodeData[offset_p2 + 0x6]];
+                    }
                 }
+            } else {
+                //  vs
+                replay.splits = new ReplayEntry.ReplayInfo.ReplaySplits[1];
+                replay.splits[0] = new ReplayEntry.ReplayInfo.ReplaySplits();
+                replay.splits[0].additional = chars[decodeData[score_offset[9] - 0xc0 + 0x6]] + " vs " + chars[decodeData[score_offset[19] - 0xc0 + 0x6]];
             }
 
             return true;
