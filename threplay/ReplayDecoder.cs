@@ -1276,7 +1276,18 @@ namespace threplay
                 uint bombs = decodedata[stageoffset + 0xe4];
                 uint bpieces = decodedata[stageoffset + 0xe8];
 
-                replay.splits[i].additional = "";
+                replay.splits[i].additional = "Cards: ";
+                uint cb = 0x160;
+
+                for(; (int)Read_BufferedUint(ref decodedata, stageoffset + cb) != -1 && cb < 1376; cb += 4)
+                {
+                    replay.splits[i].additional += Read_BufferedUint(ref decodedata, stageoffset + cb) + " ";
+                }
+
+                replay.splits[i].additional += "| Active: " + Read_BufferedUint(ref decodedata, stageoffset + 2400);
+
+
+
                 replay.splits[i].lives = lives.ToString() + " (" + lpieces + "/3)";   //  i dont have the piece table rn
                 replay.splits[i].graze = 0;
                 replay.splits[i].bombs = bombs.ToString() + " (" + bpieces + "/3)";
